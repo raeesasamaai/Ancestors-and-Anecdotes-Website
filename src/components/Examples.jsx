@@ -83,6 +83,7 @@ const exampleDetails = [
 function ExampleModal({ example, onClose }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const onCloseRef = useRef(onClose);
+  const previousExampleIdRef = useRef(example?.id);
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -124,7 +125,17 @@ function ExampleModal({ example, onClose }) {
 };
 
   useEffect(() => {
-    setCurrentSlide(0);
+    if (previousExampleIdRef.current === example?.id) {
+      return undefined;
+    }
+
+    previousExampleIdRef.current = example?.id;
+
+    const resetTimer = window.setTimeout(() => {
+      setCurrentSlide(0);
+    }, 0);
+
+    return () => window.clearTimeout(resetTimer);
   }, [example?.id]);
 
   /*
@@ -196,7 +207,7 @@ function ExampleModal({ example, onClose }) {
         html.style.scrollBehavior = previous.htmlScrollBehavior;
       });
     };
-  }, [example?.id]);
+  }, [example]);
 
   /* Keyboard navigation and Escape-to-close. */
   useEffect(() => {
@@ -228,7 +239,7 @@ function ExampleModal({ example, onClose }) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [example?.id, totalSlides]);
+  }, [example, totalSlides]);
 
   /* Automatically advance the slideshow when more than one item exists. */
   useEffect(() => {
@@ -243,7 +254,7 @@ function ExampleModal({ example, onClose }) {
     }, 5000);
 
     return () => window.clearTimeout(timer);
-  }, [example?.id, currentSlide, totalSlides, activeMedia?.type]);
+  }, [example, currentSlide, totalSlides, activeMedia?.type]);
 
   if (typeof document === "undefined") return null;
 

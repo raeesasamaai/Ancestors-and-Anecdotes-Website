@@ -39,7 +39,13 @@ export default function ContactUs() {
   useEffect(() => {
     if (!state.succeeded) return;
 
-    setFormData(initialFormData);
+    const resetTimer = window.setTimeout(() => {
+      setFormData(initialFormData);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(resetTimer);
+    };
   }, [state.succeeded]);
 
   const inputClasses = `

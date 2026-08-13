@@ -1,5 +1,7 @@
 import { Resend } from "resend";
 
+const processEnv = globalThis.process?.env ?? {};
+
 function createJsonResponse(data, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(data), {
     status,
@@ -84,26 +86,26 @@ export default {
      * Environment variables.
      */
     const apiKey = cleanText(
-      process.env.RESEND_API_KEY,
+      processEnv.RESEND_API_KEY,
       500,
     );
 
     const testMode = isEnabled(
-      process.env.RESEND_TEST_MODE,
+      processEnv.RESEND_TEST_MODE,
     );
 
     const testEmail = cleanText(
-      process.env.RESEND_TEST_EMAIL,
+      processEnv.RESEND_TEST_EMAIL,
       254,
     ).toLowerCase();
 
     const configuredFromEmail = cleanText(
-      process.env.RESEND_FROM_EMAIL,
+      processEnv.RESEND_FROM_EMAIL,
       320,
     );
 
     const configuredAdminEmail = cleanText(
-      process.env.CONTACT_ADMIN_EMAIL,
+      processEnv.CONTACT_ADMIN_EMAIL,
       254,
     ).toLowerCase();
 

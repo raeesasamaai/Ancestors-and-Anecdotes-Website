@@ -1,9 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 export default function ExampleModal({ example, onClose }) {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const previousExampleIdRef = useRef(example?.id);
 
   const dialogRef = useRef(null);
   const closeButtonRef = useRef(null);
@@ -13,25 +14,35 @@ export default function ExampleModal({ example, onClose }) {
   const totalSlides = media.length;
   const activeMedia = media[currentSlide];
 
-  const showPrevious = () => {
+  const showPrevious = useCallback(() => {
     if (totalSlides <= 1) return;
 
     setCurrentSlide((current) =>
       current === 0 ? totalSlides - 1 : current - 1
     );
-  };
+  }, [totalSlides]);
 
-  const showNext = () => {
+  const showNext = useCallback(() => {
     if (totalSlides <= 1) return;
 
     setCurrentSlide((current) =>
       current === totalSlides - 1 ? 0 : current + 1
     );
-  };
+  }, [totalSlides]);
 
   // Reset the slideshow when another example opens.
   useEffect(() => {
-    setCurrentSlide(0);
+    if (previousExampleIdRef.current === example?.id) {
+      return undefined;
+    }
+
+    previousExampleIdRef.current = example?.id;
+
+    const resetTimer = window.setTimeout(() => {
+      setCurrentSlide(0);
+    }, 0);
+
+    return () => window.clearTimeout(resetTimer);
   }, [example?.id]);
 
   useEffect(() => {
@@ -114,7 +125,7 @@ export default function ExampleModal({ example, onClose }) {
 
       previousFocusRef.current?.focus?.();
     };
-  }, [example, onClose, totalSlides]);
+  }, [example, onClose, showNext, showPrevious]);
 
   if (typeof document === "undefined") {
     return null;

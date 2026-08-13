@@ -12,78 +12,9 @@ function AboutIllustration({ className = "" }) {
         ${className}
       `.trim()}
     >
-      <div
-        className="
-          absolute
-          left-[22%]
-          top-[39%]
-          h-[9%]
-          w-[9%]
-          rounded-full
-          bg-[#f4f5f6]
-        "
-      />
-
-      <div
-        className="
-          absolute
-          -bottom-[22%]
-          -left-[14%]
-          h-[66%]
-          w-[58%]
-          rounded-[50%]
-          bg-[#f4f5f6]
-        "
-      />
-
-      <div
-        className="
-          absolute
-          -bottom-[18%]
-          left-[28%]
-          h-[72%]
-          w-[76%]
-          rounded-[50%]
-          bg-[#f4f5f6]
-        "
-      />
-    </div>
-  );
-}
-
-function AboutRow({
-  reverse = false,
-  imageHeightClassName,
-  children,
-}) {
-  return (
-    <div
-      className={`
-        grid
-        items-center
-        gap-x-10
-        gap-y-10
-        lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.85fr)]
-        lg:gap-x-[3.2rem]
-        xl:gap-x-[4.2rem]
-        ${reverse ? "lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1" : ""}
-      `.trim()}
-    >
-      <ScrollReveal as="div">
-        <AboutIllustration
-          className={`h-[16rem] w-full sm:h-[20rem] md:h-[24rem] lg:h-[${imageHeightClassName}]`.replace(
-            "[16rem]",
-            "16rem"
-          )}
-        />
-      </ScrollReveal>
-
-      <ScrollReveal
-        as="div"
-        className="section-body max-w-[34rem] text-[1.28rem] leading-[1.42] text-[#3e342f] sm:text-[1.45rem] lg:text-[1.05rem] xl:text-[1.2rem]"
-      >
-        {children}
-      </ScrollReveal>
+      <div className="absolute left-[22%] top-[39%] h-[9%] w-[9%] rounded-full bg-[#f4f5f6]" />
+      <div className="absolute -bottom-[22%] -left-[14%] h-[66%] w-[58%] rounded-[50%] bg-[#f4f5f6]" />
+      <div className="absolute -bottom-[18%] left-[28%] h-[72%] w-[76%] rounded-[50%] bg-[#f4f5f6]" />
     </div>
   );
 }
@@ -93,20 +24,7 @@ export default function AboutUs() {
     <section
       id="about-us"
       data-cursor-theme="dark"
-      className="
-        relative
-        overflow-hidden
-        bg-[#f6e5c0]
-        px-6
-        py-16
-        text-[#1c1c1c]
-        sm:px-8
-        sm:py-20
-        md:px-12
-        lg:px-16
-        lg:py-24
-        xl:px-20
-      "
+      className="relative overflow-hidden bg-[#f6e5c0] px-6 py-16 text-[#1c1c1c] sm:px-8 sm:py-20 md:px-12 lg:px-16 lg:py-24 xl:px-20"
     >
       <div className="mx-auto max-w-[111rem]">
         <ScrollReveal
@@ -119,19 +37,7 @@ export default function AboutUs() {
 
         <ScrollReveal
           as="h2"
-          className="
-            max-w-[12ch]
-            font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
-            text-[2.35rem]
-            font-normal
-            leading-[1.08]
-            text-[#8a5424]
-            sm:max-w-none
-            sm:text-[3.05rem]
-            md:text-[3.5rem]
-            lg:text-[3.95rem]
-            xl:text-[4.35rem]
-          "
+          className="max-w-[12ch] font-['Book_Antiqua','Palatino_Linotype',Palatino,serif] text-[2.35rem] font-normal leading-[1.08] text-[#8a5424] sm:max-w-none sm:text-[3.05rem] md:text-[3.5rem] lg:text-[3.95rem] xl:text-[4.35rem]"
         >
           The People Behind Ancestors &amp; Anecdotes
         </ScrollReveal>

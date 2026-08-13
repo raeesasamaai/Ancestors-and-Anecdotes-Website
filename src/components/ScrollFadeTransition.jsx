@@ -10,7 +10,6 @@ export default function ScrollFadeTransition({
   start = "top bottom",
   end = "top 20%",
   fadeInNext = true,
-  scalePrevious = 0.98,
 }) {
   useGSAP(
     () => {

@@ -52,17 +52,24 @@ export default function SharedNavbar({
       const section = document.getElementById(sectionId);
 
       if (section) {
+        if (href === "#what-we-do") {
+          window.history.pushState(null, "", href);
+          section.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+          return;
+        }
+
         const computedScrollPaddingTop = Number.parseFloat(
           window.getComputedStyle(document.documentElement).scrollPaddingTop
         );
         const sectionTop = section.getBoundingClientRect().top + window.scrollY;
         const targetTop =
-          href === "#what-we-do"
-            ? sectionTop
-            : Math.max(
-                sectionTop - (Number.isNaN(computedScrollPaddingTop) ? 0 : computedScrollPaddingTop),
-                0
-              );
+          Math.max(
+            sectionTop - (Number.isNaN(computedScrollPaddingTop) ? 0 : computedScrollPaddingTop),
+            0
+          );
 
         window.history.pushState(null, "", href);
         window.scrollTo({
@@ -83,7 +90,18 @@ export default function SharedNavbar({
 
   useEffect(() => {
     if (!enableScrollSpy) {
-      setCurrentHref(activeHref ?? "#home");
+      const nextHref = activeHref ?? "#home";
+
+      if (currentHref !== nextHref) {
+        const syncTimer = window.setTimeout(() => {
+          setCurrentHref(nextHref);
+        }, 0);
+
+        return () => {
+          window.clearTimeout(syncTimer);
+        };
+      }
+
       return undefined;
     }
 
@@ -114,7 +132,7 @@ export default function SharedNavbar({
       window.removeEventListener("scroll", getActiveHref);
       window.removeEventListener("resize", getActiveHref);
     };
-  }, [activeHref, desktopItems, enableScrollSpy]);
+  }, [activeHref, currentHref, desktopItems, enableScrollSpy]);
 
   useEffect(() => {
     const handleResize = () => {

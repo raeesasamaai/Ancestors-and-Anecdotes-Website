@@ -9,7 +9,6 @@ import Process from "./components/Process";
 import AboutUs from "./components/AboutUs";
 import Testimonials from "./components/Testimonials";
 import FAQ from "./components/FAQ";
-import FinalCTA from "./components/FinalCTA";
 import ContactUs from "./components/ContactUs";
 import Footer from "./components/Footer";
 import CustomCursor from "./components/CustomCursor";
