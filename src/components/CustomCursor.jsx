@@ -42,6 +42,8 @@ const cursorThemes = {
 };
 
 export default function CustomCursor() {
+  const [isDesktopCursor, setIsDesktopCursor] =
+    useState(false);
   const mouseX = useMotionValue(-100);
   const mouseY = useMotionValue(-100);
 
@@ -95,6 +97,57 @@ export default function CustomCursor() {
   const theme = cursorThemes[cursorTheme] ?? cursorThemes.dark;
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia(
+      "(hover: hover) and (pointer: fine)"
+    );
+
+    const updateCursorSupport = (
+      event
+    ) => {
+      setIsDesktopCursor(
+        event.matches
+      );
+    };
+
+    setIsDesktopCursor(
+      mediaQuery.matches
+    );
+
+    mediaQuery.addEventListener(
+      "change",
+      updateCursorSupport
+    );
+
+    return () => {
+      mediaQuery.removeEventListener(
+        "change",
+        updateCursorSupport
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle(
+      "custom-cursor-active",
+      isDesktopCursor
+    );
+
+    return () => {
+      document.documentElement.classList.remove(
+        "custom-cursor-active"
+      );
+    };
+  }, [isDesktopCursor]);
+
+  useEffect(() => {
+    if (!isDesktopCursor) {
+      setVisible(false);
+      setHovering(false);
+      setPressed(false);
+      setLabel("");
+      return undefined;
+    }
+
     /*
      * Determines which section or interactive element
      * is currently underneath the pointer.
@@ -286,7 +339,11 @@ export default function CustomCursor() {
         handlePointerEnter
       );
     };
-  }, [mouseX, mouseY]);
+  }, [isDesktopCursor, mouseX, mouseY]);
+
+  if (!isDesktopCursor) {
+    return null;
+  }
 
   return (
     <motion.div

@@ -1,9 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ScrollReveal from "./ScrollReveal";
-import {
-  useForm,
-  ValidationError,
-} from "@formspree/react";
 
 const initialFormData = {
   fullName: "",
@@ -13,17 +9,24 @@ const initialFormData = {
   package: "",
   budget: "",
   message: "",
+
+  // Honeypot field for basic spam protection.
+  website: "",
 };
 
 export default function ContactUs() {
   const [formData, setFormData] = useState(initialFormData);
 
-  /*
-   * Formspree form:
-   * https://formspree.io/f/xjybvgzp
-   */
-  const [state, submitToFormspree] = useForm("xjybvgzp");
+  const [submission, setSubmission] = useState({
+    status: "idle",
+    message: "",
+  });
 
+  const isSubmitting = submission.status === "submitting";
+
+  /*
+   * Update controlled form fields.
+   */
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -31,23 +34,109 @@ export default function ContactUs() {
       ...currentData,
       [name]: value,
     }));
+
+    /*
+     * Remove old success/error messages
+     * once the visitor starts editing again.
+     */
+    if (
+      submission.status === "success" ||
+      submission.status === "error"
+    ) {
+      setSubmission({
+        status: "idle",
+        message: "",
+      });
+    }
   };
 
   /*
-   * Clear the controlled fields after Formspree
-   * confirms that the submission succeeded.
+   * Submit the form to the Netlify function.
+   *
+   * netlify.toml rewrites:
+   *
+   * /api/send-contact
+   *
+   * to:
+   *
+   * /.netlify/functions/send-contact
    */
-  useEffect(() => {
-    if (!state.succeeded) return;
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-    const resetTimer = window.setTimeout(() => {
+    if (isSubmitting) return;
+
+    setSubmission({
+      status: "submitting",
+      message: "",
+    });
+
+    try {
+      const response = await fetch("/api/send-contact", {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify(formData),
+      });
+
+      /*
+       * Read as text first so that if Netlify ever
+       * returns HTML or another unexpected response,
+       * the form fails gracefully instead of crashing.
+       */
+      const responseText = await response.text();
+
+      let result;
+
+      try {
+        result = JSON.parse(responseText);
+      } catch {
+        console.error("Non-JSON API response:", {
+          status: response.status,
+          statusText: response.statusText,
+          body: responseText,
+        });
+
+        throw new Error(
+          "The server returned an invalid response. Please try again."
+        );
+      }
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.message ||
+            "We could not send your enquiry. Please try again."
+        );
+      }
+
+      /*
+       * Successful Resend submission.
+       */
+      setSubmission({
+        status: "success",
+        message:
+          result.message ||
+          "Your message has been sent successfully.",
+      });
+
+      /*
+       * Clear the form.
+       */
       setFormData(initialFormData);
-    }, 0);
+    } catch (error) {
+      console.error("Contact form submission error:", error);
 
-    return () => {
-      window.clearTimeout(resetTimer);
-    };
-  }, [state.succeeded]);
+      setSubmission({
+        status: "error",
+        message:
+          error.message ||
+          "Something went wrong while sending your enquiry. Please try again.",
+      });
+    }
+  };
 
   const inputClasses = `
     h-[62px]
@@ -71,6 +160,8 @@ export default function ContactUs() {
     focus:border-[#704214]/45
     focus:ring-2
     focus:ring-[#704214]/15
+    disabled:cursor-not-allowed
+    disabled:opacity-60
     sm:px-6
     sm:text-[1.2rem]
   `;
@@ -93,15 +184,6 @@ export default function ContactUs() {
     leading-tight
     text-[#704214]
     sm:text-[1.5rem]
-  `;
-
-  const errorClasses = `
-    mt-2
-    block
-    section-body
-    text-[0.95rem]
-    leading-snug
-    text-[#C11013]
   `;
 
   return (
@@ -143,8 +225,8 @@ export default function ContactUs() {
           as="p"
           className="mt-7 max-w-4xl section-body"
         >
-          Share what you know so far, whether it is a name, a place, a document, and a family story. 
-          We will help you explore the next step.
+          Share what you know so far, whether it is a name, a place, a
+          document, and a family story. We will help you explore the next step.
         </ScrollReveal>
 
         {/* Contact information and form */}
@@ -163,7 +245,10 @@ export default function ContactUs() {
             xl:gap-20
           "
         >
-          {/* Left-side contact details */}
+          {/* =========================================================
+              LEFT-SIDE CONTACT DETAILS
+          ========================================================= */}
+
           <div className="space-y-9 lg:pt-1">
             {/* Location */}
             <div className="flex items-center gap-7">
@@ -358,14 +443,18 @@ export default function ContactUs() {
                   sm:text-[1.13rem]
                 "
               >
-                Your family information will be treated with care, respect, and confidentiality.
+                Your family information will be treated with care, respect, and
+                confidentiality.
               </p>
             </div>
           </div>
 
-          {/* Formspree contact form */}
+          {/* =========================================================
+              RESEND CONTACT FORM
+          ========================================================= */}
+
           <form
-            onSubmit={submitToFormspree}
+            onSubmit={handleSubmit}
             className="
               grid
               grid-cols-1
@@ -374,7 +463,35 @@ export default function ContactUs() {
               sm:grid-cols-2
             "
           >
-            {/* Full name */}
+            {/* =======================================================
+                HONEYPOT
+                Hidden from normal visitors.
+                Bots frequently fill fields like this.
+            ======================================================= */}
+
+            <div
+              aria-hidden="true"
+              className="absolute -left-[9999px] h-0 w-0 overflow-hidden"
+            >
+              <label htmlFor="website">
+                Website
+              </label>
+
+              <input
+                id="website"
+                name="website"
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                value={formData.website}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* =======================================================
+                FULL NAME
+            ======================================================= */}
+
             <div>
               <label
                 htmlFor="fullName"
@@ -394,19 +511,16 @@ export default function ContactUs() {
                 autoComplete="name"
                 value={formData.fullName}
                 onChange={handleChange}
+                disabled={isSubmitting}
                 placeholder="Your full name"
                 className={inputClasses}
               />
-
-              <ValidationError
-                prefix="Full Name"
-                field="fullName"
-                errors={state.errors}
-                className={errorClasses}
-              />
             </div>
 
-            {/* Email address */}
+            {/* =======================================================
+                EMAIL ADDRESS
+            ======================================================= */}
+
             <div>
               <label
                 htmlFor="email"
@@ -426,51 +540,45 @@ export default function ContactUs() {
                 autoComplete="email"
                 value={formData.email}
                 onChange={handleChange}
+                disabled={isSubmitting}
                 placeholder="e.g. johndoe@gmail.com"
                 className={inputClasses}
               />
-
-              <ValidationError
-                prefix="Email Address"
-                field="email"
-                errors={state.errors}
-                className={errorClasses}
-              />
             </div>
 
-            {/* Phone number */}
+            {/* =======================================================
+                PHONE NUMBER
+
+                OPTIONAL:
+                - no required attribute
+                - no red asterisk
+            ======================================================= */}
+
             <div>
               <label
                 htmlFor="phone"
                 className={labelClasses}
               >
                 Phone Number
-                <span className="font-semibold text-[#C11013]">
-                  *
-                </span>
               </label>
 
               <input
                 id="phone"
                 name="phone"
                 type="tel"
-                required
                 autoComplete="tel"
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="Your phone number"
+                disabled={isSubmitting}
+                placeholder="Your phone number (optional)"
                 className={inputClasses}
-              />
-
-              <ValidationError
-                prefix="Phone Number"
-                field="phone"
-                errors={state.errors}
-                className={errorClasses}
               />
             </div>
 
-            {/* Family location */}
+            {/* =======================================================
+                FAMILY LOCATION
+            ======================================================= */}
+
             <div>
               <label
                 htmlFor="familyLocation"
@@ -485,19 +593,16 @@ export default function ContactUs() {
                 type="text"
                 value={formData.familyLocation}
                 onChange={handleChange}
+                disabled={isSubmitting}
                 placeholder="e.g. South Africa / UK / Unsure"
                 className={inputClasses}
               />
-
-              <ValidationError
-                prefix="Family Location"
-                field="familyLocation"
-                errors={state.errors}
-                className={errorClasses}
-              />
             </div>
 
-            {/* Package */}
+            {/* =======================================================
+                PACKAGE
+            ======================================================= */}
+
             <div>
               <label
                 htmlFor="package"
@@ -512,6 +617,7 @@ export default function ContactUs() {
                   name="package"
                   value={formData.package}
                   onChange={handleChange}
+                  disabled={isSubmitting}
                   className={`
                     ${inputClasses}
                     cursor-pointer
@@ -562,16 +668,12 @@ export default function ContactUs() {
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </div>
-
-              <ValidationError
-                prefix="Package"
-                field="package"
-                errors={state.errors}
-                className={errorClasses}
-              />
             </div>
 
-            {/* Budget range */}
+            {/* =======================================================
+                BUDGET RANGE
+            ======================================================= */}
+
             <div>
               <label
                 htmlFor="budget"
@@ -590,6 +692,7 @@ export default function ContactUs() {
                   required
                   value={formData.budget}
                   onChange={handleChange}
+                  disabled={isSubmitting}
                   className={`
                     ${inputClasses}
                     cursor-pointer
@@ -644,16 +747,12 @@ export default function ContactUs() {
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </div>
-
-              <ValidationError
-                prefix="Budget Range"
-                field="budget"
-                errors={state.errors}
-                className={errorClasses}
-              />
             </div>
 
-            {/* Message */}
+            {/* =======================================================
+                MESSAGE
+            ======================================================= */}
+
             <div className="sm:col-span-2">
               <label
                 htmlFor="message"
@@ -671,6 +770,7 @@ export default function ContactUs() {
                 required
                 value={formData.message}
                 onChange={handleChange}
+                disabled={isSubmitting}
                 placeholder="Tell us a little about your family history enquiry and what you would like to achieve"
                 className="
                   min-h-[175px]
@@ -696,40 +796,64 @@ export default function ContactUs() {
                   focus:border-[#704214]/45
                   focus:ring-2
                   focus:ring-[#704214]/15
+                  disabled:cursor-not-allowed
+                  disabled:opacity-60
                   sm:min-h-[185px]
                   sm:px-6
                   sm:text-[1.2rem]
                 "
               />
-
-              <ValidationError
-                prefix="Message"
-                field="message"
-                errors={state.errors}
-                className={errorClasses}
-              />
             </div>
 
-            {/* General Formspree error */}
-            <ValidationError
-              errors={state.errors}
-              className="
-                rounded-[14px]
-                border
-                border-[#C11013]/25
-                bg-[#C11013]/5
-                px-4
-                py-3
-                section-body
-                text-[1rem]
-                leading-snug
-                text-[#C11013]
-                sm:col-span-2
-              "
-            />
+            {/* =======================================================
+                RESEND / SERVER ERROR
+            ======================================================= */}
 
-            {/* Successful submission */}
-            {state.succeeded && (
+            {submission.status === "error" && (
+              <div
+                role="alert"
+                aria-live="assertive"
+                className="
+                  rounded-[16px]
+                  border
+                  border-[#C11013]/25
+                  bg-[#C11013]/5
+                  px-5
+                  py-4
+                  sm:col-span-2
+                "
+              >
+                <p
+                  className="
+                    font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
+                    text-[1.15rem]
+                    font-semibold
+                    leading-tight
+                    text-[#C11013]
+                  "
+                >
+                  We could not send your enquiry.
+                </p>
+
+                <p
+                  className="
+                    mt-2
+                    section-body
+                    text-[1rem]
+                    leading-[1.4]
+                    text-[#1C1C1C]
+                  "
+                >
+                  {submission.message}
+                </p>
+              </div>
+            )}
+
+            {/* =======================================================
+                SUCCESSFUL RESEND SUBMISSION
+            ======================================================= */}
+
+            {submission.status === "success" && (
               <div
                 role="status"
                 aria-live="polite"
@@ -770,10 +894,13 @@ export default function ContactUs() {
               </div>
             )}
 
-            {/* Submit button */}
+            {/* =======================================================
+                SUBMIT BUTTON
+            ======================================================= */}
+
             <button
               type="submit"
-              disabled={state.submitting}
+              disabled={isSubmitting}
               className="
                 flex
                 min-h-[56px]
@@ -807,7 +934,7 @@ export default function ContactUs() {
                 sm:text-[1.35rem]
               "
             >
-              {state.submitting
+              {isSubmitting
                 ? "Sending Enquiry..."
                 : "Send Enquiry"}
             </button>

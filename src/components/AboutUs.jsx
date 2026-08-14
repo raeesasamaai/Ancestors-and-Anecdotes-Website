@@ -120,7 +120,7 @@ export default function AboutUs() {
               "
             >
               <img
-                src="/Images/about-image-1.jpg"
+                src="/Images/Childhood-photo-of-Sarah.jpg"
                 alt="Sarah, co-founder of Ancestors and Anecdotes"
                 className="
                   h-full
@@ -277,7 +277,7 @@ export default function AboutUs() {
               "
             >
               <img
-                src="/Images/hero-bg-1.png"
+                src="/Images/Sarah-and-Matthew.jpeg"
                 alt="Sarah and Matthew from Ancestors and Anecdotes"
                 className="
                   h-full
