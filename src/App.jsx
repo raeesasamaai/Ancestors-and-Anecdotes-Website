@@ -1,4 +1,5 @@
 // import AnimatedNavbar from "./components/AnimatedNavbar";
+import { useEffect } from "react";
 import SiteNavbar from "./components/SiteNavbar";
 import HomeHero from "./components/Home-section";
 import QuoteReveal from "./components/QuoteReveal";
@@ -13,10 +14,47 @@ import ContactUs from "./components/ContactUs";
 import Footer from "./components/Footer";
 import CustomCursor from "./components/CustomCursor";
 import ScrollFadeTransition from "./components/ScrollFadeTransition";
+import BackToTopButton from "./components/BackToTopButton";
+import ScrollProgressBar from "./components/ScrollProgressBar";
+import { scrollToHashSection } from "./utils/scrollToHashSection";
 
 export default function App() {
+  useEffect(() => {
+    const scrollFromHash = () => {
+      const { hash } = window.location;
+
+      if (!hash) {
+        return;
+      }
+
+      window.requestAnimationFrame(() => {
+        window.setTimeout(() => {
+          scrollToHashSection(
+            hash,
+            { updateHistory: false }
+          );
+        }, 40);
+      });
+    };
+
+    scrollFromHash();
+
+    window.addEventListener(
+      "hashchange",
+      scrollFromHash
+    );
+
+    return () => {
+      window.removeEventListener(
+        "hashchange",
+        scrollFromHash
+      );
+    };
+  }, []);
+
   return (
     <>
+    <ScrollProgressBar />
     <SiteNavbar />
 
     <main>
@@ -36,6 +74,7 @@ export default function App() {
       <FAQ />
       <ContactUs />
       <Footer />
+      <BackToTopButton />
     </main>
     </>
   );

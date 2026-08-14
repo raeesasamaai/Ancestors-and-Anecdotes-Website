@@ -81,26 +81,27 @@ export default function SiteNavbar() {
             max-w-[1380px]
             rounded-[2rem]
             sm:rounded-[2.4rem]
-            lg:rounded-full
+            lg:rounded-[2.8rem]
             border
             border-black/5
-            bg-[#f7f7f4]
+            bg-[#FFF6E8]
             shadow-[0_18px_36px_rgba(0,0,0,0.12)]
           "
         >
           <SharedNavbar
-            className="pb-4 !px-4 !pt-4 sm:!px-6 md:!px-8 lg:!px-10 lg:!pt-4"
-            textClassName="text-[#171717]"
+            className="pb-3 !px-3 !pt-3 sm:!px-6 md:!px-8 lg:!px-10 lg:!pt-3"
+            
+            textClassName="text-[#704214]"
             desktopItems={siteNavItems}
             showHomeUnderline={false}
             activeHref="#what-we-do"
             enableScrollSpy
             logoClassName="text-[18px] font-semibold sm:text-[19px] md:text-[22px]"
-            itemClassName="text-[18px] xl:text-[18px]"
-            mobileButtonClassName="bg-[#111111] text-white shadow-[0_8px_18px_rgba(0,0,0,0.14)]"
-            mobilePanelClassName="bg-white text-[#171717]"
+            itemClassName="text-[18px] xl:text-[1.17rem] font-semibold"
+            mobileButtonClassName="bg-transparent text-[#704214] shadow-none"
+            mobilePanelClassName="bg-transparent text-[#171717]"
             mobileItemClassName="text-[#171717]"
-            mobileCtaClassName="bg-[#111111] text-white"
+            mobileCtaClassName="bg-[#704214] text-white"
             cta={{ label: "Contact Us", href: "#contact-us" }}
           />
         </div>

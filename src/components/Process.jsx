@@ -236,16 +236,15 @@ export default function Process() {
                   {/* Step heading */}
                   <h3
                     className="
-                      mt-4
-                      font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
-                      text-[1.4rem]
-                      font-normal
-                      leading-[1.15]
-                      text-[#704214]
-                      sm:text-[1.5rem]
-                      lg:min-h-[54px]
-                      lg:text-[1.3rem]
-                      xl:text-[1.45rem]
+                       mt-4
+    font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
+    text-[1.4rem]
+    font-normal
+    leading-[1.15]
+    text-[#704214]
+    sm:text-[1.5rem]
+    lg:text-[1.3rem]
+    xl:text-[1.45rem]
                     "
                   >
                     {step.titleLines.map((line) => (

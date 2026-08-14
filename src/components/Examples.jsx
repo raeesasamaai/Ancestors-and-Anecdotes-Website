@@ -64,7 +64,9 @@ const exampleDetails = [
     description:
       "Oral history is the audio recording of a person’s personal account of their lives or a historical event. A digital story takes this a step further by creating a short film (5 - 10 minutes) using photographs supplied by the client, narrated using extracts from the recordings. ",
     features: [
-      ""
+      "Personal oral history interview",
+      "5–10 minute narrated digital story",
+      "Client photographs woven into the final film",
     ],
     bestFor:
       "This is best for families who want to experience and share their findings in a more visual, emotional, and accessible format.",

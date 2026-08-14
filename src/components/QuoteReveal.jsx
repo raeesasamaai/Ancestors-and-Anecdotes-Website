@@ -16,6 +16,12 @@ export default function QuoteReveal() {
 
   useGSAP(
     () => {
+      /*
+       * This now selects:
+       * - opening quotation mark
+       * - every word
+       * - closing quotation mark
+       */
       const wordElements =
         quoteRef.current?.querySelectorAll(".quote-word");
 
@@ -173,8 +179,8 @@ export default function QuoteReveal() {
             mb-10
             flex items-center
             gap-4
-            md:mb-14
-            lg:mb-16
+            md:mb-12
+            lg:mb-14
           "
         >
           <span
@@ -220,6 +226,28 @@ export default function QuoteReveal() {
               tracking-[-0.035em]
             "
           >
+            {/* Opening quotation mark - sits above the quote
+            and remains part of the GSAP scrolling reveal */}
+              <span
+                aria-hidden="true"
+                className="
+                  quote-word
+                  block
+                  h-10
+                  w-fit
+                  mb-8
+                  font-['Georgia',serif]
+                  text-[1.6em]
+                  font-bold
+                  
+                  will-change-[color]
+                  sm:mb-12
+                "
+              >
+                “
+              </span>
+
+            {/* Quote words */}
             {words.map((word, index) => (
               <span
                 key={`${word}-${index}`}
@@ -233,6 +261,26 @@ export default function QuoteReveal() {
                 {index !== words.length - 1 && "\u00A0"}
               </span>
             ))}
+
+            {/* Closing quotation mark
+                quote-word makes it the final part of the GSAP reveal */}
+            {/* <span
+              aria-hidden="true"
+              className="
+                quote-word
+                ml-2
+                inline-block
+                align-[-0.08em]
+                font-['Georgia',serif]
+                text-[1.25em]
+                font-bold
+                leading-none
+                will-change-[color]
+                sm:ml-3
+              "
+            >
+              ”
+            </span> */}
           </p>
 
           {/* Author */}

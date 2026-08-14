@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ScrollReveal from "./ScrollReveal";
 import {
   useForm,
   ValidationError,
@@ -119,28 +120,36 @@ export default function ContactUs() {
     >
       <div className="mx-auto max-w-7xl">
         {/* Section name */}
-        <p
+        <ScrollReveal
+          as="p"
           className="mb-2 section-name"
           style={{
             WebkitTextStroke: "0.45px currentColor",
           }}
         >
           Contact Us
-        </p>
+        </ScrollReveal>
 
         {/* Main heading */}
-        <h2 className="mt-8 max-w-5xl section-heading">
+        <ScrollReveal
+          as="h2"
+          className="mt-8 max-w-5xl section-heading"
+        >
           Ready to Begin Your Family History Journey?
-        </h2>
+        </ScrollReveal>
 
         {/* Introduction */}
-        <p className="mt-7 max-w-4xl section-body">
+        <ScrollReveal
+          as="p"
+          className="mt-7 max-w-4xl section-body"
+        >
           Share what you know so far, whether it is a name, a place, a document, and a family story. 
           We will help you explore the next step.
-        </p>
+        </ScrollReveal>
 
         {/* Contact information and form */}
-        <div
+        <ScrollReveal
+          as="div"
           className="
             mt-14
             grid
@@ -803,7 +812,7 @@ export default function ContactUs() {
                 : "Send Enquiry"}
             </button>
           </form>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );

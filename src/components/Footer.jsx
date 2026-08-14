@@ -1,55 +1,94 @@
-export default function Footer() {
+export default function Footer({
+  mainSitePrefix = "",
+}) {
+  const socialLinks = [
+    {
+      label: "Instagram",
+      href: "https://www.instagram.com/",
+      icon: (
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          className="h-6 w-6"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
+          <circle cx="12" cy="12" r="4.1" />
+          <circle cx="17.3" cy="6.7" r="0.9" fill="currentColor" stroke="none" />
+        </svg>
+      ),
+    },
+    {
+      label: "Facebook",
+      href: "https://www.facebook.com/",
+      icon: (
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          className="h-6 w-6"
+          fill="currentColor"
+        >
+          <path d="M17.52 2.5H6.48A3.98 3.98 0 0 0 2.5 6.48v11.04a3.98 3.98 0 0 0 3.98 3.98h4.12v-7.03H8.24V11.5h2.36V9.24c0-2.5 1.53-3.86 3.76-3.86 1.07 0 1.99.08 2.25.12v2.62h-1.55c-1.21 0-1.45.58-1.45 1.42v1.96h2.9l-.38 2.97h-2.52v7.03h3.91a3.98 3.98 0 0 0 3.98-3.98V6.48A3.98 3.98 0 0 0 17.52 2.5Z" />
+        </svg>
+      ),
+    },
+  ];
+
   const quickLinks = [
     {
       label: "Home",
-      href: "#home",
+      href: `${mainSitePrefix}#home`,
     },
     {
       label: "What We Do",
-      href: "#what-we-do",
+      href: `${mainSitePrefix}#what-we-do`,
     },
     {
       label: "Examples",
-      href: "#examples",
+      href: `${mainSitePrefix}#examples`,
     },
     {
       label: "Packages",
-      href: "#packages",
+      href: `${mainSitePrefix}#packages`,
     },
     {
       label: "Our Process",
-      href: "#process",
+      href: `${mainSitePrefix}#process`,
     },
     {
       label: "About Us",
-      href: "#about-us",
+      href: `${mainSitePrefix}#about-us`,
     },
     {
       label: "Testimonials",
-      href: "#testimonials",
+      href: `${mainSitePrefix}#testimonials`,
     },
     {
       label: "FAQ",
-      href: "#faq",
+      href: `${mainSitePrefix}#faq`,
     },
     {
       label: "Contact Us",
-      href: "#contact-us",
+      href: `${mainSitePrefix}#contact-us`,
     },
   ];
 
   const legalLinks = [
     {
       label: "Privacy Policy",
-      href: "/privacy-policy",
+      href: "/privacy-policy/",
     },
     {
       label: "Terms of Service",
-      href: "/terms-of-service",
+      href: "/terms-of-service/",
     },
     {
       label: "Research Disclaimer",
-      href: "/research-disclaimer",
+      href: "/research-disclaimer/",
     },
   ];
 
@@ -63,6 +102,9 @@ export default function Footer() {
   `;
 
   const footerLinkClasses = `
+    group
+    relative
+    inline-flex
     w-fit
     font-['Cormorant_Garamond',serif]
     text-[1.05rem]
@@ -106,7 +148,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <a
-              href="#home"
+              href={`${mainSitePrefix}#home`}
               aria-label="Go to the homepage"
               className="inline-flex flex-col items-start"
             >
@@ -176,6 +218,24 @@ export default function Footer() {
                   className={footerLinkClasses}
                 >
                   {link.label}
+                  <span
+                    aria-hidden="true"
+                    className="
+                      absolute
+                      -bottom-[3px]
+                      left-0
+                      h-[1.5px]
+                      w-full
+                      origin-left
+                      scale-x-0
+                      bg-current
+                      transition-transform
+                      duration-300
+                      ease-[cubic-bezier(0.22,1,0.36,1)]
+                      group-hover:scale-x-100
+                      group-focus-visible:scale-x-100
+                    "
+                  />
                 </a>
               ))}
             </nav>
@@ -203,6 +263,24 @@ export default function Footer() {
                   className={footerLinkClasses}
                 >
                   {link.label}
+                  <span
+                    aria-hidden="true"
+                    className="
+                      absolute
+                      -bottom-[3px]
+                      left-0
+                      h-[1.5px]
+                      w-full
+                      origin-left
+                      scale-x-0
+                      bg-current
+                      transition-transform
+                      duration-300
+                      ease-[cubic-bezier(0.22,1,0.36,1)]
+                      group-hover:scale-x-100
+                      group-focus-visible:scale-x-100
+                    "
+                  />
                 </a>
               ))}
             </nav>
@@ -230,20 +308,25 @@ export default function Footer() {
                 `}
               >
                 ancestorsandanecdotes@gmail.com
+                <span
+                  aria-hidden="true"
+                  className="
+                    absolute
+                    -bottom-[3px]
+                    left-0
+                    h-[1.5px]
+                    w-full
+                    origin-left
+                    scale-x-0
+                    bg-current
+                    transition-transform
+                    duration-300
+                    ease-[cubic-bezier(0.22,1,0.36,1)]
+                    group-hover:scale-x-100
+                    group-focus-visible:scale-x-100
+                  "
+                />
               </a>
-
-              <p
-                className="
-                  font-['Cormorant_Garamond',serif]
-                  text-[1.05rem]
-                  font-medium
-                  leading-snug
-                  text-[#1C1C1C]
-                  sm:text-[1.1rem]
-                "
-              >
-                Cape Town, South Africa
-              </p>
 
               <p
                 className="
@@ -257,6 +340,50 @@ export default function Footer() {
               >
                 Response within 1–2 business days
               </p>
+
+              <p
+                className="
+                  font-['Cormorant_Garamond',serif]
+                  text-[1.05rem]
+                  font-medium
+                  leading-snug
+                  text-[#1C1C1C]
+                  sm:text-[1.1rem]
+                "
+              >
+                Cape Town, South Africa
+              </p>
+              <div
+                className="
+                  mt-2
+                  flex
+                  items-center
+                  gap-4
+                  text-[#704214]
+                "
+              >
+                {socialLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={link.label}
+                    className="
+                      inline-flex
+                      items-center
+                      justify-center
+                      transition-colors
+                      duration-300
+                      hover:text-[#566735]
+                      focus:outline-none
+                      focus-visible:text-[#566735]
+                    "
+                  >
+                    {link.icon}
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         </div>
