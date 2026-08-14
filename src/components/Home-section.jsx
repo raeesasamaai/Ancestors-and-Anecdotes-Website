@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useLayoutEffect, useState } from "react";
-import { scrollToHashSection } from "../utils/scrollToHashSection";
 
 const navItems = [
   { label: "Home", href: "#home" },
@@ -165,27 +164,32 @@ export default function HomeHero() {
   }, [isCompactNav, isMenuOpen]);
 
   /*
-   * Match the shared site navbar scroll behavior.
+   * Existing What We Do navigation functionality.
    */
-  const handleNavClick = (event, href) => {
+  const handleWhatWeDoClick = (event) => {
     event.preventDefault();
 
-    const scrollToSection = () => {
-      scrollToHashSection(
-        href
-      );
-    };
+    const whatWeDoSection =
+      document.getElementById("what-we-do");
 
-    if (isCompactNav) {
-      setIsMenuOpen(false);
-      window.setTimeout(
-        scrollToSection,
-        10
-      );
+    if (!whatWeDoSection) {
       return;
     }
 
-    scrollToSection();
+    const sectionTop =
+      whatWeDoSection.getBoundingClientRect().top +
+      window.scrollY;
+
+    window.history.pushState(
+      null,
+      "",
+      "#what-we-do"
+    );
+
+    window.scrollTo({
+      top: sectionTop,
+      behavior: "smooth",
+    });
   };
 
   /*
@@ -195,10 +199,11 @@ export default function HomeHero() {
    * We only close the menu when a link is selected.
    */
   const handleCompactNavClick = (event, item) => {
-    handleNavClick(
-      event,
-      item.href
-    );
+    setIsMenuOpen(false);
+
+    if (item.href === "#what-we-do") {
+      handleWhatWeDoClick(event);
+    }
   };
 
   return (
@@ -296,16 +301,10 @@ export default function HomeHero() {
             {/* Logo / Brand */}
             <a
               href="#home"
-              onClick={(event) =>
-                handleNavClick(
-                  event,
-                  "#home"
-                )
-              }
               className="
                 font-body
                 text-[22px]
-                pl-[1rem]
+                pl-[0.5rem]
                 font-medium
                 leading-none
                 tracking-[0.02em]
@@ -334,11 +333,11 @@ export default function HomeHero() {
                     <a
                       key={item.label}
                       href={item.href}
-                      onClick={(event) =>
-                        handleNavClick(
-                          event,
-                          item.href
-                        )
+                      onClick={
+                        item.href ===
+                        "#what-we-do"
+                          ? handleWhatWeDoClick
+                          : undefined
                       }
                       className="
                         group
@@ -672,6 +671,23 @@ export default function HomeHero() {
                         />
                       </span>
 
+                      {/* Small directional accent */}
+                      <motion.span
+                        aria-hidden="true"
+                        className="
+                          text-[20px]
+                          font-light
+                          text-white/60
+                        "
+                        initial={{
+                          x: 0,
+                        }}
+                        whileHover={{
+                          x: 4,
+                        }}
+                      >
+                        →
+                      </motion.span>
                     </motion.a>
                   ))}
                 </motion.div>
@@ -689,8 +705,8 @@ export default function HomeHero() {
         className="
           absolute
           bottom-[92px]
-          left-4
-          right-4
+          left-6
+          right-5
           z-10
           sm:left-6
           sm:right-6
@@ -704,12 +720,12 @@ export default function HomeHero() {
         <motion.h1
           className="
             font-section
-            text-[2.95rem]
+            text-[2.9rem]
             font-normal
             leading-[0.95]
             tracking-[0.0em]
             text-white
-            sm:text-[4.3rem]
+            sm:text-[4rem]
             md:text-[5.4rem]
             lg:text-[6.55rem]
           "
@@ -741,7 +757,7 @@ export default function HomeHero() {
             mt-5
             max-w-[44rem]
             font-body
-            text-[1.2rem]
+            text-[1.05rem]
             font-medium
             leading-[1.35]
             tracking-[0.02em]

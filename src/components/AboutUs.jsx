@@ -40,6 +40,12 @@ export default function AboutUs() {
           The People Behind Ancestors &amp; Anecdotes
         </ScrollReveal>
 
+        <ScrollReveal as="p" className="mt-7 max-w-6xl section-body">
+            Sarah and Matthew are budding genealogists who started Ancestors and Anecdotes 
+            with the vision to help people capture their family histories and make them come 
+            alive through illustrated narratives and short narrated videos.
+          </ScrollReveal>
+
         {/* About content */}
         <div
           className="
@@ -47,7 +53,7 @@ export default function AboutUs() {
             flex
             flex-col
             gap-16
-            md:mt-16
+            md:mt-12
             lg:gap-20
             xl:gap-24
           "
@@ -132,24 +138,27 @@ export default function AboutUs() {
             </div>
 
             {/* Sarah information */}
-            <div className="md:pl-2 lg:pl-4">
+            <div className="md:pl-1 lg:pl-1">
               <p
                 className="
                   section-body
                   text-[1.15rem]
-                  leading-[1.7]
+                  leading-[1.6]
                   sm:text-[1.25rem]
                   lg:text-[1.3rem]
                 "
               >
-                For years Sarah has had a yearning to capture people&apos;s
-                family stories and turn them into illustrated written
-                narratives and short narrated videos so that families are able
-                to get to know and understand their ancestors, and in turn gain
-                self understanding. As a professional counsellor, Sarah loves
-                listening to clients speaking about their colourful families.
+                Sarah Dowling-Nissen grew up in a large family where storytelling was central to any 
+                family gathering. Her mother and father used to tell her and her brothers lots of funny 
+                and adventurous stories about growing up  (which were often embellished by her father for 
+                dramatic effect). She has always had a passion for creative projects that combine different 
+                media - a hobby that was encouraged by her late grandmother during the many afternoons they 
+                spent together sketching the view out the window, making collages, decoupaging, or acting out 
+                plays with her cousin. Currently Sarah divides her professional time between doing family research
+                and working  part-time as a Registered counsellor for an NPO.
               </p>
             </div>
+           
           </ScrollReveal>
 
           {/* =========================================================
@@ -173,20 +182,17 @@ export default function AboutUs() {
                 className="
                   section-body
                   text-[1.15rem]
-                  leading-[1.6]
+                  leading-[1.69]
                   sm:text-[1.25rem]
                   lg:text-[1.3rem]
                 "
               >
-                Matthew loves uncovering the past and seeing connections, and
-                through that seeing how human we all are. His background in
-                research and oral history at the District Six Museum has made
-                him highly skilled at researching seemingly obscure pieces of
-                history, bringing them together to build a full picture of a
-                particular time, person or place. His genuine care and respect
-                for people and passion for history allows an easy rapport to be
-                built for conducting oral history interviews and doing family
-                research.
+                Matthew Nissen grew up listening to his father - an apartheid activist and minister - 
+                talking about the history of South Africa and the church, as well as his maternal grandfather - 
+                a teacher and later a Moravian priest - who was a community historian and helped start the 
+                Genadendal museum. For Matthew this love of history grew into a talent for researching. 
+                Before coming to this work Matthew managed an oral history project at the District Six Museum, 
+                and is currently completing his Masters in Digital Curation.
               </p>
             </div>
 
@@ -260,14 +266,14 @@ export default function AboutUs() {
                 h-[320px]
                 sm:h-[370px]
                 md:h-[400px]
-                lg:h-[430px]
+                lg:h-[450px]
                 xl:h-[460px]
 
                 /* =====================================================
                    EDIT TOGETHER IMAGE WIDTH HERE
                 ===================================================== */
                 lg:max-w-[560px]
-                xl:max-w-[600px]
+                xl:max-w-[650px]
 
                 overflow-hidden
                 rounded-[34px]
@@ -289,25 +295,23 @@ export default function AboutUs() {
             </div>
 
             {/* Combined story and mission */}
-            <div className="md:pl-2 lg:pl-4">
+            <div className="md:pl-1 lg:pl-1">
               <p
                 className="
                   section-body
                   text-[1.15rem]
-                  leading-[1.7]
+                  leading-[1.8]
                   sm:text-[1.25rem]
                   lg:text-[1.3rem]
                 "
               >
-                Putting their passions together, Sarah and Matthew are budding
-                genealogists who find meaning in tracing the names and dates
-                given by clients in order to gain insight into the historical
-                context of a client&apos;s ancestors, combining this with
-                family anecdotes to build a fuller picture of the lives lived
-                by previous generations.
+                With these combined interests and backgrounds, Sarah and Matthew blend historical research with personal 
+                storytelling and family anecdotes to help families understand where they come from and preserve these meaningful 
+                stories for future generations. When they’re not working, Sarah and Matthew enjoy marveling at the world through 
+                their toddler’s eyes who keeps them on their toes.
               </p>
 
-              <p
+              {/* <p
                 className="
                   mt-7
                   section-body
@@ -321,7 +325,7 @@ export default function AboutUs() {
                 where they come from by uncovering records, organising family
                 information, and preserving meaningful stories for future
                 generations.
-              </p>
+              </p> */}
             </div>
           </ScrollReveal>
         </div>
