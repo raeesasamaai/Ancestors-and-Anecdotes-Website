@@ -86,13 +86,13 @@ export default {
      * Environment variables.
      */
     const apiKey = cleanText(
-      processEnv.RESEND_API_KEY,
+      processEnv.RESEND_KEY,
       500,
     );
 
-    const testMode = isEnabled(
-      processEnv.RESEND_TEST_MODE,
-    );
+    // const testMode = isEnabled(
+    //   processEnv.RESEND_TEST_MODE,
+    // );
 
     const testEmail = cleanText(
       processEnv.RESEND_TEST_EMAIL,
