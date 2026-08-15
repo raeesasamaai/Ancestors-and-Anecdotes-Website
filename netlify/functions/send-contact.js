@@ -86,7 +86,7 @@ export default {
      * Environment variables.
      */
     const apiKey = cleanText(
-      processEnv.RESEND_API_KEY,
+      processEnv.RESEND_KEY,
       500,
     );
 
@@ -263,7 +263,6 @@ export default {
     if (
       !formData.fullName ||
       !formData.email ||
-      !formData.phone ||
       !formData.budget ||
       !formData.message
     ) {
@@ -299,7 +298,7 @@ export default {
       ),
 
       phone: escapeHtml(
-        formData.phone,
+        displayValue(formData.phone),
       ),
 
       familyLocation: escapeHtml(
@@ -407,7 +406,7 @@ ${testMode ? "ADMIN TEST EMAIL\n\n" : ""}New Ancestors & Anecdotes enquiry
 
 Full name: ${formData.fullName}
 Email: ${formData.email}
-Phone: ${formData.phone}
+Phone: ${displayValue(formData.phone)}
 Family location: ${displayValue(formData.familyLocation)}
 Package: ${displayValue(formData.packageName)}
 Budget: ${formData.budget}

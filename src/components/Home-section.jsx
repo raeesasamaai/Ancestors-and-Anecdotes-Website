@@ -23,11 +23,11 @@ export default function HomeHero() {
 
   const [isCompactNav, setIsCompactNav] = useState(() => {
     if (typeof window === "undefined") {
-      return false;
+      return true;
     }
 
-    return window.matchMedia(
-      "(max-width: 1279px), (hover: none) and (pointer: coarse)"
+    return !window.matchMedia(
+      "(min-width: 1280px)"
     ).matches;
   });
 
@@ -47,29 +47,23 @@ export default function HomeHero() {
   }, []);
 
   /*
-   * Detect tablets, iPads, phones and smaller screens.
-   *
-   * This checks:
-   * 1. Anything below 1280px
-   * 2. Touch/coarse-pointer devices such as iPads
-   *
-   * This lets normal laptops/desktops keep the
-   * full navbar while iPads use the hamburger.
+   * Keep iPads and tablets on the hamburger menu, and only
+   * switch to the full nav on larger laptop/desktop screens.
    */
   useEffect(() => {
     const mediaQuery = window.matchMedia(
-      "(max-width: 1279px), (hover: none) and (pointer: coarse)"
+      "(min-width: 1280px)"
     );
 
     const handleChange = (event) => {
-      setIsCompactNav(event.matches);
+      setIsCompactNav(!event.matches);
 
-      if (!event.matches) {
+      if (event.matches) {
         setIsMenuOpen(false);
       }
     };
 
-    setIsCompactNav(mediaQuery.matches);
+    setIsCompactNav(!mediaQuery.matches);
 
     mediaQuery.addEventListener("change", handleChange);
 

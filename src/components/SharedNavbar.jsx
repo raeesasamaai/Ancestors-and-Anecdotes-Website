@@ -66,25 +66,18 @@ export default function SharedNavbar({
   ] = useState(false);
 
   /*
-   * Same responsive behaviour as HomeHero.
-   *
-   * Full navbar:
-   * - normal laptops/desktops
-   *
-   * Hamburger:
-   * - phones
-   * - tablets
-   * - iPads
-   * - large touch devices
+   * Use the same breakpoint as the desktop nav layout:
+   * - `xl` and up: full navbar
+   * - below `xl`: hamburger menu
    */
   const [isCompactNav, setIsCompactNav] =
     useState(() => {
       if (typeof window === "undefined") {
-        return false;
+        return true;
       }
 
-      return window.matchMedia(
-        "(max-width: 1279px), (hover: none) and (pointer: coarse)"
+      return !window.matchMedia(
+        "(min-width: 1280px)"
       ).matches;
     });
 
@@ -258,30 +251,24 @@ export default function SharedNavbar({
    * RESPONSIVE NAV DETECTION
    * ==========================================
    *
-   * Same logic used in the Home Hero navbar.
-   *
-   * This means:
-   * - phones = hamburger
-   * - tablets = hamburger
-   * - iPads = hamburger
-   * - iPad Pro landscape = hamburger
-   * - normal desktop/laptop = full nav
+   * Keep tablets and iPads on the hamburger menu, and only
+   * switch to the full nav at the Tailwind `xl` breakpoint.
    */
 
   useEffect(() => {
     const mediaQuery =
       window.matchMedia(
-        "(max-width: 1279px), (hover: none) and (pointer: coarse)"
+        "(min-width: 1280px)"
       );
 
     const handleChange = (
       event
     ) => {
       setIsCompactNav(
-        event.matches
+        !event.matches
       );
 
-      if (!event.matches) {
+      if (event.matches) {
         setIsMobileMenuOpen(
           false
         );
@@ -289,7 +276,7 @@ export default function SharedNavbar({
     };
 
     setIsCompactNav(
-      mediaQuery.matches
+      !mediaQuery.matches
     );
 
     mediaQuery.addEventListener(
