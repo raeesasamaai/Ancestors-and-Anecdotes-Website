@@ -279,9 +279,13 @@ export default function HomeHero() {
           className="
             px-6
             pt-8
+
             md:px-12
+
             lg:px-[88px]
             lg:pt-[37px]
+
+            [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:pt-5
           "
         >
           {/* Main navbar row */}
@@ -296,15 +300,22 @@ export default function HomeHero() {
             <a
               href="#home"
               className="
-                font-body
-                text-[22px]
-                pl-[0.5rem]
-                font-medium
-                leading-none
-                tracking-[0.02em]
-                text-white
-                md:text-[25px]
-              "
+              font-body
+              text-[20px]
+              pl-[0.5rem]
+              font-medium
+              leading-none
+              tracking-[0.02em]
+              text-white
+
+              sm:text-[20px]
+
+              [@media(min-width:768px)_and_(max-width:1023px)_and_(orientation:portrait)]:text-[21px]
+
+              [@media(min-width:768px)_and_(max-width:1023px)_and_(orientation:landscape)]:text-[19px]
+
+              lg:text-[28px]
+            "
             >
               Ancestors &amp; Anecdotes
             </a>
@@ -550,20 +561,28 @@ export default function HomeHero() {
                   ],
                 }}
                 className="
-                  mt-5
-                  overflow-hidden
-                  rounded-[28px]
-                  border
-                  border-white/15
-                  bg-black/45
-                  p-3
-                  shadow-[0_18px_50px_rgba(0,0,0,0.28)]
-                  backdrop-blur-xl
-                  sm:p-4
-                  md:mt-6
-                  md:rounded-[32px]
-                  md:p-5
-                "
+                mt-5
+                overflow-hidden
+                rounded-[28px]
+                border
+                border-white/15
+                bg-black/45
+                p-3
+                shadow-[0_18px_50px_rgba(0,0,0,0.28)]
+                backdrop-blur-xl
+
+                sm:p-4
+
+                md:mt-6
+                md:rounded-[32px]
+                md:p-5
+
+                [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:mt-3
+                [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:max-h-[calc(100dvh-5.5rem)]
+                [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:overflow-y-auto
+                [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:overscroll-contain
+                [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:touch-pan-y
+              "
               >
                 <motion.div
                   initial="closed"
@@ -698,30 +717,48 @@ export default function HomeHero() {
       <div
         className="
           absolute
-          bottom-[92px]
-          left-6
+          bottom-[70px]
+          left-8
           right-5
           z-10
+
           sm:left-6
           sm:right-6
+
           md:left-12
           md:right-12
+
           lg:bottom-[75px]
           lg:left-[88px]
           lg:right-auto
+
+          [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:bottom-7
+
+          [@media(min-width:640px)_and_(max-width:767px)_and_(orientation:landscape)_and_(max-height:600px)]:left-8
+          [@media(min-width:640px)_and_(max-width:767px)_and_(orientation:landscape)_and_(max-height:600px)]:right-8
+
+          [@media(min-width:768px)_and_(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:left-[56px]
+          [@media(min-width:768px)_and_(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:right-[56px]
         "
       >
         <motion.h1
           className="
             font-section
-            text-[2.9rem]
+            text-[clamp(3.4rem,10vw,2.9rem)]
             font-normal
-            leading-[0.95]
-            tracking-[0.0em]
+            leading-[1.06]
+            tracking-[0em]
             text-white
+
             sm:text-[4rem]
+            sm:leading-[0.95]
+
             md:text-[5.4rem]
+
             lg:text-[6.55rem]
+
+            [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[clamp(1.8rem,4.1vw,2.3rem)]
+            [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:leading-none
           "
           initial={{
             x: -100,
@@ -737,30 +774,96 @@ export default function HomeHero() {
             delay: 0.4,
           }}
         >
-          <span className="block">
-            Uncover The Stories That
-          </span>
+          {/* ========================================
+                MOBILE PORTRAIT HEADING
+            ======================================== */}
 
-          <span className="block">
-            Are Waiting To Be Told
-          </span>
+            <span
+              className="
+                block
+                sm:hidden
+
+                [@media(orientation:landscape)_and_(max-height:600px)]:hidden
+              "
+            >
+              <span className="block whitespace-nowrap">
+                Uncover The Stories
+              </span>
+
+              <span className="block whitespace-nowrap">
+                That Are Waiting
+              </span>
+
+              <span className="block whitespace-nowrap">
+                To Be Told
+              </span>
+            </span>
+
+
+            {/* ========================================
+                MOBILE LANDSCAPE HEADING
+                Entire heading on one line
+            ======================================== */}
+
+            <span
+              className="
+                hidden
+                text-[clamp(2.2rem,7vw,2.6rem)]
+                [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:block
+                [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:whitespace-nowrap
+              "
+            >
+              Uncover The Stories That Are Waiting To Be Told
+            </span>
+
+
+            {/* ========================================
+                TABLET / DESKTOP HEADING
+            ======================================== */}
+
+            <span
+              className="
+                hidden
+                sm:block
+                md:text-[5.7rem]
+                [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:hidden
+              "
+            >
+              <span className="block">
+                Uncover The Stories That
+              </span>
+
+              <span className="block">
+                Are Waiting To Be Told
+              </span>
+            </span>
         </motion.h1>
 
         <motion.p
           className="
             mt-5
-            max-w-[44rem]
+            max-w-[20rem]
             font-body
-            text-[1.05rem]
+            text-[clamp(1.28rem,4.6vw,1.2rem)]
             font-medium
-            leading-[1.35]
+            leading-[1.45]
             tracking-[0.02em]
             text-white
+
             sm:mt-6
+            sm:max-w-[44rem]
             sm:text-[1.45rem]
+            sm:leading-[1.35]
+
             md:text-[1.6rem]
+
             lg:mt-[30px]
             lg:text-[26px]
+
+            [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:mt-3
+            [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:max-w-[31rem]
+            [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[0.95rem]
+            [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:leading-[1.3]
           "
           initial={{
             x: -90,
@@ -776,10 +879,30 @@ export default function HomeHero() {
             delay: 0.5,
           }}
         >
-          Personalized genealogy research to uncover,
-          preserve,
-          <br className="hidden sm:block" />
-          and share the stories behind your ancestry.
+          <span
+            className="
+              inline
+
+              [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:hidden
+            "
+          >
+            Personalized genealogy research to uncover,
+            preserve,
+            <br className="hidden sm:block" />
+            and share the stories behind your ancestry.
+          </span>
+
+          {/* Short landscape phone copy */}
+          <span
+            className="
+              hidden
+
+              [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:inline
+            "
+          >
+            Personalized genealogy research to uncover, preserve,
+            and share the stories behind your ancestry.
+          </span>
         </motion.p>
       </div>
 
@@ -797,11 +920,16 @@ export default function HomeHero() {
           items-center
           gap-[14px]
           text-white
+
           md:flex
           md:right-8
+
           lg:bottom-[75px]
           lg:right-[70px]
           lg:gap-[18px]
+
+          [@media(min-width:768px)_and_(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:bottom-7
+          [@media(min-width:768px)_and_(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:right-[56px]
         "
         initial={{
           opacity: 0,

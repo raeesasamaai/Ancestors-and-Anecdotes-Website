@@ -855,7 +855,7 @@ export default function SharedNavbar({
                 p-3
                 sm:p-4
 
-                md:mt-6
+                md:mt-1
                 md:rounded-[32px]
                 md:p-5
 

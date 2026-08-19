@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ScrollReveal from "./ScrollReveal";
 
+
 const initialFormData = {
   fullName: "",
   email: "",
@@ -14,6 +15,7 @@ const initialFormData = {
   website: "",
 };
 
+
 export default function ContactUs() {
   const [formData, setFormData] = useState(initialFormData);
 
@@ -22,23 +24,23 @@ export default function ContactUs() {
     message: "",
   });
 
-  const isSubmitting = submission.status === "submitting";
+  const isSubmitting =
+    submission.status === "submitting";
 
-  /*
-   * Update controlled form fields.
-   */
+
+  /* =========================================================
+     UPDATE FORM FIELDS
+  ========================================================= */
+
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const { name, value } =
+      event.target;
 
     setFormData((currentData) => ({
       ...currentData,
       [name]: value,
     }));
 
-    /*
-     * Remove old success/error messages
-     * once the visitor starts editing again.
-     */
     if (
       submission.status === "success" ||
       submission.status === "error"
@@ -50,17 +52,11 @@ export default function ContactUs() {
     }
   };
 
-  /*
-   * Submit the form to the Netlify function.
-   *
-   * netlify.toml rewrites:
-   *
-   * /api/send-contact
-   *
-   * to:
-   *
-   * /.netlify/functions/send-contact
-   */
+
+  /* =========================================================
+     SUBMIT FORM
+  ========================================================= */
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -72,49 +68,60 @@ export default function ContactUs() {
     });
 
     try {
-      const response = await fetch("/api/send-contact", {
-        method: "POST",
+      const response = await fetch(
+        "/api/send-contact",
+        {
+          method: "POST",
 
-        headers: {
-          "Content-Type": "application/json",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify(
+            formData,
+          ),
         },
+      );
 
-        body: JSON.stringify(formData),
-      });
-
-      /*
-       * Read as text first so that if Netlify ever
-       * returns HTML or another unexpected response,
-       * the form fails gracefully instead of crashing.
-       */
-      const responseText = await response.text();
+      const responseText =
+        await response.text();
 
       let result;
 
       try {
-        result = JSON.parse(responseText);
+        result =
+          JSON.parse(responseText);
       } catch {
-        console.error("Non-JSON API response:", {
-          status: response.status,
-          statusText: response.statusText,
-          body: responseText,
-        });
+        console.error(
+          "Non-JSON API response:",
+          {
+            status:
+              response.status,
+            statusText:
+              response.statusText,
+            body:
+              responseText,
+          },
+        );
 
         throw new Error(
-          "The server returned an invalid response. Please try again."
+          "The server returned an invalid response. Please try again.",
         );
       }
 
-      if (!response.ok || !result.success) {
+
+      if (
+        !response.ok ||
+        !result.success
+      ) {
         throw new Error(
           result.message ||
-            "We could not send your enquiry. Please try again."
+            "We could not send your enquiry. Please try again.",
         );
       }
 
-      /*
-       * Successful Resend submission.
-       */
+
       setSubmission({
         status: "success",
         message:
@@ -122,12 +129,15 @@ export default function ContactUs() {
           "Your message has been sent successfully.",
       });
 
-      /*
-       * Clear the form.
-       */
-      setFormData(initialFormData);
+
+      setFormData(
+        initialFormData,
+      );
     } catch (error) {
-      console.error("Contact form submission error:", error);
+      console.error(
+        "Contact form submission error:",
+        error,
+      );
 
       setSubmission({
         status: "error",
@@ -138,53 +148,120 @@ export default function ContactUs() {
     }
   };
 
+
+  /* =========================================================
+     SHARED FORM STYLES
+  ========================================================= */
+
   const inputClasses = `
-    h-[62px]
+    h-[56px]
     w-full
-    rounded-[20px]
+
+    rounded-[18px]
+
     border
     border-[#704214]/10
+
     bg-[#FFF6E8]
-    px-5
+
+    px-4
+
     section-body
-    text-[1.1rem]
+
+    text-[1rem]
     font-semibold
+
     leading-[1.4]
+
     text-[#1C1C1C]
+
     shadow-[0_6px_18px_rgba(112,66,20,0.11)]
+
     outline-none
+
     transition
     duration-300
+
     placeholder:text-[#1C1C1C]/45
+
     hover:border-[#704214]/25
+
     focus:border-[#704214]/45
     focus:ring-2
     focus:ring-[#704214]/15
+
     disabled:cursor-not-allowed
     disabled:opacity-60
-    sm:px-6
-    sm:text-[1.2rem]
+
+    sm:h-[58px]
+    sm:px-5
+    sm:text-[1.08rem]
+
+    md:h-[60px]
+    md:px-6
+    md:text-[1.13rem]
+
+    xl:h-[62px]
+    xl:rounded-[20px]
+    xl:text-[1.2rem]
+
+    [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:h-[52px]
+    [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:px-4
+    [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[1rem]
   `;
 
+
   const labelClasses = `
-    mb-3
+    mb-2.5
     block
+
     font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
-    text-[1.2rem]
+
+    text-[1.08rem]
     font-normal
+
     leading-none
+
     text-[#704214]
-    sm:text-[1.3rem]
+
+    sm:text-[1.15rem]
+
+    md:mb-3
+    md:text-[1.22rem]
+
+    xl:text-[1.3rem]
+
+    [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:mb-2
+    [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[1.05rem]
   `;
+
 
   const infoHeadingClasses = `
     font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
-    text-[1.35rem]
+
+    text-[1.2rem]
     font-medium
+
     leading-tight
+
     text-[#704214]
-    sm:text-[1.5rem]
+
+    sm:text-[1.3rem]
+
+    md:text-[1.4rem]
+
+    xl:text-[1.5rem]
+
+    [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[1.15rem]
   `;
+
+
+  const wideFormFieldClasses = `
+    md:col-span-2
+
+    [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:col-span-1
+  `;
+
 
   return (
     <section
@@ -193,76 +270,202 @@ export default function ContactUs() {
       className="
         min-h-screen
         scroll-mt-28
+
         bg-[#F5E6CC]
+
         px-6
-        py-20
+        py-16
+
         text-[#1C1C1C]
-        md:px-20
+
+        sm:px-8
+        sm:py-20
+
+        md:px-12
+
+        lg:px-16
+
+        xl:px-20
+
+        [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:px-8
+        [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:py-14
       "
     >
       <div className="mx-auto max-w-7xl">
-        {/* Section name */}
+        {/* =================================================
+            SECTION NAME
+        ================================================= */}
+
         <ScrollReveal
           as="p"
-          className="mb-2 section-name"
+          className="
+            mb-2
+            section-name
+          "
           style={{
-            WebkitTextStroke: "0.45px currentColor",
+            WebkitTextStroke:
+              "0.45px currentColor",
           }}
         >
           Contact Us
         </ScrollReveal>
 
-        {/* Main heading */}
+
+        {/* =================================================
+            MAIN HEADING
+        ================================================= */}
+
         <ScrollReveal
           as="h2"
-          className="mt-8 max-w-5xl section-heading"
+          className="
+            mt-8
+
+            max-w-5xl
+
+            section-heading
+
+            [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:mt-6
+          "
         >
           Ready to Begin Your Family History Journey?
         </ScrollReveal>
 
-        {/* Introduction */}
+
+        {/* =================================================
+            INTRODUCTION
+        ================================================= */}
+
         <ScrollReveal
           as="p"
-          className="mt-7 max-w-4xl section-body"
+          className="
+            mt-7
+
+            max-w-4xl
+
+            section-body
+
+            [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:mt-5
+          "
         >
           Share what you know so far, whether it is a name, a place, a
-          document, and a family story. We will help you explore the next step.
+          document, or a family story. We will help you explore the next step.
         </ScrollReveal>
 
-        {/* Contact information and form */}
+
+        {/* =================================================
+            MAIN CONTACT LAYOUT
+
+            PHONE:
+            stacked
+
+            TABLET / IPAD:
+            contact details above
+            form below
+
+            SMALL LAPTOP:
+            same stacked structure
+
+            1280PX+:
+            contact details left
+            form right
+        ================================================= */}
+
         <ScrollReveal
           as="div"
           className="
-            mt-14
+            mt-12
+
             grid
             grid-cols-1
+
             items-start
-            gap-14
-            lg:mt-14
-            lg:grid-cols-[minmax(310px,0.82fr)_minmax(0,1.18fr)]
-            lg:gap-16
-            xl:grid-cols-[minmax(360px,0.86fr)_minmax(0,1.14fr)]
-            xl:gap-20
+
+            gap-12
+
+            sm:mt-14
+            sm:gap-14
+
+            md:gap-16
+
+            xl:grid-cols-[minmax(320px,0.86fr)_minmax(0,1.14fr)]
+            xl:gap-16
+
+            2xl:grid-cols-[minmax(360px,0.86fr)_minmax(0,1.14fr)]
+            2xl:gap-20
+
+            [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:mt-10
+            [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:gap-10
           "
         >
-          {/* =========================================================
-              LEFT-SIDE CONTACT DETAILS
-          ========================================================= */}
+          {/* =================================================
+              CONTACT INFORMATION
 
-          <div className="space-y-9 lg:pt-1">
-            {/* Location */}
-            <div className="flex items-center gap-7">
+              PHONE:
+              1 column
+
+              PHONE LANDSCAPE / TABLET / IPAD:
+              2 columns
+
+              DESKTOP:
+              returns to single vertical column
+          ================================================= */}
+
+          <div
+            className="
+              grid
+              grid-cols-1
+
+              gap-x-10
+              gap-y-8
+
+              sm:grid-cols-2
+              sm:gap-y-9
+
+              md:gap-x-12
+              md:gap-y-10
+
+              xl:grid-cols-1
+              xl:gap-y-9
+              xl:pt-1
+            "
+          >
+            {/* ===============================================
+                LOCATION
+            =============================================== */}
+
+            <div
+              className="
+                flex
+
+                items-start
+
+                gap-4
+
+                sm:gap-5
+
+                md:gap-6
+
+                xl:gap-7
+              "
+            >
               <div
                 className="
                   flex
-                  h-14
-                  w-14
+
+                  h-12
+                  w-12
+
                   shrink-0
+
                   items-center
                   justify-center
+
                   rounded-full
+
                   bg-[#704214]
+
                   text-[#FFF6E8]
+
                   sm:h-[50px]
                   sm:w-[50px]
                 "
@@ -271,41 +474,102 @@ export default function ContactUs() {
                   aria-hidden="true"
                   viewBox="0 0 24 24"
                   fill="none"
-                  className="h-6 w-6"
+                  className="
+                    h-5
+                    w-5
+
+                    sm:h-6
+                    sm:w-6
+                  "
                   stroke="currentColor"
                   strokeWidth="1.8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
                   <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" />
-                  <circle cx="12" cy="10" r="2.7" />
+                  <circle
+                    cx="12"
+                    cy="10"
+                    r="2.7"
+                  />
                 </svg>
               </div>
 
-              <div className="pt-1">
-                <h3 className={infoHeadingClasses}>
+
+              <div
+                className="
+                  min-w-0
+                  pt-1
+                "
+              >
+                <h3
+                  className={
+                    infoHeadingClasses
+                  }
+                >
                   Location
                 </h3>
 
-                <p className="mt-2 section-body text-[1.1rem] leading-snug sm:text-[1.25rem]">
+                <p
+                  className="
+                    mt-2
+
+                    section-body
+
+                    text-[1rem]
+
+                    leading-snug
+
+                    sm:text-[1.1rem]
+
+                    md:text-[1.18rem]
+
+                    xl:text-[1.25rem]
+                  "
+                >
                   Cape Town, South Africa
                 </p>
               </div>
             </div>
 
-            {/* Email */}
-            <div className="flex items-center gap-7">
+
+            {/* ===============================================
+                EMAIL
+            =============================================== */}
+
+            <div
+              className="
+                flex
+
+                items-start
+
+                gap-4
+
+                sm:gap-5
+
+                md:gap-6
+
+                xl:gap-7
+              "
+            >
               <div
                 className="
                   flex
-                  h-14
-                  w-14
+
+                  h-12
+                  w-12
+
                   shrink-0
+
                   items-center
                   justify-center
+
                   rounded-full
+
                   bg-[#704214]
+
                   text-[#FFF6E8]
+
                   sm:h-[50px]
                   sm:w-[50px]
                 "
@@ -314,7 +578,13 @@ export default function ContactUs() {
                   aria-hidden="true"
                   viewBox="0 0 24 24"
                   fill="none"
-                  className="h-6 w-6"
+                  className="
+                    h-5
+                    w-5
+
+                    sm:h-6
+                    sm:w-6
+                  "
                   stroke="currentColor"
                   strokeWidth="1.8"
                   strokeLinecap="round"
@@ -332,24 +602,47 @@ export default function ContactUs() {
                 </svg>
               </div>
 
-              <div className="min-w-0 pt-1">
-                <h3 className={infoHeadingClasses}>
+
+              <div
+                className="
+                  min-w-0
+                  pt-1
+                "
+              >
+                <h3
+                  className={
+                    infoHeadingClasses
+                  }
+                >
                   Email
                 </h3>
 
                 <a
                   href="mailto:ancestorsandanecdotes@gmail.com"
                   className="
-                    mt-1
+                    mt-2
                     block
-                    break-all
+
+                    break-words
+
                     section-body
-                    text-[1.05rem]
+
+                    text-[0.95rem]
+
                     leading-snug
+
                     transition-colors
                     duration-300
+
                     hover:text-[#704214]
-                    sm:text-[1.3rem]
+
+                    sm:text-[1rem]
+
+                    md:text-[1.12rem]
+
+                    lg:text-[1.18rem]
+
+                    xl:text-[1.2rem]
                   "
                 >
                   ancestorsandanecdotes@gmail.com
@@ -357,19 +650,44 @@ export default function ContactUs() {
               </div>
             </div>
 
-            {/* Response time */}
-            <div className="flex items-center gap-7">
+
+            {/* ===============================================
+                RESPONSE TIME
+            =============================================== */}
+
+            <div
+              className="
+                flex
+
+                items-start
+
+                gap-4
+
+                sm:gap-5
+
+                md:gap-6
+
+                xl:gap-7
+              "
+            >
               <div
                 className="
                   flex
-                  h-14
-                  w-14
+
+                  h-12
+                  w-12
+
                   shrink-0
+
                   items-center
                   justify-center
+
                   rounded-full
+
                   bg-[#704214]
+
                   text-[#FFF6E8]
+
                   sm:h-[50px]
                   sm:w-[50px]
                 "
@@ -378,7 +696,13 @@ export default function ContactUs() {
                   aria-hidden="true"
                   viewBox="0 0 24 24"
                   fill="none"
-                  className="h-6 w-6"
+                  className="
+                    h-5
+                    w-5
+
+                    sm:h-6
+                    sm:w-6
+                  "
                   stroke="currentColor"
                   strokeWidth="1.8"
                   strokeLinecap="round"
@@ -388,30 +712,81 @@ export default function ContactUs() {
                 </svg>
               </div>
 
-              <div className="pt-1">
-                <h3 className={infoHeadingClasses}>
+
+              <div
+                className="
+                  min-w-0
+                  pt-1
+                "
+              >
+                <h3
+                  className={
+                    infoHeadingClasses
+                  }
+                >
                   Response Time
                 </h3>
 
-                <p className="mt-2 section-body text-[1.1rem] leading-snug sm:text-[1.25rem]">
+                <p
+                  className="
+                    mt-2
+
+                    section-body
+
+                    text-[1rem]
+
+                    leading-snug
+
+                    sm:text-[1.1rem]
+
+                    md:text-[1.18rem]
+
+                    xl:text-[1.25rem]
+                  "
+                >
                   We respond within 1–2 business days
                 </p>
               </div>
             </div>
 
-            {/* Confidentiality */}
-            <div className="flex items-center gap-7">
+
+            {/* ===============================================
+                CONFIDENTIALITY
+            =============================================== */}
+
+            <div
+              className="
+                flex
+
+                items-start
+
+                gap-4
+
+                sm:gap-5
+
+                md:gap-6
+
+                xl:gap-7
+              "
+            >
               <div
                 className="
                   flex
-                  h-14
-                  w-14
+
+                  h-12
+                  w-12
+
                   shrink-0
+
                   items-center
                   justify-center
+
                   rounded-full
+
                   bg-[#704214]
+
                   text-[#FFF6E8]
+
                   sm:h-[50px]
                   sm:w-[50px]
                 "
@@ -420,7 +795,13 @@ export default function ContactUs() {
                   aria-hidden="true"
                   viewBox="0 0 24 24"
                   fill="none"
-                  className="h-6 w-6"
+                  className="
+                    h-5
+                    w-5
+
+                    sm:h-6
+                    sm:w-6
+                  "
                   stroke="currentColor"
                   strokeWidth="1.8"
                   strokeLinecap="round"
@@ -431,16 +812,27 @@ export default function ContactUs() {
                 </svg>
               </div>
 
+
               <p
                 className="
                   max-w-[360px]
+
                   pt-1
+
                   font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
-                  text-[1.12rem]
+
+                  text-[1.02rem]
                   font-[600]
-                  leading-[1.35]
+
+                  leading-[1.4]
+
                   text-[#704214]
-                  sm:text-[1.13rem]
+
+                  sm:text-[1.08rem]
+
+                  md:text-[1.12rem]
+
+                  xl:text-[1.13rem]
                 "
               >
                 Your family information will be treated with care, respect, and
@@ -449,29 +841,58 @@ export default function ContactUs() {
             </div>
           </div>
 
-          {/* =========================================================
-              RESEND CONTACT FORM
-          ========================================================= */}
+
+          {/* =================================================
+              CONTACT FORM
+
+              MOBILE:
+              1 column
+
+              TABLET / IPAD:
+              2 columns
+
+              SHORT PHONE LANDSCAPE:
+              forced back to 1 column
+
+              DESKTOP:
+              2 columns
+          ================================================= */}
 
           <form
-            onSubmit={handleSubmit}
+            onSubmit={
+              handleSubmit
+            }
             className="
               grid
               grid-cols-1
-              gap-x-6
-              gap-y-7
-              sm:grid-cols-2
+
+              gap-y-6
+
+              md:grid-cols-2
+              md:gap-x-6
+              md:gap-y-7
+
+              xl:gap-x-6
+
+              [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:grid-cols-1
+              [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:gap-y-5
             "
           >
-            {/* =======================================================
+            {/* ===============================================
                 HONEYPOT
-                Hidden from normal visitors.
-                Bots frequently fill fields like this.
-            ======================================================= */}
+            =============================================== */}
 
             <div
               aria-hidden="true"
-              className="absolute -left-[9999px] h-0 w-0 overflow-hidden"
+              className="
+                absolute
+                -left-[9999px]
+
+                h-0
+                w-0
+
+                overflow-hidden
+              "
             >
               <label htmlFor="website">
                 Website
@@ -483,19 +904,26 @@ export default function ContactUs() {
                 type="text"
                 tabIndex={-1}
                 autoComplete="off"
-                value={formData.website}
-                onChange={handleChange}
+                value={
+                  formData.website
+                }
+                onChange={
+                  handleChange
+                }
               />
             </div>
 
-            {/* =======================================================
+
+            {/* ===============================================
                 FULL NAME
-            ======================================================= */}
+            =============================================== */}
 
             <div>
               <label
                 htmlFor="fullName"
-                className={labelClasses}
+                className={
+                  labelClasses
+                }
               >
                 Full Name
                 <span className="font-semibold text-[#C11013]">
@@ -509,22 +937,33 @@ export default function ContactUs() {
                 type="text"
                 required
                 autoComplete="name"
-                value={formData.fullName}
-                onChange={handleChange}
-                disabled={isSubmitting}
+                value={
+                  formData.fullName
+                }
+                onChange={
+                  handleChange
+                }
+                disabled={
+                  isSubmitting
+                }
                 placeholder="Your full name"
-                className={inputClasses}
+                className={
+                  inputClasses
+                }
               />
             </div>
 
-            {/* =======================================================
+
+            {/* ===============================================
                 EMAIL ADDRESS
-            ======================================================= */}
+            =============================================== */}
 
             <div>
               <label
                 htmlFor="email"
-                className={labelClasses}
+                className={
+                  labelClasses
+                }
               >
                 Email Address
                 <span className="font-semibold text-[#C11013]">
@@ -538,26 +977,33 @@ export default function ContactUs() {
                 type="email"
                 required
                 autoComplete="email"
-                value={formData.email}
-                onChange={handleChange}
-                disabled={isSubmitting}
+                value={
+                  formData.email
+                }
+                onChange={
+                  handleChange
+                }
+                disabled={
+                  isSubmitting
+                }
                 placeholder="e.g. johndoe@gmail.com"
-                className={inputClasses}
+                className={
+                  inputClasses
+                }
               />
             </div>
 
-            {/* =======================================================
-                PHONE NUMBER
 
-                OPTIONAL:
-                - no required attribute
-                - no red asterisk
-            ======================================================= */}
+            {/* ===============================================
+                PHONE NUMBER
+            =============================================== */}
 
             <div>
               <label
                 htmlFor="phone"
-                className={labelClasses}
+                className={
+                  labelClasses
+                }
               >
                 Phone Number
               </label>
@@ -567,22 +1013,33 @@ export default function ContactUs() {
                 name="phone"
                 type="tel"
                 autoComplete="tel"
-                value={formData.phone}
-                onChange={handleChange}
-                disabled={isSubmitting}
+                value={
+                  formData.phone
+                }
+                onChange={
+                  handleChange
+                }
+                disabled={
+                  isSubmitting
+                }
                 placeholder="Your phone number (optional)"
-                className={inputClasses}
+                className={
+                  inputClasses
+                }
               />
             </div>
 
-            {/* =======================================================
+
+            {/* ===============================================
                 FAMILY LOCATION
-            ======================================================= */}
+            =============================================== */}
 
             <div>
               <label
                 htmlFor="familyLocation"
-                className={labelClasses}
+                className={
+                  labelClasses
+                }
               >
                 Family Location
               </label>
@@ -591,22 +1048,33 @@ export default function ContactUs() {
                 id="familyLocation"
                 name="familyLocation"
                 type="text"
-                value={formData.familyLocation}
-                onChange={handleChange}
-                disabled={isSubmitting}
+                value={
+                  formData.familyLocation
+                }
+                onChange={
+                  handleChange
+                }
+                disabled={
+                  isSubmitting
+                }
                 placeholder="e.g. South Africa / UK / Unsure"
-                className={inputClasses}
+                className={
+                  inputClasses
+                }
               />
             </div>
 
-            {/* =======================================================
+
+            {/* ===============================================
                 PACKAGE
-            ======================================================= */}
+            =============================================== */}
 
             <div>
               <label
                 htmlFor="package"
-                className={labelClasses}
+                className={
+                  labelClasses
+                }
               >
                 Package
               </label>
@@ -615,33 +1083,43 @@ export default function ContactUs() {
                 <select
                   id="package"
                   name="package"
-                  value={formData.package}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
+                  value={
+                    formData.package
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  disabled={
+                    isSubmitting
+                  }
                   className={`
                     ${inputClasses}
+
                     cursor-pointer
                     appearance-none
-                    pr-14
+
+                    pr-12
+
+                    sm:pr-14
                   `}
                 >
                   <option value="">
                     Select a package
                   </option>
 
-                  <option value="Getting Started">
+                  <option value="Two Branch Trace">
                     Two Branch Trace
                   </option>
 
-                  <option value="Family Tree Essentials">
+                  <option value="Grandparent Trace">
                     Grandparent Trace
                   </option>
 
-                  <option value="Family History Research">
+                  <option value="Comprehensive Ancestry Trace">
                     Comprehensive Ancestry Trace
                   </option>
 
-                  <option value="Family Story Document">
+                  <option value="Life Story and Oral History">
                     Life Story and Oral History
                   </option>
                 </select>
@@ -652,13 +1130,20 @@ export default function ContactUs() {
                   fill="none"
                   className="
                     pointer-events-none
+
                     absolute
-                    right-5
+
+                    right-4
                     top-1/2
+
                     h-5
                     w-5
+
                     -translate-y-1/2
+
                     text-[#1C1C1C]
+
+                    sm:right-5
                   "
                   stroke="currentColor"
                   strokeWidth="1.8"
@@ -670,14 +1155,17 @@ export default function ContactUs() {
               </div>
             </div>
 
-            {/* =======================================================
+
+            {/* ===============================================
                 BUDGET RANGE
-            ======================================================= */}
+            =============================================== */}
 
             <div>
               <label
                 htmlFor="budget"
-                className={labelClasses}
+                className={
+                  labelClasses
+                }
               >
                 Budget Range
                 <span className="font-semibold text-[#C11013]">
@@ -690,14 +1178,24 @@ export default function ContactUs() {
                   id="budget"
                   name="budget"
                   required
-                  value={formData.budget}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
+                  value={
+                    formData.budget
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  disabled={
+                    isSubmitting
+                  }
                   className={`
                     ${inputClasses}
+
                     cursor-pointer
                     appearance-none
-                    pr-14
+
+                    pr-12
+
+                    sm:pr-14
                   `}
                 >
                   <option value="">
@@ -731,13 +1229,20 @@ export default function ContactUs() {
                   fill="none"
                   className="
                     pointer-events-none
+
                     absolute
-                    right-5
+
+                    right-4
                     top-1/2
+
                     h-5
                     w-5
+
                     -translate-y-1/2
+
                     text-[#1C1C1C]
+
+                    sm:right-5
                   "
                   stroke="currentColor"
                   strokeWidth="1.8"
@@ -749,14 +1254,21 @@ export default function ContactUs() {
               </div>
             </div>
 
-            {/* =======================================================
-                MESSAGE
-            ======================================================= */}
 
-            <div className="sm:col-span-2">
+            {/* ===============================================
+                MESSAGE
+            =============================================== */}
+
+            <div
+              className={
+                wideFormFieldClasses
+              }
+            >
               <label
                 htmlFor="message"
-                className={labelClasses}
+                className={
+                  labelClasses
+                }
               >
                 Message
                 <span className="font-semibold text-[#C11013]">
@@ -768,68 +1280,117 @@ export default function ContactUs() {
                 id="message"
                 name="message"
                 required
-                value={formData.message}
-                onChange={handleChange}
-                disabled={isSubmitting}
+                value={
+                  formData.message
+                }
+                onChange={
+                  handleChange
+                }
+                disabled={
+                  isSubmitting
+                }
                 placeholder="Tell us a little about your family history enquiry and what you would like to achieve"
                 className="
-                  min-h-[175px]
+                  min-h-[150px]
+
                   w-full
+
                   resize-y
-                  rounded-[20px]
+
+                  rounded-[18px]
+
                   border
                   border-[#704214]/10
+
                   bg-[#FFF6E8]
-                  px-5
-                  py-5
+
+                  px-4
+                  py-4
+
                   section-body
-                  text-[1.1rem]
+
+                  text-[1rem]
                   font-medium
-                  leading-[1.4]
+
+                  leading-[1.45]
+
                   text-[#1C1C1C]
+
                   shadow-[0_6px_18px_rgba(112,66,20,0.11)]
+
                   outline-none
+
                   transition
                   duration-300
+
                   placeholder:text-[#1C1C1C]/45
+
                   hover:border-[#704214]/25
+
                   focus:border-[#704214]/45
                   focus:ring-2
                   focus:ring-[#704214]/15
+
                   disabled:cursor-not-allowed
                   disabled:opacity-60
-                  sm:min-h-[185px]
-                  sm:px-6
-                  sm:text-[1.2rem]
+
+                  sm:min-h-[165px]
+                  sm:px-5
+                  sm:py-5
+                  sm:text-[1.08rem]
+
+                  md:min-h-[175px]
+                  md:px-6
+                  md:text-[1.13rem]
+
+                  xl:min-h-[185px]
+                  xl:rounded-[20px]
+                  xl:text-[1.2rem]
+
+                  [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:min-h-[135px]
+                  [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:px-4
+                  [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:py-4
+                  [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[1rem]
                 "
               />
             </div>
 
-            {/* =======================================================
-                RESEND / SERVER ERROR
-            ======================================================= */}
 
-            {submission.status === "error" && (
+            {/* ===============================================
+                ERROR MESSAGE
+            =============================================== */}
+
+            {submission.status ===
+              "error" && (
               <div
                 role="alert"
                 aria-live="assertive"
-                className="
+                className={`
+                  ${wideFormFieldClasses}
+
                   rounded-[16px]
+
                   border
                   border-[#C11013]/25
+
                   bg-[#C11013]/5
+
                   px-5
                   py-4
-                  sm:col-span-2
-                "
+                `}
               >
                 <p
                   className="
                     font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
-                    text-[1.15rem]
+
+                    text-[1.1rem]
                     font-semibold
+
                     leading-tight
+
                     text-[#C11013]
+
+                    sm:text-[1.15rem]
                   "
                 >
                   We could not send your enquiry.
@@ -838,42 +1399,61 @@ export default function ContactUs() {
                 <p
                   className="
                     mt-2
+
                     section-body
-                    text-[1rem]
+
+                    text-[0.95rem]
+
                     leading-[1.4]
+
                     text-[#1C1C1C]
+
+                    sm:text-[1rem]
                   "
                 >
-                  {submission.message}
+                  {
+                    submission.message
+                  }
                 </p>
               </div>
             )}
 
-            {/* =======================================================
-                SUCCESSFUL RESEND SUBMISSION
-            ======================================================= */}
 
-            {submission.status === "success" && (
+            {/* ===============================================
+                SUCCESS MESSAGE
+            =============================================== */}
+
+            {submission.status ===
+              "success" && (
               <div
                 role="status"
                 aria-live="polite"
-                className="
+                className={`
+                  ${wideFormFieldClasses}
+
                   rounded-[16px]
+
                   border
                   border-[#566735]/25
+
                   bg-[#566735]/10
+
                   px-5
                   py-4
-                  sm:col-span-2
-                "
+                `}
               >
                 <p
                   className="
                     font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
-                    text-[1.2rem]
+
+                    text-[1.1rem]
                     font-semibold
+
                     leading-tight
+
                     text-[#566735]
+
+                    sm:text-[1.2rem]
                   "
                 >
                   Thank you for your enquiry.
@@ -882,10 +1462,16 @@ export default function ContactUs() {
                 <p
                   className="
                     mt-2
+
                     section-body
-                    text-[1rem]
+
+                    text-[0.95rem]
+
                     leading-[1.4]
+
                     text-[#1C1C1C]
+
+                    sm:text-[1rem]
                   "
                 >
                   Your message has been sent successfully. We will respond
@@ -894,45 +1480,74 @@ export default function ContactUs() {
               </div>
             )}
 
-            {/* =======================================================
+
+            {/* ===============================================
                 SUBMIT BUTTON
-            ======================================================= */}
+            =============================================== */}
 
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="
+              disabled={
+                isSubmitting
+              }
+              className={`
+                ${wideFormFieldClasses}
+
                 flex
-                min-h-[56px]
+
+                min-h-[52px]
                 w-full
+
                 items-center
                 justify-center
+
                 rounded-[14px]
+
                 bg-[#566735]
+
                 px-6
                 py-3
+
                 font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
-                text-[1.25rem]
+
+                text-[1.15rem]
+
                 text-[#FFF6E8]
+
                 shadow-[0_5px_14px_rgba(86,103,53,0.2)]
+
                 transition
                 duration-300
+
                 hover:-translate-y-0.5
                 hover:bg-[#704214]
                 hover:shadow-[0_8px_20px_rgba(112,66,20,0.25)]
+
                 focus:outline-none
+
                 focus-visible:ring-2
                 focus-visible:ring-[#704214]
                 focus-visible:ring-offset-4
                 focus-visible:ring-offset-[#F5E6CC]
+
                 disabled:cursor-not-allowed
                 disabled:opacity-60
+
                 disabled:hover:translate-y-0
                 disabled:hover:bg-[#566735]
                 disabled:hover:shadow-[0_5px_14px_rgba(86,103,53,0.2)]
-                sm:col-span-2
-                sm:text-[1.35rem]
-              "
+
+                sm:min-h-[54px]
+                sm:text-[1.25rem]
+
+                md:min-h-[56px]
+                md:text-[1.3rem]
+
+                xl:text-[1.35rem]
+
+                [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:min-h-[50px]
+                [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[1.1rem]
+              `}
             >
               {isSubmitting
                 ? "Sending Enquiry..."

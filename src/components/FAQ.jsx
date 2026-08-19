@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ScrollReveal from "./ScrollReveal";
 
+
 const faqItems = [
   {
     question: "What information do I need to start?",
@@ -39,14 +40,17 @@ const faqItems = [
   },
 ];
 
+
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState(0);
 
+
   const handleToggle = (index) => {
     setOpenIndex((currentIndex) =>
-      currentIndex === index ? null : index
+      currentIndex === index ? null : index,
     );
   };
+
 
   return (
     <section
@@ -54,18 +58,39 @@ export default function FAQ() {
       data-cursor-theme="dark"
       className="
         min-h-screen
+
         bg-[#F5E6CC]
+
         px-6
-        py-20
+        py-16
+
         text-[#1C1C1C]
-        md:px-20
+
+        sm:px-8
+        sm:py-20
+
+        md:px-8
+        md:py-20
+
+        lg:px-12
+
+        xl:px-20
+
+        [@media(max-width:767px)_and_(orientation:landscape)_and_(max-height:600px)]:px-8
+        [@media(max-width:767px)_and_(orientation:landscape)_and_(max-height:600px)]:py-14
       "
     >
       <div className="mx-auto max-w-7xl">
-        {/* Section name */}
-        <ScrollReveal 
+        {/* =================================================
+            SECTION NAME
+        ================================================= */}
+
+        <ScrollReveal
           as="p"
-          className="mb-2 section-name"
+          className="
+            mb-2
+            section-name
+          "
           style={{
             WebkitTextStroke: "0.45px currentColor",
           }}
@@ -73,68 +98,129 @@ export default function FAQ() {
           Frequently Asked Questions
         </ScrollReveal>
 
-        {/* Main heading */}
+
+        {/* =================================================
+            MAIN HEADING
+        ================================================= */}
+
         <ScrollReveal
           as="h2"
           className="
             mt-8
+
             max-w-[980px]
+
             section-heading
-            
+
+            [@media(max-width:767px)_and_(orientation:landscape)_and_(max-height:600px)]:mt-6
           "
         >
           Answers to Common Questions About Family History Research
-          <span className="block mt-1">
-            
-          </span>
         </ScrollReveal>
 
-        {/* Introduction */}
-        <ScrollReveal 
+
+        {/* =================================================
+            INTRODUCTION
+        ================================================= */}
+
+        <ScrollReveal
           as="p"
           className="
             mt-7
+
             max-w-[900px]
+
             section-body
+
+            [@media(max-width:767px)_and_(orientation:landscape)_and_(max-height:600px)]:mt-5
           "
         >
-          If you are new to genealogy research, it is completely normal to have questions. 
-          Here are a few of the most common things people ask before getting started.
+          If you are new to genealogy research, it is completely normal to have
+          questions. Here are a few of the most common things people ask before
+          getting started.
         </ScrollReveal>
 
-        {/* Image and FAQ layout */}
+
+        {/* =================================================
+            FAQ CONTENT
+
+            PHONE:
+            stacked
+
+            TABLET / IPAD:
+            image left + FAQs right
+
+            LAPTOP / DESKTOP:
+            same exact structure
+
+            Both columns stretch to equal height.
+        ================================================= */}
+
         <div
           className="
-            mt-14
+            mt-12
+
             grid
             grid-cols-1
-            items-start
-            gap-12
-            lg:mt-12
-            lg:grid-cols-[minmax(340px,0.82fr)_minmax(0,1.08fr)]
-            lg:gap-[64px]
+
+            items-stretch
+
+            gap-10
+
+            sm:mt-14
+
+            md:grid-cols-[minmax(230px,0.78fr)_minmax(0,1.22fr)]
+            md:gap-8
+
+            lg:grid-cols-[minmax(300px,0.82fr)_minmax(0,1.08fr)]
+            lg:gap-12
+
+            xl:mt-12
             xl:grid-cols-[460px_minmax(0,1fr)]
+            xl:gap-16
+
+            [@media(max-width:767px)_and_(orientation:landscape)_and_(max-height:600px)]:mt-9
           "
         >
-          {/* Left image */}
+          {/* =================================================
+              LEFT IMAGE
+          ================================================= */}
+
           <ScrollReveal
             as="div"
             className="
               relative
+
               mx-auto
               w-full
-              max-w-[520px]
+
+              max-w-[430px]
+
               overflow-hidden
-              lg:mx-0
-              lg:max-w-none
+
+              md:mx-0
+              md:h-full
+              md:max-w-none
+              md:self-stretch
             "
           >
             <div
               className="
-                aspect-[2/3]
+                aspect-[4/5]
+
                 w-full
+
                 overflow-hidden
+
                 bg-[#E7D3AE]
+
+                sm:aspect-[3/4]
+
+                md:h-full
+                md:min-h-full
+                md:aspect-auto
+
+                [@media(max-width:767px)_and_(orientation:landscape)_and_(max-height:600px)]:aspect-[16/7]
               "
             >
               <img
@@ -142,23 +228,45 @@ export default function FAQ() {
                 src="/Images/genealogy-matters-1.jpg"
                 alt="Historical family photographs, handwritten records, and archived documents"
                 loading="lazy"
+                decoding="async"
                 className="
                   h-full
                   w-full
+
                   object-cover
                   object-center
+
                   sepia-[12%]
                 "
               />
             </div>
           </ScrollReveal>
 
-          {/* Accordion */}
-          <ScrollReveal as="div" className="w-full">
+
+          {/* =================================================
+              FAQ ACCORDION
+          ================================================= */}
+
+          <ScrollReveal
+            as="div"
+            className="
+              flex
+              h-full
+              min-w-0
+              w-full
+
+              flex-col
+            "
+          >
             {faqItems.map((item, index) => {
               const isOpen = openIndex === index;
-              const answerId = `faq-answer-${index}`;
-              const buttonId = `faq-button-${index}`;
+
+              const answerId =
+                `faq-answer-${index}`;
+
+              const buttonId =
+                `faq-button-${index}`;
+
 
               return (
                 <article
@@ -168,6 +276,10 @@ export default function FAQ() {
                     border-[#704214]/35
                   "
                 >
+                  {/* =========================================
+                      QUESTION
+                  ========================================= */}
+
                   <button
                     id={buttonId}
                     type="button"
@@ -176,58 +288,108 @@ export default function FAQ() {
                     aria-controls={answerId}
                     className="
                       group
+
                       flex
                       w-full
+
                       items-start
                       justify-between
-                      gap-6
-                      py-6
+
+                      gap-4
+
+                      py-5
+
                       text-left
+
                       focus:outline-none
+
                       focus-visible:ring-2
                       focus-visible:ring-[#704214]
                       focus-visible:ring-offset-4
                       focus-visible:ring-offset-[#F5E6CC]
-                      sm:gap-8
+
+                      sm:gap-5
+
+                      md:gap-4
+                      md:py-4
+
+                      lg:gap-5
+                      lg:py-5
+
+                      xl:gap-6
+                      xl:py-6
+
+                      [@media(max-width:767px)_and_(orientation:landscape)_and_(max-height:600px)]:py-4
                     "
                   >
+                    {/* QUESTION TEXT */}
+
                     <span
                       className="
+                        min-w-0
                         max-w-[720px]
-                        
-                        text-[1.32rem]
+
                         section-body
-                        
+
+                        text-[1.15rem]
                         font-bold
+
                         leading-[1.25]
+
                         text-[#704214]
+
                         transition-colors
                         duration-300
+
                         group-hover:text-[#9C645E]
-                        sm:text-[1.55rem]
-                        lg:text-[1.45rem]
+
+                        sm:text-[1.28rem]
+
+                        md:text-[1.08rem]
+                        md:leading-[1.2]
+
+                        lg:text-[1.25rem]
+
                         xl:text-[1.55rem]
                       "
                     >
                       {item.question}
                     </span>
 
-                    {/* Plus/minus button */}
+
+                    {/* =====================================
+                        PLUS / MINUS
+                    ===================================== */}
+
                     <span
                       aria-hidden="true"
                       className={`
-                        mt-[-3px]
+                        mt-[-2px]
+
                         flex
-                        h-9
-                        w-9
+
+                        h-8
+                        w-8
+
                         shrink-0
+
                         items-center
                         justify-center
+
                         rounded-full
+
                         transition-all
                         duration-300
-                        sm:h-8
-                        sm:w-8
+
+                        md:h-7
+                        md:w-7
+
+                        lg:h-8
+                        lg:w-8
+
+                        xl:h-9
+                        xl:w-9
+
                         ${
                           isOpen
                             ? "rotate-0 bg-[#704214] text-[#FFF6E8]"
@@ -238,40 +400,58 @@ export default function FAQ() {
                       <span
                         className="
                           relative
+
                           block
-                          h-4
-                          w-4
+
+                          h-3.5
+                          w-3.5
+
+                          xl:h-4
+                          xl:w-4
                         "
                       >
                         {/* Horizontal line */}
+
                         <span
                           className="
                             absolute
                             left-1/2
                             top-1/2
+
                             h-[2px]
                             w-full
+
                             -translate-x-1/2
                             -translate-y-1/2
+
                             rounded-full
+
                             bg-current
                           "
                         />
 
+
                         {/* Vertical line */}
+
                         <span
                           className={`
                             absolute
                             left-1/2
                             top-1/2
+
                             h-full
                             w-[2px]
+
                             -translate-x-1/2
                             -translate-y-1/2
+
                             rounded-full
+
                             bg-current
+
                             transition-all
                             duration-300
+
                             ${
                               isOpen
                                 ? "rotate-90 opacity-0"
@@ -283,16 +463,24 @@ export default function FAQ() {
                     </span>
                   </button>
 
-                  {/* Answer */}
+
+                  {/* =========================================
+                      ANSWER
+                  ========================================= */}
+
                   <div
                     id={answerId}
                     role="region"
                     aria-labelledby={buttonId}
+                    aria-hidden={!isOpen}
                     className={`
                       grid
+
                       transition-[grid-template-rows,opacity]
                       duration-500
+
                       ease-[cubic-bezier(0.22,1,0.36,1)]
+
                       ${
                         isOpen
                           ? "grid-rows-[1fr] opacity-100"
@@ -304,15 +492,33 @@ export default function FAQ() {
                       <p
                         className="
                           max-w-[700px]
-                          pb-7
+
+                          pb-6
+
                           pr-0
+
                           section-body
-                          text-[1.15rem]
+
+                          text-[1.03rem]
+
                           leading-[1.45]
+
                           text-[#1C1C1C]
-                          sm:pr-20
-                          sm:text-[1.25rem]
-                          lg:text-[1.15rem]
+
+                          sm:text-[1.1rem]
+
+                          md:pb-5
+                          md:pr-4
+                          md:text-[0.92rem]
+                          md:leading-[1.4]
+
+                          lg:pb-6
+                          lg:pr-8
+                          lg:text-[1.05rem]
+                          lg:leading-[1.45]
+
+                          xl:pb-7
+                          xl:pr-16
                           xl:text-[1.3rem]
                         "
                       >

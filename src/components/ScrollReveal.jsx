@@ -12,7 +12,7 @@ export default function ScrollReveal({
   y = 60,
   duration = 0.9,
   delay = 0,
-  start = "top 85%",
+  start = "top 96%",
   once = true,
 }) {
   const elementRef = useRef(null);
