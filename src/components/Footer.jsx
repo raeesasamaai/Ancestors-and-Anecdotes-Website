@@ -1,3 +1,32 @@
+function LinkUnderline() {
+  return (
+    <span
+      aria-hidden="true"
+      className="
+        absolute
+        -bottom-[3px]
+        left-0
+
+        h-[1.5px]
+        w-full
+
+        origin-left
+        scale-x-0
+
+        bg-current
+
+        [@media(hover:hover)_and_(pointer:fine)]:transition-transform
+        [@media(hover:hover)_and_(pointer:fine)]:duration-300
+
+        [@media(hover:hover)_and_(pointer:fine)]:ease-[cubic-bezier(0.22,1,0.36,1)]
+
+        [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-x-100
+        group-focus-visible:scale-x-100
+      "
+    />
+  );
+}
+
 export default function Footer({
   mainSitePrefix = "",
 }) {
@@ -61,7 +90,6 @@ export default function Footer({
     },
   ];
 
-
   /* =========================================================
      QUICK LINKS
   ========================================================= */
@@ -113,7 +141,6 @@ export default function Footer({
     },
   ];
 
-
   /* =========================================================
      LEGAL LINKS
   ========================================================= */
@@ -134,7 +161,6 @@ export default function Footer({
       href: "/research-disclaimer/",
     },
   ];
-
 
   /* =========================================================
      SHARED TYPOGRAPHY
@@ -157,7 +183,6 @@ export default function Footer({
     xl:text-[1.25rem]
   `;
 
-
   const footerLinkClasses = `
     group
     relative
@@ -174,10 +199,10 @@ export default function Footer({
 
     text-[#1C1C1C]
 
-    transition-colors
-    duration-300
+    [@media(hover:hover)_and_(pointer:fine)]:transition-colors
+    [@media(hover:hover)_and_(pointer:fine)]:duration-300
 
-    hover:text-[#566735]
+    [@media(hover:hover)_and_(pointer:fine)]:hover:text-[#566735]
 
     focus:outline-none
     focus-visible:text-[#566735]
@@ -187,7 +212,6 @@ export default function Footer({
 
     xl:text-[1.05rem]
   `;
-
 
   const footerTextClasses = `
     font-['Cormorant_Garamond',serif]
@@ -203,39 +227,6 @@ export default function Footer({
 
     xl:text-[1.05rem]
   `;
-
-
-  /* =========================================================
-     LINK UNDERLINE
-  ========================================================= */
-
-  const LinkUnderline = () => (
-    <span
-      aria-hidden="true"
-      className="
-        absolute
-        -bottom-[3px]
-        left-0
-
-        h-[1.5px]
-        w-full
-
-        origin-left
-        scale-x-0
-
-        bg-current
-
-        transition-transform
-        duration-300
-
-        ease-[cubic-bezier(0.22,1,0.36,1)]
-
-        group-hover:scale-x-100
-        group-focus-visible:scale-x-100
-      "
-    />
-  );
-
 
   return (
     <footer
@@ -380,7 +371,6 @@ export default function Footer({
               </h2>
             </a>
 
-
             <p
               className="
                 mt-4
@@ -405,7 +395,6 @@ export default function Footer({
               their ancestry.
             </p>
           </div>
-
 
           {/* =================================================
               QUICK LINKS
@@ -469,7 +458,6 @@ export default function Footer({
             </nav>
           </div>
 
-
           {/* =================================================
               LEGAL
           ================================================= */}
@@ -492,7 +480,7 @@ export default function Footer({
                 EDIT TABLET LEGAL POSITION HERE
 
                 md:self-end
-                ↓
+                down
                 pushes Legal to the BOTTOM of the tablet/iPad
                 row instead of sitting at the very top.
 
@@ -538,7 +526,6 @@ export default function Footer({
             </nav>
           </div>
 
-
           {/* =================================================
               CONTACT
           ================================================= */}
@@ -561,7 +548,7 @@ export default function Footer({
                 EDIT TABLET LEGAL / CONTACT GAP HERE
 
                 md:mt-5
-                ↓
+                down
                 controls the final spacing between Legal
                 and Contact on tablets/iPads.
 
@@ -615,20 +602,17 @@ export default function Footer({
                 <LinkUnderline />
               </a>
 
-
               {/* RESPONSE TIME */}
 
               <p className={footerTextClasses}>
-                Response within 1–2 business days
+                Response within 1-2 business days
               </p>
-
 
               {/* LOCATION */}
 
               <p className={footerTextClasses}>
                 Cape Town, South Africa
               </p>
-
 
               {/* SOCIAL ICONS */}
 
@@ -662,11 +646,11 @@ export default function Footer({
 
                       rounded-full
 
-                      transition
-                      duration-300
+                      [@media(hover:hover)_and_(pointer:fine)]:transition
+                      [@media(hover:hover)_and_(pointer:fine)]:duration-300
 
-                      hover:-translate-y-0.5
-                      hover:text-[#566735]
+                      [@media(hover:hover)_and_(pointer:fine)]:hover:-translate-y-0.5
+                      [@media(hover:hover)_and_(pointer:fine)]:hover:text-[#566735]
 
                       focus:outline-none
 
@@ -683,7 +667,6 @@ export default function Footer({
             </div>
           </div>
         </div>
-
 
         {/* =================================================
             BOTTOM FOOTER
@@ -733,9 +716,8 @@ export default function Footer({
               md:text-[0.95rem]
             "
           >
-            © 2026 Ancestors &amp; Anecdotes. All rights reserved.
+            &copy; 2026 Ancestors &amp; Anecdotes. All rights reserved.
           </p>
-
 
           {/* WEBSITE CREDIT */}
 
@@ -767,10 +749,10 @@ export default function Footer({
 
                 text-[#704214]
 
-                transition-colors
-                duration-300
+                [@media(hover:hover)_and_(pointer:fine)]:transition-colors
+                [@media(hover:hover)_and_(pointer:fine)]:duration-300
 
-                hover:text-[#566735]
+                [@media(hover:hover)_and_(pointer:fine)]:hover:text-[#566735]
 
                 focus:outline-none
                 focus-visible:underline

@@ -31,6 +31,7 @@ export default function QuoteReveal() {
     let refreshFrame = 0;
     let refreshTimeout = 0;
     let isMounted = true;
+    let lastViewportWidth = window.innerWidth;
 
     const refreshScrollTrigger = () => {
       window.cancelAnimationFrame(
@@ -64,9 +65,20 @@ export default function QuoteReveal() {
         }, 180);
     };
 
+    const handleResize = () => {
+      const nextViewportWidth = window.innerWidth;
+
+      if (nextViewportWidth === lastViewportWidth) {
+        return;
+      }
+
+      lastViewportWidth = nextViewportWidth;
+      refreshScrollTrigger();
+    };
+
     window.addEventListener(
       "resize",
-      refreshScrollTrigger,
+      handleResize,
     );
 
     window.addEventListener(
@@ -78,13 +90,6 @@ export default function QuoteReveal() {
       "fullscreenchange",
       refreshScrollTrigger,
     );
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener(
-        "resize",
-        refreshScrollTrigger,
-      );
-    }
 
     /*
      * Font loading can change the number of
@@ -112,7 +117,7 @@ export default function QuoteReveal() {
 
       window.removeEventListener(
         "resize",
-        refreshScrollTrigger,
+        handleResize,
       );
 
       window.removeEventListener(
@@ -125,12 +130,6 @@ export default function QuoteReveal() {
         refreshScrollTrigger,
       );
 
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener(
-          "resize",
-          refreshScrollTrigger,
-        );
-      }
     };
   }, []);
 
@@ -328,7 +327,12 @@ export default function QuoteReveal() {
            * ==========================================
            */
 
-          if (desktopTablet) {
+          if (
+            desktopTablet &&
+            window.matchMedia(
+              "(hover: hover) and (pointer: fine)",
+            ).matches
+          ) {
             gsap.set(
               authorElement,
               {
@@ -414,16 +418,12 @@ export default function QuoteReveal() {
                   sectionRef.current,
 
                 start:
-                  "top top",
+                  "top 78%",
 
                 end:
-                  "+=120%",
+                  "bottom 26%",
 
-                pin: true,
-
-                scrub: 0.55,
-
-                anticipatePin: 1,
+                scrub: 0.4,
 
                 invalidateOnRefresh:
                   true,

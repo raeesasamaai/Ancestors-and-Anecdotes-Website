@@ -43,7 +43,15 @@ const cursorThemes = {
 
 export default function CustomCursor() {
   const [isDesktopCursor, setIsDesktopCursor] =
-    useState(false);
+    useState(() => {
+      if (typeof window === "undefined") {
+        return false;
+      }
+
+      return window.matchMedia(
+        "(hover: hover) and (pointer: fine)"
+      ).matches;
+    });
   const mouseX = useMotionValue(-100);
   const mouseY = useMotionValue(-100);
 
@@ -107,11 +115,14 @@ export default function CustomCursor() {
       setIsDesktopCursor(
         event.matches
       );
-    };
 
-    setIsDesktopCursor(
-      mediaQuery.matches
-    );
+      if (!event.matches) {
+        setVisible(false);
+        setHovering(false);
+        setPressed(false);
+        setLabel("");
+      }
+    };
 
     mediaQuery.addEventListener(
       "change",
@@ -141,10 +152,6 @@ export default function CustomCursor() {
 
   useEffect(() => {
     if (!isDesktopCursor) {
-      setVisible(false);
-      setHovering(false);
-      setPressed(false);
-      setLabel("");
       return undefined;
     }
 

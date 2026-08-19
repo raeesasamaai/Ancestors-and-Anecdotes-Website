@@ -22,7 +22,6 @@ import ScrollProgressBar from "./components/ScrollProgressBar";
 
 import { scrollToHashSection } from "./utils/scrollToHashSection";
 
-
 export default function App() {
   /* =========================================================
      HASH NAVIGATION
@@ -37,7 +36,6 @@ export default function App() {
     let animationFrameId;
     let timeoutId;
 
-
     const scrollFromHash = () => {
       const { hash } =
         window.location;
@@ -45,7 +43,6 @@ export default function App() {
       if (!hash) {
         return;
       }
-
 
       /*
        * Give React and the page layout a moment to render
@@ -66,15 +63,12 @@ export default function App() {
         });
     };
 
-
     scrollFromHash();
-
 
     window.addEventListener(
       "hashchange",
       scrollFromHash,
     );
-
 
     return () => {
       window.removeEventListener(
@@ -82,13 +76,11 @@ export default function App() {
         scrollFromHash,
       );
 
-
       if (animationFrameId) {
         window.cancelAnimationFrame(
           animationFrameId,
         );
       }
-
 
       if (timeoutId) {
         window.clearTimeout(
@@ -97,7 +89,6 @@ export default function App() {
       }
     };
   }, []);
-
 
   return (
     <>
@@ -111,16 +102,14 @@ export default function App() {
 
       <SiteNavbar />
 
-
       {/* =====================================================
-          HOME → QUOTE TRANSITION
+          HOME TO QUOTE TRANSITION
       ===================================================== */}
 
       <ScrollFadeTransition
         from="#home"
         to="#quote"
       />
-
 
       {/* =====================================================
           MAIN WEBSITE CONTENT
@@ -163,13 +152,11 @@ export default function App() {
         <ContactUs />
       </main>
 
-
       {/* =====================================================
           FOOTER
       ===================================================== */}
 
       <Footer />
-
 
       {/* =====================================================
           GLOBAL FLOATING CONTROLS

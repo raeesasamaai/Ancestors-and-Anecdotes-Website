@@ -27,7 +27,7 @@ export default function ScrollFadeTransition({
       const mediaQuery = gsap.matchMedia();
 
       mediaQuery.add(
-        "(prefers-reduced-motion: no-preference)",
+        "(prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine)",
         () => {
           const timeline = gsap.timeline({
             scrollTrigger: {
@@ -84,7 +84,7 @@ export default function ScrollFadeTransition({
       );
 
       mediaQuery.add(
-        "(prefers-reduced-motion: reduce)",
+        "(prefers-reduced-motion: reduce), (hover: none), (pointer: coarse)",
         () => {
           gsap.set([previousSection, nextSection], {
             clearProps: "opacity,transform,visibility",

@@ -242,6 +242,7 @@ export default function SharedNavbar({
   }, [
     activeHref,
     currentHref,
+    ctaHref,
     desktopItems,
     enableScrollSpy,
   ]);
@@ -275,10 +276,6 @@ export default function SharedNavbar({
       }
     };
 
-    setIsCompactNav(
-      !mediaQuery.matches
-    );
-
     mediaQuery.addEventListener(
       "change",
       handleChange
@@ -291,16 +288,6 @@ export default function SharedNavbar({
       );
     };
   }, []);
-
-  /*
-   * Close the menu when switching
-   * back to normal desktop nav.
-   */
-  useEffect(() => {
-    if (!isCompactNav) {
-      setIsMobileMenuOpen(false);
-    }
-  }, [isCompactNav]);
 
   /*
    * ==========================================

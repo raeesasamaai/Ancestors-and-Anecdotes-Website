@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useLayoutEffect, useState } from "react";
+import { scrollToHashSection } from "../utils/scrollToHashSection";
 
 const navItems = [
   { label: "Home", href: "#home" },
@@ -63,8 +64,6 @@ export default function HomeHero() {
       }
     };
 
-    setIsCompactNav(!mediaQuery.matches);
-
     mediaQuery.addEventListener("change", handleChange);
 
     return () => {
@@ -74,15 +73,6 @@ export default function HomeHero() {
       );
     };
   }, []);
-
-  /*
-   * Close the menu when moving back to desktop.
-   */
-  useEffect(() => {
-    if (!isCompactNav) {
-      setIsMenuOpen(false);
-    }
-  }, [isCompactNav]);
 
   /*
    * Lock the page in place while the compact hero menu is open.
@@ -158,32 +148,17 @@ export default function HomeHero() {
   }, [isCompactNav, isMenuOpen]);
 
   /*
-   * Existing What We Do navigation functionality.
+   * Keep the home hero navbar aligned with the same
+   * hash-scrolling behaviour used everywhere else.
    */
-  const handleWhatWeDoClick = (event) => {
-    event.preventDefault();
-
-    const whatWeDoSection =
-      document.getElementById("what-we-do");
-
-    if (!whatWeDoSection) {
+  const handleNavClick = (event, href) => {
+    if (!href?.startsWith("#")) {
       return;
     }
 
-    const sectionTop =
-      whatWeDoSection.getBoundingClientRect().top +
-      window.scrollY;
+    event.preventDefault();
 
-    window.history.pushState(
-      null,
-      "",
-      "#what-we-do"
-    );
-
-    window.scrollTo({
-      top: sectionTop,
-      behavior: "smooth",
-    });
+    scrollToHashSection(href);
   };
 
   /*
@@ -195,9 +170,9 @@ export default function HomeHero() {
   const handleCompactNavClick = (event, item) => {
     setIsMenuOpen(false);
 
-    if (item.href === "#what-we-do") {
-      handleWhatWeDoClick(event);
-    }
+    window.setTimeout(() => {
+      handleNavClick(event, item.href);
+    }, 10);
   };
 
   return (
@@ -338,11 +313,8 @@ export default function HomeHero() {
                     <a
                       key={item.label}
                       href={item.href}
-                      onClick={
-                        item.href ===
-                        "#what-we-do"
-                          ? handleWhatWeDoClick
-                          : undefined
+                      onClick={(event) =>
+                        handleNavClick(event, item.href)
                       }
                       className="
                         group
