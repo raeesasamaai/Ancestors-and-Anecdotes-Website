@@ -423,9 +423,9 @@ export default function QuoteReveal() {
                   "top 78%",
 
                 end:
-                  "bottom 52%",
+                  "bottom 68%",
 
-                scrub: 0.26,
+                scrub: 0.2,
 
                 invalidateOnRefresh:
                   true,
@@ -440,7 +440,7 @@ export default function QuoteReveal() {
                   "#FFF6E8",
 
                 stagger: {
-                  each: 0.042,
+                  each: 0.034,
                   from: "start",
                 },
 
@@ -459,7 +459,7 @@ export default function QuoteReveal() {
                   "power2.out",
               },
 
-              "-=0.34",
+              "-=0.48",
             );
 
           return undefined;
