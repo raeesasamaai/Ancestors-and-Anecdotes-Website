@@ -184,8 +184,11 @@ export default function QuoteReveal() {
           shortLandscape:
             "(max-width: 1023px) and (orientation: landscape) and (max-height: 600px)",
 
-          desktopTablet:
-            "(min-width: 768px)",
+          desktopLarge:
+            "(min-width: 1024px)",
+
+          tablet:
+            "(min-width: 768px) and (max-width: 1023px)",
 
           mobile:
             "(max-width: 767px)",
@@ -195,7 +198,8 @@ export default function QuoteReveal() {
           const {
             reduceMotion,
             shortLandscape,
-            desktopTablet,
+            desktopLarge,
+            tablet,
           } = context.conditions;
 
           /*
@@ -328,10 +332,8 @@ export default function QuoteReveal() {
            */
 
           if (
-            desktopTablet &&
-            window.matchMedia(
-              "(hover: hover) and (pointer: fine)",
-            ).matches
+            desktopLarge ||
+            tablet
           ) {
             gsap.set(
               authorElement,
@@ -421,9 +423,9 @@ export default function QuoteReveal() {
                   "top 78%",
 
                 end:
-                  "bottom 26%",
+                  "bottom 52%",
 
-                scrub: 0.4,
+                scrub: 0.26,
 
                 invalidateOnRefresh:
                   true,
@@ -438,7 +440,7 @@ export default function QuoteReveal() {
                   "#FFF6E8",
 
                 stagger: {
-                  each: 0.06,
+                  each: 0.042,
                   from: "start",
                 },
 
@@ -457,7 +459,7 @@ export default function QuoteReveal() {
                   "power2.out",
               },
 
-              "-=0.1",
+              "-=0.34",
             );
 
           return undefined;
