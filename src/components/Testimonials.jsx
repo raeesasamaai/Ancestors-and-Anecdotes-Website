@@ -10,7 +10,7 @@ const testimonials = [
     id: "mary-anne",
 
     quote:
-      "The team at Ancestors and Anecdotes took the time to understand our family history and transformed it into a beautiful keepsake. We now have something our children and grandchildren will treasure forever.",
+      "Thanks very much Sarah and Matthew for all your work on my ancestry. It's wonderful, and full of stories and pictures of the past. I am so happy to have all this context to my family history. Quite a lot to think about and digest. The good, the bad, the persecuted and the persecutors. Thanks for your enthusiasm and care in doing all this for me. Wishing Ancestry and Anecdotes much future interesting unearthing of family stories, bringing deepened understanding of our chequered histories. With much appreciation and gratitude, Mary-Anne",
 
     name: "Mary-Anne",
 
@@ -81,6 +81,8 @@ function TestimonialCard({
         h-full
         overflow-hidden
 
+        p-2
+
         rounded-[26px]
 
         bg-[#FFF6E8]
@@ -112,7 +114,7 @@ function TestimonialCard({
           sm:min-h-[380px]
           sm:p-7
 
-          md:min-h-[420px]
+          md:min-h-0
           md:p-5
 
           lg:min-h-[430px]
@@ -120,6 +122,8 @@ function TestimonialCard({
 
           xl:min-h-[440px]
           xl:p-9
+
+          [@media(hover:none)_and_(pointer:coarse)_and_(min-width:768px)]:!min-h-0
 
           [@media(max-width:767px)_and_(orientation:landscape)_and_(max-height:600px)]:min-h-[320px]
 
@@ -223,7 +227,7 @@ function TestimonialCard({
 
             lg:mt-7
 
-            xl:mt-9
+            xl:mt-7
 
             [@media(max-width:767px)_and_(orientation:landscape)_and_(max-height:600px)]:mt-5
           "
@@ -231,6 +235,8 @@ function TestimonialCard({
           <p
             className="
               section-body
+
+              mb-1
 
               text-[1.05rem]
 
@@ -246,7 +252,7 @@ function TestimonialCard({
               lg:text-[1.05rem]
               lg:leading-[1.45]
 
-              xl:text-[1.2rem]
+              xl:text-[1.12rem]
 
               2xl:text-[1.22rem]
 
@@ -262,9 +268,6 @@ function TestimonialCard({
 
         {/* =================================================
             CLIENT DETAILS
-
-            mt-auto keeps all three client rows
-            aligned toward the bottom.
         ================================================= */}
 
         <footer
@@ -507,16 +510,18 @@ export default function Testimonials() {
             TESTIMONIAL GRID
 
             MOBILE:
-            1 card
+            Original single-column layout.
 
-            TABLET / IPAD 768px+:
-            3 cards
+            TABLET / IPAD:
+            First card spans full width.
+            Cards 2 and 3 sit side-by-side at equal height.
 
-            LAPTOP:
-            3 cards
+            LAPTOP / DESKTOP:
+            Original three-card row.
 
-            DESKTOP:
-            3 cards
+            Large iPad Pro landscape is kept in the
+            tablet arrangement without affecting a
+            normal desktop/laptop pointer.
         ================================================= */}
 
         <ScrollReveal
@@ -531,12 +536,17 @@ export default function Testimonials() {
 
             gap-8
 
-            md:grid-cols-3
-            md:gap-4
+            md:grid-cols-2
+            md:gap-6
 
-            lg:gap-5
+            [@media(min-width:1024px)_and_(hover:hover)_and_(pointer:fine)]:grid-cols-3
 
+            [@media(min-width:1024px)_and_(hover:hover)_and_(pointer:fine)]:gap-5
+
+            xl:grid-cols-3
             xl:gap-8
+
+            [@media(min-width:1280px)_and_(max-width:1366px)_and_(min-height:900px)_and_(pointer:coarse)]:!grid-cols-2
 
             [@media(max-width:767px)_and_(orientation:landscape)_and_(max-height:600px)]:mt-9
 
@@ -548,15 +558,36 @@ export default function Testimonials() {
           {testimonials.map(
             (
               testimonial,
+              index,
             ) => (
-              <TestimonialCard
+              <div
                 key={
                   testimonial.id
                 }
-                testimonial={
-                  testimonial
-                }
-              />
+                className={`
+                  h-full
+
+                  ${
+                    index === 0
+                      ? `
+                        md:col-span-2
+
+                        [@media(min-width:1024px)_and_(hover:hover)_and_(pointer:fine)]:col-span-1
+
+                        xl:col-span-1
+
+                        [@media(min-width:1280px)_and_(max-width:1366px)_and_(min-height:900px)_and_(pointer:coarse)]:!col-span-2
+                      `
+                      : ""
+                  }
+                `}
+              >
+                <TestimonialCard
+                  testimonial={
+                    testimonial
+                  }
+                />
+              </div>
             ),
           )}
         </ScrollReveal>

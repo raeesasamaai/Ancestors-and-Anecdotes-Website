@@ -21,6 +21,8 @@ const packages = [
 
     price: "R6 300",
 
+    price_plan: "(paid over 2 months)",
+
     image:
       "/Images/package-1.png",
 
@@ -52,6 +54,8 @@ const packages = [
       "Life Story and Oral History",
 
     price: "R9 000",
+
+    price_plan: "(paid over 2 months)",
 
     image:
       "/Images/package-2.png",
@@ -85,6 +89,8 @@ const packages = [
 
     price: "R10 500",
 
+    price_plan: "(paid over 3 months)",
+
     image:
       "/Images/package-3.png",
 
@@ -116,6 +122,8 @@ const packages = [
       "Comprehensive Ancestry Trace",
 
     price: "R14 000",
+
+    price_plan: "(paid over 4 months)",
 
     image:
       "/Images/package-4.png",
@@ -155,7 +163,7 @@ function PackageCard({
 
         bg-[#FFF6E8]
 
-        p-6
+        p-7
 
         drop-shadow-md
 
@@ -164,7 +172,7 @@ function PackageCard({
 
         lg:p-8
 
-        xl:p-6
+        xl:p-8
 
         2xl:p-7
 
@@ -175,44 +183,6 @@ function PackageCard({
           PACKAGE ICON
       ================================================= */}
 
-      <img
-        src={
-          packageItem.image
-        }
-        data-cursor-theme="light"
-        alt={
-          packageItem.imageAlt
-        }
-        loading="lazy"
-        decoding="async"
-        className="
-          mb-6
-          mt-2
-
-          h-[6.1rem]
-          w-auto
-
-          self-start
-
-          object-contain
-
-          sepia-[6%]
-
-          sm:mb-7
-          sm:h-[6rem]
-
-          lg:h-[6.1rem]
-
-          xl:h-[6.1rem]
-
-          2xl:h-[6.1rem]
-
-          [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:mb-5
-
-          [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:h-[3.8rem]
-        "
-      />
-
 
       {/* =================================================
           PACKAGE NAME
@@ -221,8 +191,10 @@ function PackageCard({
       <h3
         className="
           section-heading
+          text-center
+          mt-3
 
-          text-[1.5rem]
+          text-[1.8rem]
 
           leading-[1.2]
 
@@ -235,7 +207,7 @@ function PackageCard({
           lg:text-[1.7rem]
 
           xl:min-h-[4.4rem]
-          xl:text-[1.45rem]
+          xl:text-[1.6rem]
 
           2xl:text-[1.55rem]
 
@@ -256,7 +228,9 @@ function PackageCard({
         className="
           section-heading
 
-          pt-5
+          text-center
+
+          pt-4
 
           text-[1.65rem]
           font-bold
@@ -265,10 +239,10 @@ function PackageCard({
 
           text-[#704214]
 
-          sm:pt-6
+          sm:pt-4
           sm:text-[1.7rem]
 
-          xl:pt-5
+          xl:pt-4
           xl:text-[1.55rem]
 
           2xl:text-[1.7rem]
@@ -281,6 +255,35 @@ function PackageCard({
         {packageItem.price}
       </p>
 
+        <p
+        className="
+          section-heading
+
+          pb-2
+
+          text-center
+
+          pt-3
+
+          text-[1.1rem]
+
+          text-[#704214]
+
+          sm:pt-4
+          sm:text-[1.11rem]
+
+          xl:pt-2
+          xl:text-[1.1rem]
+
+          2xl:text-[1.5rem]
+
+          [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:pt-4
+
+          [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[1.5rem]
+        "
+      >
+      {packageItem.price_plan}
+      </p>
 
       {/* =================================================
           PACKAGE FEATURES
@@ -289,14 +292,15 @@ function PackageCard({
       <ul
         className="
           mb-8
-          mt-7
+          mt-5
+          text-center
 
-          space-y-4
+          space-y-3
 
           sm:mb-9
 
           xl:mt-6
-          xl:space-y-3.5
+          xl:space-y-3
 
           2xl:space-y-4
 
@@ -314,8 +318,9 @@ function PackageCard({
               className="
                 flex
                 items-start
+                justify-center
 
-                gap-3
+                gap-2
 
                 section-body
 
@@ -323,15 +328,15 @@ function PackageCard({
 
                 leading-[1.45]
 
-                sm:gap-4
+                sm:gap-2
                 sm:text-[1.09rem]
                 sm:leading-7
 
-                xl:gap-3
-                xl:text-[1.12rem]
-                xl:leading-[1.45]
+                xl:gap-2
+                xl:text-[1.11rem]
+                xl:leading-[1.4]
 
-                2xl:gap-4
+                2xl:gap-3
                 2xl:text-[1.06rem]
 
                 [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:gap-3
@@ -348,6 +353,7 @@ function PackageCard({
                 className="
                   flex
                   shrink-0
+                  text-center
 
                   items-center
                   justify-center
@@ -395,7 +401,7 @@ function PackageCard({
         aria-label={`Get started with ${packageItem.name}`}
         className="
           mt-auto
-
+          mb-3
           flex
 
           min-h-[48px]

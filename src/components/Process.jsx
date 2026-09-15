@@ -392,71 +392,17 @@ export default function Process() {
 
                       text-left
 
-                      md:grid
-                      md:grid-cols-[180px_minmax(0,1fr)]
-                      md:grid-rows-[auto_auto]
-                      md:gap-x-8
+                      md:pl-6
 
-                      lg:grid-cols-[200px_minmax(0,1fr)]
-                      lg:gap-x-10
+                      lg:pl-8
 
                       xl:col-auto
                       xl:row-auto
                       xl:mt-8
                       xl:block
+                      xl:pl-0
                     "
                   >
-                    {/* =====================================
-                        IMAGE
-                    ===================================== */}
-
-                    <div
-                      className="
-                        flex
-
-                        h-[95px]
-                        w-[145px]
-
-                        items-center
-                        justify-start
-
-                        sm:h-[120px]
-                        sm:w-[170px]
-
-                        md:col-start-1
-                        md:row-span-2
-                        md:row-start-1
-
-                        md:h-[135px]
-                        md:w-[180px]
-
-                        lg:h-[145px]
-                        lg:w-[200px]
-
-                        xl:h-[100px]
-                        xl:w-[155px]
-
-                        2xl:w-[170px]
-
-                        [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:h-[85px]
-
-                        [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:w-[135px]
-                      "
-                    >
-                      <img
-                        src={step.image}
-                        alt={step.alt}
-                        loading="lazy"
-                        decoding="async"
-                        className="
-                          max-h-full
-                          max-w-full
-
-                          object-contain
-                          object-left
-                        "
-                      />
-                    </div>
 
 
                     {/* =====================================
@@ -465,11 +411,11 @@ export default function Process() {
 
                     <h3
                       className="
-                        mt-6
+                        mt-3
 
                         font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
 
-                        text-[1.4rem]
+                        text-[1.5rem]
                         font-normal
 
                         leading-[1.15]
@@ -478,16 +424,16 @@ export default function Process() {
 
                         sm:text-[1.5rem]
 
-                        md:col-start-2
-                        md:row-start-1
                         md:mt-1
+                        
+                        md:mb-2
 
                         md:text-[1.55rem]
 
                         lg:text-[1.6rem]
 
                         xl:mt-6
-                        xl:text-[1.3rem]
+                        xl:text-[1.5rem]
 
                         2xl:text-[1.45rem]
 
@@ -531,13 +477,11 @@ export default function Process() {
 
                         sm:text-[1.12rem]
 
-                        md:col-start-2
-                        md:row-start-2
-
                         md:max-w-[38rem]
 
                         md:text-[1.12rem]
                         md:leading-[1.45]
+                        md:max-w-[36rem]
 
                         lg:max-w-[44rem]
 

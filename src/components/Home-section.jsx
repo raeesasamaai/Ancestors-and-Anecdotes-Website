@@ -16,7 +16,7 @@ const navItems = [
 const backgroundImages = [
   "/Images/hero-bg-1.png",
   "/Images/hero-bg-2.jpg",
-  "/Images/hero-bg-3.jpg",
+  "/Images/Matthew's-great-great-grandfathers-in-the-Temperance-Society.jpg",
 ];
 
 export default function HomeHero() {

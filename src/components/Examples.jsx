@@ -47,7 +47,7 @@ const exampleDetails = [
     media: [
       {
         type: "image",
-        src: "/Images/family-tree.png",
+        src: "/Images/Nissen_family tree-2.png",
         alt: "Visual family tree example",
         fit: "cover",
       },
@@ -82,7 +82,7 @@ const exampleDetails = [
     media: [
       {
         type: "image",
-        src: "/Images/family-history.png",
+        src: "/Images/Family-History-Document-Cover-Example.png",
         alt: "Family history document example",
         fit: "cover",
       },
@@ -134,7 +134,7 @@ const exampleCards = [
     example: exampleDetails[0],
 
     image:
-      "/Images/family-tree.png",
+      "/Images/Nissen_family tree-2.png",
 
     alt:
       "Visual Family Tree",
@@ -155,7 +155,7 @@ const exampleCards = [
     example: exampleDetails[1],
 
     image:
-      "/Images/family-history.png",
+      "/Images/Family-History-Document-Cover-Example.png",
 
     alt:
       "Family History Document",
@@ -1856,8 +1856,9 @@ function ExampleCard({
 
             bg-gradient-to-t
 
-            from-[#422508]/75
-            via-[#DEDEDE]/9
+            from-[#6F5B46]/60
+            via-[#DEDEDE]/11
+            via-[#6F5B46]/30
             to-transparent
           "
         />
@@ -1966,6 +1967,8 @@ function ExampleCard({
             className="
               section-body
 
+              [text-shadow:0_4px_19px_rgba(0,0,0,0.60)]
+
               text-[1.67rem]
 
               leading-tight
@@ -2068,7 +2071,7 @@ function ExampleCard({
 
           bg-gradient-to-t
 
-          from-[#422508]/75
+          from-[#422508]/50
           via-[#DEDEDE]/9
           to-transparent
         "
@@ -2097,6 +2100,8 @@ function ExampleCard({
         <h3
           className="
             section-body
+
+            [text-shadow:0_2px_8px_rgba(0,0,0,0.55)]
 
             text-[1.5rem]
 

@@ -317,7 +317,7 @@ export default function AboutUs() {
               "
             >
               <img
-                src="/Images/about-image-2.jpg"
+                src="/Images/Childhood-photo-of-Matthew.jpg"
                 alt="Matthew, co-founder of Ancestors and Anecdotes"
                 loading="lazy"
                 decoding="async"

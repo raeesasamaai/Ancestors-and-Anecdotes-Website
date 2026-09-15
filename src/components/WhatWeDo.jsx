@@ -127,7 +127,7 @@ export default function WhatWeDo() {
             "
           >
             <img
-              src="/Images/hero-bg-2.jpg"
+              src="/Images/Matthew's-maternal-great-grandmother's-wedding.jpg"
               data-cursor-theme="light"
               alt="Historical family records used for genealogy research"
               loading="lazy"
@@ -224,7 +224,7 @@ export default function WhatWeDo() {
             "
           >
             <img
-              src="/Images/card-2.jpg"
+              src="/Images/Sarah's-paternal-grandmother-with-fellow-servicemen-during-WW2.jpg"
               data-cursor-theme="light"
               alt="Historical family photographs used to create family tree charts"
               loading="lazy"
@@ -326,7 +326,7 @@ export default function WhatWeDo() {
             "
           >
             <img
-              src="/Images/hero-bg-3.jpg"
+              src="/Images/Matthew's-mom-as-a-child-with-Father-Christmas.jpg"
               data-cursor-theme="light"
               alt="Family history materials preserved as part of a genealogy story"
               loading="lazy"

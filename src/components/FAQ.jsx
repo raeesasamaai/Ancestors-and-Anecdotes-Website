@@ -225,7 +225,7 @@ export default function FAQ() {
             >
               <img
                 data-cursor-theme="light"
-                src="/Images/genealogy-matters-1.jpg"
+                src="/Images/Sarah's-parents'-wedding.jpg"
                 alt="Historical family photographs, handwritten records, and archived documents"
                 loading="lazy"
                 decoding="async"
