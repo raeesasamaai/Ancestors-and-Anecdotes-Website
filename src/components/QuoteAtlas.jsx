@@ -206,27 +206,6 @@ export default function QuoteAtlas() {
         xl:px-20
       "
     >
-      {/* =================================================
-          SUBTLE BACKGROUND RULE
-      ================================================= */}
-
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-
-          absolute
-          left-0
-          top-1/2
-
-          h-px
-          w-full
-
-          bg-[#FFF6E8]/10
-        "
-      />
-
-
       <div
         className="
           relative
