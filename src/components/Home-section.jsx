@@ -199,6 +199,8 @@ export default function HomeHero() {
             key={image}
             src={image}
             alt="Vintage genealogy archive desk"
+            fetchPriority="high"
+            decoding="async"
             className="
               absolute
               inset-0

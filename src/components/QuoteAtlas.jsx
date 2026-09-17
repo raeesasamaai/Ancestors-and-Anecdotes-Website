@@ -531,7 +531,7 @@ export default function QuoteAtlas() {
               className="
                 font-['Cormorant_Garamond',serif]
 
-                text-[1rem]
+                text-[1.25rem]
                 font-semibold
 
                 leading-[1.25]

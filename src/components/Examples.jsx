@@ -1262,6 +1262,7 @@ function ExampleModal({
                             activeMedia?.alt ??
                             ""
                           }
+                          loading="lazy"
                           decoding="async"
                           className={`
                             h-full
