@@ -20,6 +20,10 @@ import ScrollFadeTransition from "./components/ScrollFadeTransition";
 import BackToTopButton from "./components/BackToTopButton";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 
+import QuoteBaldwin from "./components/QuoteBaldwin";
+import QuoteAtlas from "./components/QuoteAtlas";
+import QuoteAngelou from "./components/QuoteAngelou";
+
 import { scrollToHashSection } from "./utils/scrollToHashSection";
 
 export default function App() {
@@ -139,15 +143,21 @@ export default function App() {
 
         <Examples />
 
+        <QuoteBaldwin />
+
         <Packages />
 
         <Process />
+
+        <QuoteAtlas />
 
         <AboutUs />
 
         <Testimonials />
 
         <FAQ />
+
+        <QuoteAngelou />
 
         <ContactUs />
       </main>
