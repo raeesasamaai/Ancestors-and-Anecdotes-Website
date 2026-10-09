@@ -162,72 +162,20 @@ function TestimonialCard({
 
 
         {/* =================================================
-            RATING
-        ================================================= */}
-
-        <div
-          role="img"
-          aria-label={`${testimonial.rating} out of 5 stars`}
-          className="
-            mt-2
-
-            flex
-            items-center
-
-            gap-1
-
-            text-[1.55rem]
-
-            leading-none
-
-            text-[#566735]
-
-            sm:gap-1.5
-            sm:text-[1.7rem]
-
-            md:gap-[3px]
-            md:text-[1.35rem]
-
-            lg:gap-1
-            lg:text-[1.55rem]
-
-            xl:gap-2
-            xl:text-[2rem]
-
-            [@media(max-width:767px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[1.45rem]
-          "
-        >
-          {Array.from({
-            length:
-              testimonial.rating,
-          }).map(
-            (_, index) => (
-              <span
-                key={index}
-                aria-hidden="true"
-              >
-                ★
-              </span>
-            ),
-          )}
-        </div>
-
-
-        {/* =================================================
             TESTIMONIAL TEXT
         ================================================= */}
 
         <blockquote
           className="
-            mt-6
+            mt-3
 
-            sm:mt-7
+            sm:mt-5
 
-            md:mt-6
+            md:mt-3
 
-            lg:mt-7
+            lg:mt-3
 
-            xl:mt-7
+            xl:mt-3
 
             [@media(max-width:767px)_and_(orientation:landscape)_and_(max-height:600px)]:mt-5
           "

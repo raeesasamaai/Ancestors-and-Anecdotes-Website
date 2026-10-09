@@ -296,12 +296,10 @@ export default function WhatWeDo() {
                   [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:leading-6
                 "
               >
-                We use professional genealogical software to create a visual
-                representation of your family history, making it easier to
-                understand how your ancestors connect to one another and how
-                they relate to you, where they lived and died and other
-                interesting details about them that perhaps you did not know or
-                can now be confirmed.
+                We use professional genealogical software to create a visual representation of your 
+                family history, making it easier to understand at a glance how your ancestors connect
+                to you and one another, and the significant information such as their profession and
+                the dates and places of their birth, marriage and death. 
               </p>
             </div>
           </article>
@@ -398,12 +396,10 @@ export default function WhatWeDo() {
                   [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:leading-6
                 "
               >
-                We believe genealogy is more than a family tree. It is about
-                preserving the anecdotes, memories, and details that make your
-                family history meaningful. We use a combination of a family
-                tree chart, personalised family history book, digital stories
-                and oral history to give a full perspective from the past to
-                the present.
+                We believe genealogy is more than a family tree. It is about preserving the stories
+                and memories that make your family history meaningful. We use a combination of family 
+                tree charts, personalised family history books, digital stories and oral history to give 
+                a full perspective from the past to the present.
               </p>
             </div>
           </article>

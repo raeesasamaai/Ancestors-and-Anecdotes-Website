@@ -1,101 +1,31 @@
 export const legalPages = {
   "privacy-policy": {
-    title: "Privacy Policy",
-    eyebrow: "Legal",
-    intro:
-      "This Privacy Policy explains how Ancestors & Anecdotes collects, uses, stores, and protects the personal information you choose to share with us through this website and our enquiry process.",
-    sections: [
-      {
-        heading: "Information We Collect",
-        paragraphs: [
-          "We may collect personal information such as your name, email address, contact details, and any family-history information you choose to provide when you contact us or enquire about our services.",
-          "We may also receive technical information such as browser type, device information, and basic website usage data through standard website tools and hosting logs.",
-        ],
-      },
-      {
-        heading: "How We Use Your Information",
-        paragraphs: [
-          "We use your information to respond to enquiries, discuss possible genealogy services, deliver requested work, improve the website experience, and communicate with you about your project.",
-          "We only use family-history information for the purpose of the research, storytelling, or deliverables you have asked us to prepare.",
-        ],
-      },
-      {
-        heading: "How We Store and Protect Information",
-        paragraphs: [
-          "We take reasonable steps to protect personal information from unauthorised access, loss, misuse, or disclosure. However, no digital system can guarantee absolute security.",
-          "We keep information only for as long as reasonably necessary to provide services, maintain records, and meet legal, tax, or administrative obligations.",
-        ],
-      },
-      {
-        heading: "When We Share Information",
-        paragraphs: [
-          "We do not sell your personal information. We may share limited information with trusted service providers or platforms that help us operate the website, manage communication, or deliver services, only where reasonably necessary.",
-          "We may also disclose information where required by law or to protect our legal rights.",
-        ],
-      },
-      {
-        heading: "Your Choices",
-        paragraphs: [
-          "You may contact us to request access to, correction of, or deletion of personal information we hold about you, subject to any legal or operational obligations that require us to retain certain records.",
-          "If you no longer wish to hear from us, you can ask us to stop contacting you at any time.",
-        ],
-      },
-      {
-        heading: "Contact",
-        paragraphs: [
-          "If you have questions about this Privacy Policy or how your information is handled, please contact Ancestors & Anecdotes at ancestorsandanecdotes@gmail.com.",
-        ],
-      },
-    ],
+    "title": "Privacy Policy",
+    "eyebrow": "Legal",
+    "lastUpdated": "14 August 2026",
+    "paragraphs": [
+      "Ancestors and Anecdotes respects the privacy of individuals and is committed to protecting personal information encountered during the research and compilation of genealogical, family-history, historical research, archival research, family-tree, and any other data in relation to these i.e. our packages.",
+      "We require your name and email in our contact form and provide an optional block for your telephone number. This data is only intended for communication purposes.",
+      "We also require personal information in order to conduct our research and this data is stored on a password protected computer and on a password protected cloud service.",
+      "This policy is intended to support our compliance with the Protection of Personal Information Act 4 of 2013 (\"POPIA\"), together with other applicable South African legislation."
+    ]
   },
   "terms-of-service": {
-    title: "Terms of Service",
-    eyebrow: "Legal",
-    intro:
-      "These Terms of Service govern your use of the Ancestors & Anecdotes website and any genealogy, research, storytelling, or related services provided through it.",
-    sections: [
-      {
-        heading: "Use of the Website",
-        paragraphs: [
-          "By using this website, you agree to use it lawfully and respectfully. You must not misuse the site, attempt to interfere with its operation, or use it in a way that harms the business or other users.",
-          "Information on the website is provided for general informational purposes and may be updated, changed, or removed without notice.",
-        ],
-      },
-      {
-        heading: "Service Enquiries and Engagements",
-        paragraphs: [
-          "Submitting an enquiry does not create a binding service agreement. Project scope, timelines, deliverables, pricing, and payment terms are confirmed separately before work begins.",
-          "Any research or creative work undertaken by Ancestors & Anecdotes is subject to the availability of historical records, archives, oral accounts, and client-supplied material.",
-        ],
-      },
-      {
-        heading: "Client Responsibilities",
-        paragraphs: [
-          "You are responsible for providing accurate contact information and, where relevant, any information, permissions, or materials needed for your requested project.",
-          "If you provide photographs, stories, recordings, or documents, you confirm that you have the right to share them for the purpose of the requested work.",
-        ],
-      },
-      {
-        heading: "Intellectual Property",
-        paragraphs: [
-          "Website text, branding, design elements, and original content created by Ancestors & Anecdotes remain protected by applicable intellectual-property rights unless otherwise agreed in writing.",
-          "Project deliverables may include agreed usage rights for the client, but the underlying methods, templates, and site content remain the property of Ancestors & Anecdotes unless specifically transferred.",
-        ],
-      },
-      {
-        heading: "Limitation of Liability",
-        paragraphs: [
-          "We aim to provide careful and high-quality work, but we cannot guarantee specific genealogy outcomes, discoveries, or the completeness of historical records.",
-          "To the fullest extent permitted by law, Ancestors & Anecdotes is not liable for indirect, incidental, or consequential losses arising from the use of this website or reliance on information provided through it.",
-        ],
-      },
-      {
-        heading: "Contact",
-        paragraphs: [
-          "For questions about these Terms of Service, contact ancestorsandanecdotes@gmail.com.",
-        ],
-      },
-    ],
+    "title": "Terms of Service",
+    "eyebrow": "Legal",
+    "lastUpdated": "14 August 2026",
+    "paragraphs": [
+      "1. Through commissioning of the family history research and purchasing one of our family history research packages you agree to the terms and conditions.",
+      "2. Work will only commence once a deposit, agreed upon amount or full pay has been received in our bank account.",
+      "3. Upon completion of the work we will not transfer completed work until the full amount has been paid into our bank account. If further work is to be commissioned then additional payment will have to be negotiated that is reasonable for both parties.",
+      "4. Our services are broken up into distinct packages that provide different methods to best conduct your family research. This is done on a sliding scale from our smallest package to our biggest one. Research and work done will be reflected in the final price of each package which will typically require: historical record research, creation of family tree and report/book, compilation of historical documents and/or recording, editing oral history interviews and digital stories.",
+      "5. We will keep electronic records and files for one year after completion date after which these will be deleted from the Ancestors and Anecdotes hard drive. These can be kept for longer by request without a fee incurred. The only exception to this will be video or audio files as they typically require more space.",
+      "6. Family history research does not always guarantee results as expected as there are many contributing factors to why our ancestors were recorded or not. In South Africa, race, gender, the slave trade and other colonial and apartheid laws/policies played a key role in marginalising groups which greatly hampers the historical record. In places where it is hard to locate or have conflicting records we will rely on oral history to help fill the gaps of an ancestor.",
+      "7. We will provide copies of all the historical records that we obtain during our research but it should be noted that the copyright will rest with the copyright holder and we in no way have ownership of these historical records. Any further use of these should be in accordance with South African copyright law or the copyright of the specific country the record originates from.",
+      "8. If we are unable to meet the basic requirements of our packages within the first day of research we will offer a full refund of the deposit or the full amount paid.",
+      "9. We do not engage in any DNA or genealogical research of living relatives. We will only research the ancestors of the person chosen for research, starting from who they are descended from.",
+      "10. We reserve the right to cancel research at any time and work not completed will be refunded."
+    ]
   },
   "research-disclaimer": {
     title: "Research Disclaimer",

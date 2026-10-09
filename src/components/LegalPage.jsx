@@ -91,6 +91,24 @@ export default function LegalPage({
             </h1> */}
 
 
+            {page.paragraphs ? (
+              <div className="mt-10 max-w-6xl space-y-5 sm:space-y-6">
+                {page.lastUpdated && (
+                  <p className="section-body text-lg font-bold text-[#704214]">
+                    Last updated: {page.lastUpdated}
+                  </p>
+                )}
+                {page.paragraphs.map((paragraph, index) => (
+                  <p
+                    key={`${page.title}-${index}`}
+                    className="section-body leading-[1.55] sm:leading-[1.6] md:leading-[1.65]"
+                  >
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            ) : (
+              <>
             {/* =================================================
                 INTRODUCTION
 
@@ -387,6 +405,9 @@ export default function LegalPage({
               )}
             </div>
 
+
+              </>
+            )}
 
             {/* =================================================
                 BACK TO WEBSITE

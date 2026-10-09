@@ -155,11 +155,6 @@ export default function Footer({
       label: "Terms of Service",
       href: "/terms-of-service/",
     },
-
-    {
-      label: "Research Disclaimer",
-      href: "/research-disclaimer/",
-    },
   ];
 
   /* =========================================================

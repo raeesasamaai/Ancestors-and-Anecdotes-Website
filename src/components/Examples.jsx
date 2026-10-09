@@ -4,6 +4,7 @@ import {
 } from "framer-motion";
 
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -11,6 +12,8 @@ import {
 } from "react";
 
 import { createPortal } from "react-dom";
+import { PageFlip } from "../vendor/page-flip.js";
+import "../vendor/page-flip.css";
 import ScrollReveal from "./ScrollReveal";
 
 
@@ -81,10 +84,17 @@ const exampleDetails = [
 
     media: [
       {
-        type: "image",
-        src: "/Images/Family-History-Document-Cover-Example.png",
-        alt: "Family history document example",
-        fit: "cover",
+        type: "book",
+
+        alt:
+          "Interactive family history document example",
+
+        pages: [
+          "/Images/Family-History-Document-Cover-Example.png",
+          "/Images/Introduction.png",
+          "/Images/Contents.png",
+          "/Images/Nissen_family tree-1.png",
+        ],
       },
     ],
   },
@@ -360,6 +370,254 @@ function shouldUseLaptopHoverMode() {
 }
 
 
+
+/* =========================================================
+   FAMILY HISTORY BOOK VIEWER
+
+   Only used by the Family History Document example.
+========================================================= */
+
+function FamilyHistoryBookViewer({
+  pages,
+  alt,
+}) {
+  const stageRef = useRef(null);
+  // React owns this host. PageFlip only owns a disposable child inside it.
+  const bookContainerRef = useRef(null);
+  const pageFlipRef = useRef(null);
+  const currentPageRef = useRef(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [isReady, setIsReady] = useState(false);
+  const [isTurning, setIsTurning] = useState(false);
+  const totalPages = pages?.length ?? 0;
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    const host = bookContainerRef.current;
+    if (!stage || !host || totalPages === 0) return undefined;
+
+    let disposed = false;
+    let resizeFrame = null;
+    let previousWidth = 0;
+    let previousHeight = 0;
+    const pageRatio = 297 / 210;
+
+    const destroyBook = () => {
+      const instance = pageFlipRef.current;
+      pageFlipRef.current = null;
+      instance?.destroy();
+      host.replaceChildren();
+    };
+
+    const createBook = () => {
+      if (disposed) return;
+      // Layout dimensions are unaffected by the modal's animated scale.
+      const availableWidth = Math.max(0, stage.clientWidth - 12);
+      const availableHeight = Math.max(0, stage.clientHeight - 12);
+      const pageWidth = Math.floor(Math.min(availableWidth, availableHeight * pageRatio));
+      const pageHeight = Math.floor(pageWidth / pageRatio);
+      if (pageWidth < 1 || pageHeight < 1) return;
+      if (pageWidth === previousWidth && pageHeight === previousHeight && pageFlipRef.current) return;
+
+      // Finish a programmatic turn before resizing so its destination is retained.
+      pageFlipRef.current?.getRender().finishAnimation();
+      const startPage = Math.max(0, Math.min(currentPageRef.current, totalPages - 1));
+      destroyBook();
+      previousWidth = pageWidth;
+      previousHeight = pageHeight;
+
+      const mount = document.createElement("div");
+      mount.style.width = `${pageWidth}px`;
+      mount.style.height = `${pageHeight}px`;
+      host.style.width = `${pageWidth}px`;
+      host.style.height = `${pageHeight}px`;
+      host.appendChild(mount);
+
+      const instance = new PageFlip(mount, {
+        width: pageWidth,
+        height: pageHeight,
+        size: "fixed",
+        startPage,
+        autoSize: false,
+        // The mount is one page wide, so PageFlip naturally uses its single-page
+        // ("portrait") viewer mode while retaining A4 landscape page dimensions.
+        usePortrait: true,
+        showCover: false,
+        flippingTime: 900,
+        drawShadow: true,
+        maxShadowOpacity: 0.38,
+        showPageCorners: true,
+        disableFlipByClick: false,
+        useMouseEvents: true,
+        mobileScrollSupport: true,
+        swipeDistance: 24,
+      });
+      pageFlipRef.current = instance;
+      const isCurrent = () => !disposed && pageFlipRef.current === instance;
+      const syncPage = (page) => {
+        if (!isCurrent()) return;
+        currentPageRef.current = page;
+        setCurrentPage(page);
+      };
+      instance.on("flip", ({ data }) => syncPage(data));
+      instance.on("init", () => {
+        if (!isCurrent()) return;
+        syncPage(instance.getCurrentPageIndex());
+        setIsReady(true);
+        setIsTurning(false);
+      });
+      instance.on("changeState", ({ data }) => {
+        if (isCurrent()) setIsTurning(data === "flipping" || data === "user_fold");
+      });
+
+      // HTML pages retain image quality and use object-fit instead of stretching
+      // images onto a canvas. Missing images show a readable fallback per page.
+      const pageElements = pages.map((src, index) => {
+        const page = document.createElement("div");
+        page.style.background = "#FFF6E8";
+        const image = document.createElement("img");
+        image.alt = `${alt || "Family history document"} — page ${index + 1}`;
+        image.draggable = false;
+        image.decoding = "async";
+        image.style.cssText = "width:100%;height:100%;object-fit:contain;display:block;user-select:none;";
+        const fallback = document.createElement("p");
+        fallback.textContent = `Preview page ${index + 1} is unavailable.`;
+        fallback.style.cssText = "position:absolute;inset:0;margin:0;align-items:center;justify-content:center;padding:16px;text-align:center;color:#704214;";
+        fallback.style.display = "none";
+        image.addEventListener("error", () => {
+          image.style.display = "none";
+          fallback.style.display = "flex";
+        }, { once: true });
+        image.src = src;
+        page.append(image, fallback);
+        return page;
+      });
+      instance.loadFromHTML(pageElements);
+    };
+
+    const scheduleResize = () => {
+      if (disposed || resizeFrame !== null) return;
+      resizeFrame = window.requestAnimationFrame(() => {
+        resizeFrame = null;
+        createBook();
+      });
+    };
+
+    createBook();
+    const observer = typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(scheduleResize)
+      : null;
+    observer?.observe(stage);
+    window.addEventListener("resize", scheduleResize);
+    window.addEventListener("orientationchange", scheduleResize);
+
+    return () => {
+      disposed = true;
+      if (resizeFrame !== null) window.cancelAnimationFrame(resizeFrame);
+      observer?.disconnect();
+      window.removeEventListener("resize", scheduleResize);
+      window.removeEventListener("orientationchange", scheduleResize);
+      destroyBook();
+    };
+  }, [pages, totalPages, alt]);
+
+  const turnPage = useCallback((direction) => {
+    const instance = pageFlipRef.current;
+    if (!instance || !instance.getOrientation()) return false;
+    if (["flipping", "user_fold"].includes(instance.getState())) return false;
+    const index = instance.getCurrentPageIndex();
+    if (direction < 0 && index > 0) {
+      instance.flipPrev("bottom");
+      return true;
+    }
+    if (direction > 0 && index < instance.getPageCount() - 1) {
+      instance.flipNext("bottom");
+      return true;
+    }
+    return false;
+  }, []);
+
+  const showPreviousPage = () => turnPage(-1);
+  const showNextPage = () => turnPage(1);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.target instanceof HTMLElement && event.target.closest("input, textarea, select, video, [contenteditable]:not([contenteditable='false'])")) return;
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        event.preventDefault();
+        turnPage(event.key === "ArrowLeft" ? -1 : 1);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [turnPage]);
+
+  const arrowClassName = "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#704214]/20 bg-[#704214] text-[1.6rem] leading-none text-[#FFF6E8] shadow-md transition-colors hover:bg-[#9C645E] disabled:cursor-not-allowed disabled:opacity-25 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#704214] focus-visible:ring-offset-2 focus-visible:ring-offset-[#EFE7DA] sm:h-11 sm:w-11";
+
+  return (
+    <div
+      className="relative w-full overflow-hidden rounded-[20px] border border-[#704214]/15 bg-[#EFE7DA] px-2 pb-3 pt-10 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] sm:rounded-[28px] sm:px-4 sm:pb-4 lg:rounded-[34px]"
+    >
+      <p className="mb-3 text-center font-['Cormorant_Garamond',serif] text-[0.88rem] leading-[1.25] text-[#704214]/75 sm:text-[1rem]">
+        {totalPages > 0
+          ? "Drag the page, swipe, or use the arrows to browse the book."
+          : "No preview pages are available yet."}
+      </p>
+
+      {/* Limit both width and height so a complete A4 landscape page and the
+          counter fit above the fold. The arrow columns never overlap the page. */}
+      <div
+        className="mx-auto grid w-full grid-cols-[36px_minmax(0,1fr)_36px] items-center gap-2 sm:grid-cols-[44px_minmax(0,1fr)_44px] sm:gap-3"
+        style={{
+          maxWidth: "calc(max(0px, 100dvh - 220px) * 1.4142857143 + 112px)",
+        }}
+      >
+        <button
+          type="button"
+          onClick={showPreviousPage}
+          disabled={!isReady || isTurning || currentPage <= 0}
+          aria-label="Turn to previous page"
+          className={arrowClassName}
+        >
+          ‹
+        </button>
+
+        <div
+          ref={stageRef}
+          className="relative flex aspect-[297/210] w-full min-w-0 items-center justify-center overflow-hidden"
+          style={{ maxHeight: "max(0px, calc(100dvh - 220px))" }}
+        >
+          <div
+            ref={bookContainerRef}
+            aria-label={alt}
+            className="relative shrink-0 overflow-visible shadow-[0_12px_30px_rgba(70,37,5,0.22)]"
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={showNextPage}
+          disabled={!isReady || isTurning || totalPages === 0 || currentPage >= totalPages - 1}
+          aria-label="Turn to next page"
+          className={arrowClassName}
+        >
+          ›
+        </button>
+      </div>
+
+      <p
+        aria-live="polite"
+        className="mt-3 text-center font-['Cormorant_Garamond',serif] text-[0.92rem] font-semibold leading-5 text-[#704214] sm:text-[1rem]"
+      >
+        {totalPages > 0
+          ? `Page ${Math.min(currentPage + 1, totalPages)} of ${totalPages}`
+          : "No pages"}
+      </p>
+    </div>
+  );
+}
+
 /* =========================================================
    EXAMPLE MODAL
 ========================================================= */
@@ -406,6 +664,11 @@ function ExampleModal({
 
   const activeMedia =
     media[currentSlide];
+
+
+  const isBookMedia =
+    activeMedia?.type ===
+      "book";
 
 
   /* =====================================================
@@ -890,7 +1153,9 @@ function ExampleModal({
       !example ||
       totalSlides <= 1 ||
       activeMedia?.type ===
-        "video"
+        "video" ||
+      activeMedia?.type ===
+        "book"
     ) {
       return undefined;
     }
@@ -990,13 +1255,14 @@ function ExampleModal({
             aria-labelledby={`example-title-${example.id}`}
             aria-describedby={`example-description-${example.id}`}
             data-cursor-theme="dark"
-            className="
+            className={`
               relative
               my-auto
 
               max-h-[calc(100dvh-2rem)]
 
               w-full
+
               max-w-[980px]
 
               overflow-hidden
@@ -1018,7 +1284,7 @@ function ExampleModal({
               [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:max-h-[calc(100dvh-1rem)]
 
               [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:rounded-[24px]
-            "
+            `}
             initial={{
               opacity: 0,
               y: 45,
@@ -1155,353 +1421,374 @@ function ExampleModal({
               =============================================== */}
 
               <div
-                className="
+                className={`
                   p-4
                   pb-0
 
                   sm:p-7
                   sm:pb-0
 
-                  lg:p-12
-                  lg:pb-0
+                  ${
+                    isBookMedia
+                      ? "lg:p-8 lg:pb-0"
+                      : "lg:p-12 lg:pb-0"
+                  }
 
                   [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:p-3
 
                   [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:pb-0
-                "
+                `}
               >
-                <div
-                  className="
-                    relative
-
-                    aspect-[16/10]
-
-                    overflow-hidden
-
-                    rounded-[20px]
-
-                    bg-[#1C1C1C]
-
-                    sm:rounded-[28px]
-
-                    lg:rounded-[34px]
-
-                    [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:aspect-auto
-
-                    [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:h-[170px]
-
-                    [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:rounded-[18px]
-                  "
-                >
-                  <AnimatePresence
-                    mode="wait"
-                  >
-                    <motion.div
-                      key={`${example.id}-${currentSlide}`}
+                {isBookMedia ? (
+                  /*
+                   * FAMILY HISTORY DOCUMENT ONLY:
+                   * replace the normal image frame with
+                   * the interactive page-turning book.
+                   */
+                  <FamilyHistoryBookViewer
+                    pages={
+                      activeMedia.pages
+                    }
+                    alt={
+                      activeMedia.alt
+                    }
+                  />
+                ) : (
+                  <>
+                    <div
                       className="
-                        absolute
-                        inset-0
+                        relative
+
+                        aspect-[16/10]
+
+                        overflow-hidden
+
+                        rounded-[20px]
+
+                        bg-[#1C1C1C]
+
+                        sm:rounded-[28px]
+
+                        lg:rounded-[34px]
+
+                        [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:aspect-auto
+
+                        [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:h-[170px]
+
+                        [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:rounded-[18px]
                       "
-                      initial={{
-                        opacity: 0,
-                        x: 35,
-                        scale: 1.02,
-                      }}
-                      animate={{
-                        opacity: 1,
-                        x: 0,
-                        scale: 1,
-                      }}
-                      exit={{
-                        opacity: 0,
-                        x: -35,
-                        scale: 0.99,
-                      }}
-                      transition={{
-                        duration: 0.4,
-
-                        ease: [
-                          0.22,
-                          1,
-                          0.36,
-                          1,
-                        ],
-                      }}
                     >
-                      {activeMedia?.type ===
-                      "video" ? (
-                        <video
-                          src={
-                            activeMedia.src
-                          }
-                          poster={
-                            activeMedia.poster
-                          }
-                          controls
-                          playsInline
-                          preload="metadata"
-                          aria-label={
-                            activeMedia.alt
-                          }
+                      <AnimatePresence
+                        mode="wait"
+                      >
+                        <motion.div
+                          key={`${example.id}-${currentSlide}`}
                           className="
-                            h-full
-                            w-full
+                            absolute
+                            inset-0
+                          "
+                          initial={{
+                            opacity: 0,
+                            x: 35,
+                            scale: 1.02,
+                          }}
+                          animate={{
+                            opacity: 1,
+                            x: 0,
+                            scale: 1,
+                          }}
+                          exit={{
+                            opacity: 0,
+                            x: -35,
+                            scale: 0.99,
+                          }}
+                          transition={{
+                            duration: 0.4,
 
-                            bg-black
+                            ease: [
+                              0.22,
+                              1,
+                              0.36,
+                              1,
+                            ],
+                          }}
+                        >
+                          {activeMedia?.type ===
+                          "video" ? (
+                            <video
+                              src={
+                                activeMedia.src
+                              }
+                              poster={
+                                activeMedia.poster
+                              }
+                              controls
+                              playsInline
+                              preload="metadata"
+                              aria-label={
+                                activeMedia.alt
+                              }
+                              className="
+                                h-full
+                                w-full
 
-                            object-cover
-                            object-center
+                                bg-black
+
+                                object-cover
+                                object-center
+                              "
+                            />
+                          ) : (
+                            <img
+                              src={
+                                activeMedia?.src
+                              }
+                              alt={
+                                activeMedia?.alt ??
+                                ""
+                              }
+                              loading="lazy"
+                              decoding="async"
+                              className={`
+                                h-full
+                                w-full
+
+                                scale-[1.01]
+
+                                ${
+                                  activeMedia?.fit ===
+                                  "contain"
+                                    ? "object-contain"
+                                    : "object-cover"
+                                }
+
+                                object-center
+                              `}
+                              style={{
+                                objectPosition:
+                                  activeMedia?.position ??
+                                  "center",
+                              }}
+                            />
+                          )}
+                        </motion.div>
+                      </AnimatePresence>
+
+
+                      {/* IMAGE OVERLAY */}
+
+                      {activeMedia?.type ===
+                        "image" && (
+                        <div
+                          aria-hidden="true"
+                          className="
+                            pointer-events-none
+
+                            absolute
+                            inset-0
+
+                            bg-gradient-to-t
+
+                            from-[#422508]/25
+                            via-transparent
+                            to-[#F5E6CC]/10
+
+                            mix-blend-multiply
                           "
                         />
-                      ) : (
-                        <img
-                          src={
-                            activeMedia?.src
-                          }
-                          alt={
-                            activeMedia?.alt ??
-                            ""
-                          }
-                          loading="lazy"
-                          decoding="async"
-                          className={`
-                            h-full
-                            w-full
-
-                            scale-[1.01]
-
-                            ${
-                              activeMedia?.fit ===
-                              "contain"
-                                ? "object-contain"
-                                : "object-cover"
-                            }
-
-                            object-center
-                          `}
-                          style={{
-                            objectPosition:
-                              activeMedia?.position ??
-                              "center",
-                          }}
-                        />
                       )}
-                    </motion.div>
-                  </AnimatePresence>
 
 
-                  {/* IMAGE OVERLAY */}
+                      {/* SLIDER CONTROLS */}
 
-                  {activeMedia?.type !==
-                    "video" && (
-                    <div
-                      aria-hidden="true"
-                      className="
-                        pointer-events-none
-
-                        absolute
-                        inset-0
-
-                        bg-gradient-to-t
-
-                        from-[#422508]/25
-                        via-transparent
-                        to-[#F5E6CC]/10
-
-                        mix-blend-multiply
-                      "
-                    />
-                  )}
-
-
-                  {/* SLIDER CONTROLS */}
-
-                  {totalSlides > 1 && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={
-                          showPrevious
-                        }
-                        aria-label="Show previous media"
-                        className="
-                          absolute
-                          left-3
-                          top-1/2
-                          z-20
-
-                          flex
-                          h-10
-                          w-10
-                          -translate-y-1/2
-
-                          items-center
-                          justify-center
-
-                          rounded-full
-
-                          bg-[#1C1C1C]/55
-
-                          text-[24px]
-                          text-white
-
-                          backdrop-blur-md
-
-                          transition
-
-                          hover:bg-[#704214]
-
-                          focus:outline-none
-                          focus:ring-2
-                          focus:ring-white
-
-                          sm:left-5
-                          sm:h-12
-                          sm:w-12
-                        "
-                      >
-                        ‹
-                      </button>
-
-
-                      <button
-                        type="button"
-                        onClick={
-                          showNext
-                        }
-                        aria-label="Show next media"
-                        className="
-                          absolute
-                          right-3
-                          top-1/2
-                          z-20
-
-                          flex
-                          h-10
-                          w-10
-                          -translate-y-1/2
-
-                          items-center
-                          justify-center
-
-                          rounded-full
-
-                          bg-[#1C1C1C]/55
-
-                          text-[24px]
-                          text-white
-
-                          backdrop-blur-md
-
-                          transition
-
-                          hover:bg-[#704214]
-
-                          focus:outline-none
-                          focus:ring-2
-                          focus:ring-white
-
-                          sm:right-5
-                          sm:h-12
-                          sm:w-12
-                        "
-                      >
-                        ›
-                      </button>
-
-
-                      <div
-                        aria-live="polite"
-                        className="
-                          absolute
-                          bottom-3
-                          right-3
-                          z-20
-
-                          rounded-full
-
-                          bg-black/55
-
-                          px-3
-                          py-1
-
-                          font-body
-                          text-[14px]
-                          text-white
-
-                          backdrop-blur-md
-
-                          sm:bottom-5
-                          sm:right-5
-                        "
-                      >
-                        {currentSlide + 1} /{" "}
-                        {totalSlides}
-                      </div>
-                    </>
-                  )}
-                </div>
-
-
-                {/* SLIDER DOTS */}
-
-                {totalSlides > 1 && (
-                  <div
-                    className="
-                      mt-4
-
-                      flex
-                      items-center
-                      justify-center
-
-                      gap-2
-                    "
-                  >
-                    {media.map(
-                      (
-                        slide,
-                        index,
-                      ) => (
-                        <button
-                          key={`${slide.src}-${index}`}
-                          type="button"
-                          onClick={() =>
-                            setCurrentSlide(
-                              index,
-                            )
-                          }
-                          aria-label={`Show slide ${
-                            index + 1
-                          }`}
-                          aria-current={
-                            currentSlide ===
-                            index
-                              ? "true"
-                              : undefined
-                          }
-                          className={`
-                            h-2.5
-
-                            rounded-full
-
-                            transition-all
-                            duration-300
-
-                            focus:outline-none
-                            focus:ring-2
-                            focus:ring-[#704214]
-
-                            ${
-                              currentSlide ===
-                              index
-                                ? "w-9 bg-[#704214]"
-                                : "w-2.5 bg-[#704214]/30 hover:bg-[#704214]/60"
+                      {totalSlides > 1 && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={
+                              showPrevious
                             }
-                          `}
-                        />
-                      ),
+                            aria-label="Show previous media"
+                            className="
+                              absolute
+                              left-3
+                              top-1/2
+                              z-20
+
+                              flex
+                              h-10
+                              w-10
+                              -translate-y-1/2
+
+                              items-center
+                              justify-center
+
+                              rounded-full
+
+                              bg-[#1C1C1C]/55
+
+                              text-[24px]
+                              text-white
+
+                              backdrop-blur-md
+
+                              transition
+
+                              hover:bg-[#704214]
+
+                              focus:outline-none
+                              focus:ring-2
+                              focus:ring-white
+
+                              sm:left-5
+                              sm:h-12
+                              sm:w-12
+                            "
+                          >
+                            ‹
+                          </button>
+
+
+                          <button
+                            type="button"
+                            onClick={
+                              showNext
+                            }
+                            aria-label="Show next media"
+                            className="
+                              absolute
+                              right-3
+                              top-1/2
+                              z-20
+
+                              flex
+                              h-10
+                              w-10
+                              -translate-y-1/2
+
+                              items-center
+                              justify-center
+
+                              rounded-full
+
+                              bg-[#1C1C1C]/55
+
+                              text-[24px]
+                              text-white
+
+                              backdrop-blur-md
+
+                              transition
+
+                              hover:bg-[#704214]
+
+                              focus:outline-none
+                              focus:ring-2
+                              focus:ring-white
+
+                              sm:right-5
+                              sm:h-12
+                              sm:w-12
+                            "
+                          >
+                            ›
+                          </button>
+
+
+                          <div
+                            aria-live="polite"
+                            className="
+                              absolute
+                              bottom-3
+                              right-3
+                              z-20
+
+                              rounded-full
+
+                              bg-black/55
+
+                              px-3
+                              py-1
+
+                              font-body
+                              text-[14px]
+                              text-white
+
+                              backdrop-blur-md
+
+                              sm:bottom-5
+                              sm:right-5
+                            "
+                          >
+                            {currentSlide + 1} /{" "}
+                            {totalSlides}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+
+                    {/* SLIDER DOTS */}
+
+                    {totalSlides > 1 && (
+                      <div
+                        className="
+                          mt-4
+
+                          flex
+                          items-center
+                          justify-center
+
+                          gap-2
+                        "
+                      >
+                        {media.map(
+                          (
+                            slide,
+                            index,
+                          ) => (
+                            <button
+                              key={`${slide.src}-${index}`}
+                              type="button"
+                              onClick={() =>
+                                setCurrentSlide(
+                                  index,
+                                )
+                              }
+                              aria-label={`Show slide ${
+                                index + 1
+                              }`}
+                              aria-current={
+                                currentSlide ===
+                                index
+                                  ? "true"
+                                  : undefined
+                              }
+                              className={`
+                                h-2.5
+
+                                rounded-full
+
+                                transition-all
+                                duration-300
+
+                                focus:outline-none
+                                focus:ring-2
+                                focus:ring-[#704214]
+
+                                ${
+                                  currentSlide ===
+                                  index
+                                    ? "w-9 bg-[#704214]"
+                                    : "w-2.5 bg-[#704214]/30 hover:bg-[#704214]/60"
+                                }
+                              `}
+                            />
+                          ),
+                        )}
+                      </div>
                     )}
-                  </div>
+                  </>
                 )}
               </div>
 

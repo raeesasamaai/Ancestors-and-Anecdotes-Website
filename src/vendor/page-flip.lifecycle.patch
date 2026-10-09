@@ -1,0 +1,115 @@
+--- a/src/Render/Render.ts
++++ b/src/Render/Render.ts
+@@ -82,6 +82,8 @@
+ 
+     /** Timer started from start of rendering */
+     protected timer = 0;
++    private animationFrameId: number | null = null;
++    private stopped = true;
+ 
+     /**
+      * Safari browser definitions for resolving a bug with a css property clip-area
+@@ -137,14 +139,22 @@
+      * Running requestAnimationFrame, and rendering process
+      */
+     public start(): void {
++        this.stop();
++        this.stopped = false;
+         this.update();
+-
+         const loop = (timer: number): void => {
++            if (this.stopped) return;
+             this.render(timer);
+-            requestAnimationFrame(loop);
+-        };
+-
+-        requestAnimationFrame(loop);
++            if (!this.stopped) this.animationFrameId = requestAnimationFrame(loop);
++        };
++        this.animationFrameId = requestAnimationFrame(loop);
++    }
++
++    public stop(): void {
++        this.stopped = true;
++        if (this.animationFrameId !== null) cancelAnimationFrame(this.animationFrameId);
++        this.animationFrameId = null;
++        this.animation = null;
+     }
+ 
+     /**
+--- a/src/PageFlip.ts
++++ b/src/PageFlip.ts
+@@ -34,6 +34,8 @@
+     private render: Render;
+ 
+     private ui: UI;
++    private destroyed = false;
++    private initTimeout: ReturnType<typeof setTimeout> | null = null;
+ 
+     /**
+      * Create a new PageFlip instance
+@@ -53,7 +55,12 @@
+      * Destructor. Remove a root HTML element and all event handlers
+      */
+     public destroy(): void {
+-        this.ui.destroy();
++        if (this.destroyed) return;
++        this.destroyed = true;
++        if (this.initTimeout !== null) clearTimeout(this.initTimeout);
++        this.render?.stop();
++        this.ui?.destroy();
++        for (const event of ["flip", "changeOrientation", "changeState", "init", "update"]) this.off(event);
+         this.block.remove();
+     }
+ 
+@@ -86,7 +93,8 @@
+         this.pages.show(this.setting.startPage);
+ 
+         // safari fix
+-        setTimeout(() => {
++        this.initTimeout = setTimeout(() => {
++            if (this.destroyed) return;
+             this.ui.update();
+             this.trigger('init', this, {
+                 page: this.setting.startPage,
+@@ -115,7 +123,8 @@
+         this.pages.show(this.setting.startPage);
+ 
+         // safari fix
+-        setTimeout(() => {
++        this.initTimeout = setTimeout(() => {
++            if (this.destroyed) return;
+             this.ui.update();
+             this.trigger('init', this, {
+                 page: this.setting.startPage,
+--- a/src/UI/UI.ts
++++ b/src/UI/UI.ts
+@@ -21,6 +21,7 @@
+ 
+     private touchPoint: SwipeData = null;
+     private readonly swipeTimeout = 250;
++    private touchTimeout: ReturnType<typeof setTimeout> | null = null;
+     private readonly swipeDistance: number;
+ 
+     private onResize = (): void => {
+@@ -71,7 +72,9 @@
+      * Destructor. Remove all HTML elements and all event handlers
+      */
+     public destroy(): void {
+-        if (this.app.getSettings().useMouseEvents) this.removeHandlers();
++        this.removeHandlers();
++        if (this.touchTimeout !== null) clearTimeout(this.touchTimeout);
++        this.touchPoint = null;
+ 
+         this.distElement.remove();
+         this.wrapper.remove();
+@@ -198,7 +201,8 @@
+                 };
+ 
+                 // part of swipe detection
+-                setTimeout(() => {
++                if (this.touchTimeout !== null) clearTimeout(this.touchTimeout);
++                this.touchTimeout = setTimeout(() => {
+                     if (this.touchPoint !== null) {
+                         this.app.startUserTouch(pos);
+                     }

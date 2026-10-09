@@ -21,7 +21,7 @@ const packages = [
 
     price: "R6 300",
 
-    price_plan: "(paid over 2 months)",
+    price_plan: "(Instalment plans available)",
 
     image:
       "/Images/package-1.png",
@@ -55,7 +55,7 @@ const packages = [
 
     price: "R9 000",
 
-    price_plan: "(paid over 2 months)",
+    price_plan: "(Instalment plans available)",
 
     image:
       "/Images/package-2.png",
@@ -89,7 +89,7 @@ const packages = [
 
     price: "R10 500",
 
-    price_plan: "(paid over 3 months)",
+    price_plan: "(Instalment plans available)",
 
     image:
       "/Images/package-3.png",
@@ -123,7 +123,7 @@ const packages = [
 
     price: "R14 000",
 
-    price_plan: "(paid over 4 months)",
+    price_plan: "(Instalment plans available)",
 
     image:
       "/Images/package-4.png",
@@ -253,36 +253,6 @@ function PackageCard({
         "
       >
         {packageItem.price}
-      </p>
-
-        <p
-        className="
-          section-heading
-
-          pb-2
-
-          text-center
-
-          pt-3
-
-          text-[1.1rem]
-
-          text-[#704214]
-
-          sm:pt-4
-          sm:text-[1.11rem]
-
-          xl:pt-2
-          xl:text-[1.1rem]
-
-          2xl:text-[1.5rem]
-
-          [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:pt-4
-
-          [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[1.5rem]
-        "
-      >
-      {packageItem.price_plan}
       </p>
 
       {/* =================================================
@@ -578,6 +548,22 @@ export default function Packages() {
           changing naming traditions can limit research. We use all available
           archives but cannot guarantee connections prior to official
           documentation.
+        </ScrollReveal>
+
+        <ScrollReveal
+          as="p"
+          className="
+            mt-6
+            max-w-5xl
+
+            section-body
+            cursive
+            italic
+
+            [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:mt-4
+          "
+        >
+          *Installment plans are available across all packages.
         </ScrollReveal>
 
 

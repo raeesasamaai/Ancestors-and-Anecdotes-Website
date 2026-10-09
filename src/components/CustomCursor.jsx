@@ -6,6 +6,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 const cursorThemes = {
   light: {
@@ -352,7 +353,8 @@ export default function CustomCursor() {
     return null;
   }
 
-  return (
+  // Keep the cursor in the same stacking context as body-level modal portals.
+  return createPortal(
     <motion.div
       aria-hidden="true"
       className="pointer-events-none fixed left-0 top-0 z-[99999]"
@@ -478,6 +480,7 @@ export default function CustomCursor() {
           )}
         </AnimatePresence>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 }
