@@ -7,44 +7,45 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 
-export default function QuoteBaldwin() {
+export default function QuoteAngelou() {
   const sectionRef = useRef(null);
+  const washRef = useRef(null);
+  const quoteMarkRef = useRef(null);
   const quoteRef = useRef(null);
-  const wipeRef = useRef(null);
   const authorRef = useRef(null);
-  const lineRef = useRef(null);
 
 
   useGSAP(
     () => {
-      const quote = quoteRef.current;
-      const wipe = wipeRef.current;
-      const author = authorRef.current;
-      const line = lineRef.current;
-      const section = sectionRef.current;
+      const section =
+        sectionRef.current;
+
+      const wash =
+        washRef.current;
+
+      const quoteMark =
+        quoteMarkRef.current;
+
+      const quote =
+        quoteRef.current;
+
+      const author =
+        authorRef.current;
 
 
       if (
         !section ||
+        !wash ||
+        !quoteMark ||
         !quote ||
-        !wipe ||
-        !author ||
-        !line
+        !author
       ) {
         return;
       }
 
 
       /* =====================================================
-         ORIGINAL REVEAL WIPE ANIMATION
-
-         Same animation on:
-         - mobile portrait
-         - mobile landscape
-         - tablets
-         - iPads
-         - laptops
-         - desktops
+         ORIGINAL COLOR WASH ANIMATION
       ===================================================== */
 
       const timeline = gsap.timeline({
@@ -53,45 +54,65 @@ export default function QuoteBaldwin() {
 
 
       timeline
-        .set(
-          quote,
-          {
-            opacity: 1,
-          },
-        )
-
-        .from(
-          quote,
-          {
-            y: 28,
-
-            duration: 0.8,
-
-            ease: "power3.out",
-          },
-          0,
-        )
-
         .fromTo(
-          wipe,
+          wash,
           {
-            scaleX: 1,
+            scaleX: 0,
 
             transformOrigin:
               "left center",
           },
           {
-            scaleX: 0,
+            scaleX: 1,
 
-            transformOrigin:
-              "right center",
-
-            duration: 1.25,
+            duration: 1.35,
 
             ease:
               "power4.inOut",
           },
-          0.05,
+        )
+
+        .to(
+          quote,
+          {
+            color:
+              "#FFF6E8",
+
+            duration: 0.8,
+
+            ease:
+              "power2.out",
+          },
+          0.45,
+        )
+
+        .to(
+          author,
+          {
+            color:
+              "#F5E6CC",
+
+            duration: 0.8,
+
+            ease:
+              "power2.out",
+          },
+          0.5,
+        )
+
+        .from(
+          quote,
+          {
+            y: 35,
+
+            opacity: 0,
+
+            duration: 0.9,
+
+            ease:
+              "power3.out",
+          },
+          0.45,
         )
 
         .from(
@@ -101,37 +122,32 @@ export default function QuoteBaldwin() {
 
             opacity: 0,
 
-            duration: 0.7,
+            duration: 0.65,
 
             ease:
               "power3.out",
           },
-          "-=0.3",
+          0.85,
         )
 
         .from(
-          line,
+          quoteMark,
           {
-            scaleX: 0,
+            opacity: 0,
 
-            transformOrigin:
-              "left center",
+            scale: 0.7,
 
-            duration: 0.7,
+            duration: 0.6,
 
             ease:
-              "power3.out",
+              "back.out(1.5)",
           },
-          "-=0.45",
+          0.45,
         );
 
 
       /* =====================================================
-         SCROLL TRIGGER
-
-         No device-specific trigger logic.
-         No pinning.
-         No ScrollTrigger.refresh().
+         SAME TRIGGER ON EVERY DEVICE
       ===================================================== */
 
       const trigger = ScrollTrigger.create({
@@ -163,7 +179,7 @@ export default function QuoteBaldwin() {
   return (
     <section
       ref={sectionRef}
-      data-cursor-theme="dark"
+      data-cursor-theme="light"
       className="
         relative
 
@@ -176,7 +192,7 @@ export default function QuoteBaldwin() {
 
         overflow-hidden
 
-        bg-[#FFF6E8]
+        bg-[#F5E6CC]
 
         px-6
 
@@ -191,8 +207,61 @@ export default function QuoteBaldwin() {
         xl:px-20
       "
     >
+      {/* =================================================
+          COLOR WASH
+      ================================================= */}
+
+      <div
+        ref={washRef}
+        aria-hidden="true"
+        className="
+          pointer-events-none
+
+          absolute
+          inset-0
+
+          z-0
+
+          bg-[#9C645E]
+        "
+      />
+
+
+      {/* =================================================
+          DECORATIVE GLOW
+      ================================================= */}
+
+      <div
+        aria-hidden="true"
+        className="
+          pointer-events-none
+
+          absolute
+          left-1/2
+          top-1/2
+
+          z-[1]
+
+          h-[min(70vw,650px)]
+          w-[min(70vw,650px)]
+
+          -translate-x-1/2
+          -translate-y-1/2
+
+          rounded-full
+
+          bg-[#FFF6E8]/10
+
+          blur-[100px]
+        "
+      />
+
+
       <div
         className="
+          relative
+          z-10
+
           mx-auto
 
           w-full
@@ -203,7 +272,7 @@ export default function QuoteBaldwin() {
           className="
             mx-auto
 
-            max-w-5xl
+            max-w-4xl
 
             text-center
           "
@@ -213,19 +282,22 @@ export default function QuoteBaldwin() {
           ================================================= */}
 
           <div
+            ref={quoteMarkRef}
             aria-hidden="true"
             className="
-              mb-[clamp(0.4rem,1.6vh,1.25rem)]
+              mb-[clamp(0.25rem,1.3vh,1rem)]
 
               font-[Georgia]
 
-              text-[clamp(2.6rem,7vh,5rem)]
+              text-[clamp(3rem,8vh,5.2rem)]
 
               font-bold
 
               leading-none
 
-              text-[#9C645E]
+              text-[#FFF6E8]
+
+              [@media(max-height:400px)]:text-[2.5rem]
             "
           >
             “
@@ -233,84 +305,31 @@ export default function QuoteBaldwin() {
 
 
           {/* =================================================
-              REVEAL WIPE
+              QUOTE
           ================================================= */}
 
-          <div
+          <blockquote
+            ref={quoteRef}
             className="
-              relative
+              font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
 
-              overflow-hidden
+              text-[clamp(1.6rem,5vw,3.29rem)]
+
+              font-normal
+
+              leading-[1.22]
+
+              text-[#704214]
+
+              [@media(max-height:500px)]:text-[1.7rem]
+
+              [@media(max-height:400px)]:text-[1.45rem]
+
+              [@media(max-height:340px)]:text-[1.25rem]
             "
           >
-            <blockquote
-              ref={quoteRef}
-              className="
-                relative
-                z-10
-
-                opacity-0
-
-                font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
-
-                text-[clamp(1.55rem,4vw,2.9rem)]
-
-                font-normal
-
-                leading-[1.28]
-
-                text-[#704214]
-
-                [@media(max-height:500px)]:text-[1.4rem]
-
-                [@media(max-height:400px)]:text-[1.25rem]
-
-                [@media(max-height:340px)]:text-[1.1rem]
-              "
-            >
-              Know from whence you came. If you know whence you came,
-              there are absolutely no limitations to where you can go.
-            </blockquote>
-
-
-            <div
-              ref={wipeRef}
-              aria-hidden="true"
-              className="
-                pointer-events-none
-
-                absolute
-                inset-0
-
-                z-20
-
-                bg-[#9C645E]
-              "
-            />
-          </div>
-
-
-          {/* =================================================
-              ACCENT LINE
-          ================================================= */}
-
-          <div
-            ref={lineRef}
-            aria-hidden="true"
-            className="
-              mx-auto
-
-              mt-[clamp(1rem,3vh,2.25rem)]
-
-              h-[2px]
-
-              w-14
-
-              bg-[#9C645E]
-
-              sm:w-16
-            "
-          />
+            Know from whence you came. If you know whence you came, there are absolutely no limitations to where you can go.
+          </blockquote>
 
 
           {/* =================================================
@@ -320,22 +339,22 @@ export default function QuoteBaldwin() {
           <p
             ref={authorRef}
             className="
-              mt-[clamp(0.75rem,2vh,1.5rem)]
+              mt-[clamp(0.8rem,2.6vh,2.25rem)]
 
               font-['Cormorant_Garamond',serif]
 
-              text-[clamp(1rem,2.4vh,1.35rem)]
+              text-[clamp(1.5rem,2.4vh,1.4rem)]
 
               font-semibold
 
-              tracking-[0.04em]
+              tracking-[0.05em]
 
               text-[#566735]
 
               [@media(max-height:400px)]:text-[0.95rem]
             "
           >
-            — James Baldwin
+            —  James Baldwin
           </p>
         </div>
       </div>

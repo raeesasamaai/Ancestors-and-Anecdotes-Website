@@ -9,13 +9,9 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function QuoteAtlas() {
   const sectionRef = useRef(null);
-
+  const washRef = useRef(null);
   const quoteMarkRef = useRef(null);
-
-  const foldOneRef = useRef(null);
-  const foldTwoRef = useRef(null);
-  const foldThreeRef = useRef(null);
-
+  const quoteRef = useRef(null);
   const authorRef = useRef(null);
 
 
@@ -24,17 +20,14 @@ export default function QuoteAtlas() {
       const section =
         sectionRef.current;
 
+      const wash =
+        washRef.current;
+
       const quoteMark =
         quoteMarkRef.current;
 
-      const foldOne =
-        foldOneRef.current;
-
-      const foldTwo =
-        foldTwoRef.current;
-
-      const foldThree =
-        foldThreeRef.current;
+      const quote =
+        quoteRef.current;
 
       const author =
         authorRef.current;
@@ -42,46 +35,17 @@ export default function QuoteAtlas() {
 
       if (
         !section ||
+        !wash ||
         !quoteMark ||
-        !foldOne ||
-        !foldTwo ||
-        !foldThree ||
+        !quote ||
         !author
       ) {
         return;
       }
 
 
-      const folds = [
-        foldOne,
-        foldTwo,
-        foldThree,
-      ];
-
-
       /* =====================================================
-         ORIGAMI SETUP
-      ===================================================== */
-
-      gsap.set(
-        folds,
-        {
-          transformPerspective:
-            1200,
-
-          transformOrigin:
-            "top center",
-
-          backfaceVisibility:
-            "hidden",
-        },
-      );
-
-
-      /* =====================================================
-         ORIGAMI ANIMATION
-
-         Same animation on every device.
+         ORIGINAL COLOR WASH ANIMATION
       ===================================================== */
 
       const timeline = gsap.timeline({
@@ -90,63 +54,100 @@ export default function QuoteAtlas() {
 
 
       timeline
-        .from(
-          quoteMark,
+        .fromTo(
+          wash,
           {
-            opacity: 0,
+            scaleX: 0,
 
-            y: -20,
+            transformOrigin:
+              "left center",
+          },
+          {
+            scaleX: 1,
 
-            duration: 0.6,
+            duration: 1.35,
+
+            ease:
+              "power4.inOut",
+          },
+        )
+
+        .to(
+          quote,
+          {
+            color:
+              "#FFF6E8",
+
+            duration: 0.8,
 
             ease:
               "power2.out",
           },
+          0.45,
+        )
+
+        .to(
+          author,
+          {
+            color:
+              "#F5E6CC",
+
+            duration: 0.8,
+
+            ease:
+              "power2.out",
+          },
+          0.5,
         )
 
         .from(
-          folds,
+          quote,
           {
-            rotateX: -88,
-
-            y: -24,
+            y: 35,
 
             opacity: 0,
 
-            scaleY: 0.72,
-
-            duration: 1,
-
-            stagger: 0.18,
+            duration: 0.9,
 
             ease:
-              "power4.out",
+              "power3.out",
           },
-          "-=0.25",
+          0.45,
         )
 
         .from(
           author,
           {
+            y: 18,
+
             opacity: 0,
 
-            y: 20,
-
-            duration: 0.75,
+            duration: 0.65,
 
             ease:
               "power3.out",
           },
-          "-=0.2",
+          0.85,
+        )
+
+        .from(
+          quoteMark,
+          {
+            opacity: 0,
+
+            scale: 0.7,
+
+            duration: 0.6,
+
+            ease:
+              "back.out(1.5)",
+          },
+          0.45,
         );
 
 
       /* =====================================================
-         SCROLL TRIGGER
-
-         Same trigger on every device.
-         No pinning.
-         No global refresh.
+         SAME TRIGGER ON EVERY DEVICE
       ===================================================== */
 
       const trigger = ScrollTrigger.create({
@@ -191,11 +192,11 @@ export default function QuoteAtlas() {
 
         overflow-hidden
 
-        bg-[#704214]
+        bg-[#F5E6CC]
 
         px-5
 
-        text-[#FFF6E8]
+        text-[#1C1C1C]
 
         sm:px-8
 
@@ -206,6 +207,56 @@ export default function QuoteAtlas() {
         xl:px-20
       "
     >
+      {/* =================================================
+          COLOR WASH
+      ================================================= */}
+
+      <div
+        ref={washRef}
+        aria-hidden="true"
+        className="
+          pointer-events-none
+
+          absolute
+          inset-0
+
+          z-0
+
+          bg-[#9C645E]
+        "
+      />
+
+
+      {/* =================================================
+          DECORATIVE GLOW
+      ================================================= */}
+
+      <div
+        aria-hidden="true"
+        className="
+          pointer-events-none
+
+          absolute
+          left-1/2
+          top-1/2
+
+          z-[1]
+
+          h-[min(70vw,650px)]
+          w-[min(70vw,650px)]
+
+          -translate-x-1/2
+          -translate-y-1/2
+
+          rounded-full
+
+          bg-[#FFF6E8]/10
+
+          blur-[100px]
+        "
+      />
+
+
       <div
         className="
           relative
@@ -244,7 +295,7 @@ export default function QuoteAtlas() {
 
               leading-[0.8]
 
-              text-[#F5E6CC]
+              text-[#FFF6E8]
 
               sm:mb-4
               sm:text-[3.4rem]
@@ -272,15 +323,16 @@ export default function QuoteAtlas() {
 
 
           {/* =================================================
-              ORIGAMI QUOTE
+              QUOTE
           ================================================= */}
 
           <blockquote
+            ref={quoteRef}
             className="
               flex
               flex-col
 
-              gap-3
+              gap-6
 
               font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
 
@@ -294,14 +346,14 @@ export default function QuoteAtlas() {
 
               md:text-[1.18rem]
 
-              lg:gap-5
+              lg:gap-9
               lg:text-[1.28rem]
 
               xl:text-[1.67rem]
 
               2xl:text-[1.45rem]
 
-              [perspective:1200px]
+              text-[#704214]
 
               [@media(max-height:700px)]:gap-3
 
@@ -327,151 +379,34 @@ export default function QuoteAtlas() {
             "
           >
             {/* =================================================
-                FOLD ONE
+                PARAGRAPH ONE
             ================================================= */}
 
-            <div
-              ref={foldOneRef}
-              className="
-                border
-                border-[#FFF6E8]/15
-
-                bg-[#FFF6E8]/[0.06]
-
-                px-5
-                py-4
-
-                backdrop-blur-[2px]
-
-                sm:px-7
-                sm:py-5
-
-                md:px-8
-                md:py-5
-
-                lg:px-10
-                lg:py-6
-
-                xl:px-11
-                xl:py-6
-
-                [transform-style:preserve-3d]
-
-                [@media(max-height:700px)]:py-4
-
-                [@media(max-height:600px)]:py-3
-
-                [@media(max-height:500px)]:px-5
-
-                [@media(max-height:500px)]:py-2.5
-
-                [@media(max-height:420px)]:py-2
-
-                [@media(max-height:350px)]:py-1.5
-              "
-            >
+            <p>
               In ways that often feel mysterious, emotional material left
               unprocessed tends to appear and reappear in our lives.
-            </div>
+            </p>
 
 
             {/* =================================================
-                FOLD TWO
+                PARAGRAPH TWO
             ================================================= */}
 
-            <div
-              ref={foldTwoRef}
-              className="
-                border
-                border-[#FFF6E8]/15
-
-                bg-[#FFF6E8]/[0.08]
-
-                px-5
-                py-4
-
-                backdrop-blur-[2px]
-
-                sm:px-7
-                sm:py-5
-
-                md:px-8
-                md:py-5
-
-                lg:px-10
-                lg:py-6
-
-                xl:px-11
-                xl:py-6
-
-                [transform-style:preserve-3d]
-
-                [@media(max-height:700px)]:py-4
-
-                [@media(max-height:600px)]:py-3
-
-                [@media(max-height:500px)]:px-5
-
-                [@media(max-height:500px)]:py-2.5
-
-                [@media(max-height:420px)]:py-2
-
-                [@media(max-height:350px)]:py-1.5
-              "
-            >
+            <p>
               The unexamined life repeats itself and reverberates through the
               generations. The untold stories clamor for reenactment - they
               insist on being told.
-            </div>
+            </p>
 
 
             {/* =================================================
-                FOLD THREE
+                PARAGRAPH THREE
             ================================================= */}
 
-            <div
-              ref={foldThreeRef}
-              className="
-                border
-                border-[#FFF6E8]/15
-
-                bg-[#FFF6E8]/[0.1]
-
-                px-5
-                py-4
-
-                backdrop-blur-[2px]
-
-                sm:px-7
-                sm:py-5
-
-                md:px-8
-                md:py-5
-
-                lg:px-10
-                lg:py-6
-
-                xl:px-11
-                xl:py-6
-
-                [transform-style:preserve-3d]
-
-                [@media(max-height:700px)]:py-4
-
-                [@media(max-height:600px)]:py-3
-
-                [@media(max-height:500px)]:px-5
-
-                [@media(max-height:500px)]:py-2.5
-
-                [@media(max-height:420px)]:py-2
-
-                [@media(max-height:350px)]:py-1.5
-              "
-            >
+            <p>
               That which cannot be consciously identified forces itself into
               our reality and repeats itself.
-            </div>
+            </p>
           </blockquote>
 
 
@@ -482,19 +417,21 @@ export default function QuoteAtlas() {
           <div
             ref={authorRef}
             className="
-              mt-5
+              mt-11
 
               border-l-2
-              border-[#9C645E]
+              border-[#F5E6CC]
 
               pl-4
+
+              text-[#566735]
 
               sm:mt-6
               sm:pl-5
 
               md:mt-7
 
-              lg:mt-8
+              lg:mt-12
               lg:pl-6
 
               [@media(max-height:700px)]:mt-5
@@ -515,7 +452,7 @@ export default function QuoteAtlas() {
 
                 leading-[1.25]
 
-                text-[#F5E6CC]
+                text-inherit
 
                 sm:text-[1.1rem]
 
@@ -544,13 +481,13 @@ export default function QuoteAtlas() {
 
                 font-['Cormorant_Garamond',serif]
 
-                text-[0.85rem]
+                text-[1rem]
 
                 italic
 
                 leading-[1.25]
 
-                text-[#FFF6E8]/75
+                text-inherit
 
                 sm:text-[0.95rem]
 
