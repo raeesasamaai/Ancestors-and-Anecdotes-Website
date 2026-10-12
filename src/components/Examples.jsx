@@ -377,9 +377,300 @@ function shouldUseLaptopHoverMode() {
    Only used by the Family History Document example.
 ========================================================= */
 
+/* =========================================================
+   EXPANDED FAMILY HISTORY READER
+
+   A viewport-sized reader with its own focus trap. The preview
+   remains mounted so closing the reader preserves the current page.
+========================================================= */
+
+const BOOK_PAGE_RATIO = 297 / 210;
+const MAX_BOOK_ZOOM = 4;
+
+function fittedBookPage(width, height) {
+  const pageWidth = Math.max(0, Math.min(width - 16, (height - 16) * BOOK_PAGE_RATIO));
+  return { width: pageWidth, height: pageWidth / BOOK_PAGE_RATIO };
+}
+
+function FamilyHistoryReader({ pages, alt, pageIndex, onPageChange, onClose }) {
+  const dialogRef = useRef(null);
+  const viewportRef = useRef(null);
+  const closeRef = useRef(null);
+  const pointersRef = useRef(new Map());
+  const gestureRef = useRef(null);
+  const viewRef = useRef({ scale: 1, x: 0, y: 0 });
+  const [view, setView] = useState({ scale: 1, x: 0, y: 0 });
+  const [frame, setFrame] = useState({ width: 0, height: 0 });
+  const [failedSource, setFailedSource] = useState(null);
+  const source = pages[pageIndex];
+  const totalPages = pages.length;
+
+  // Clamp panning to the enlarged page rather than letting it disappear offscreen.
+  const applyView = useCallback((next) => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const scale = Math.max(1, Math.min(MAX_BOOK_ZOOM, next.scale));
+    const size = fittedBookPage(viewport.clientWidth, viewport.clientHeight);
+    const maxX = Math.max(0, (size.width * scale - viewport.clientWidth) / 2);
+    const maxY = Math.max(0, (size.height * scale - viewport.clientHeight) / 2);
+    const result = {
+      scale,
+      x: Math.max(-maxX, Math.min(maxX, next.x)),
+      y: Math.max(-maxY, Math.min(maxY, next.y)),
+    };
+    viewRef.current = result;
+    setView(result);
+  }, []);
+
+  const resetView = useCallback(() => {
+    pointersRef.current.clear();
+    gestureRef.current = null;
+    applyView({ scale: 1, x: 0, y: 0 });
+  }, [applyView]);
+
+  const pointInViewport = useCallback((clientX, clientY) => {
+    const bounds = viewportRef.current.getBoundingClientRect();
+    return {
+      x: clientX - bounds.left - bounds.width / 2,
+      y: clientY - bounds.top - bounds.height / 2,
+    };
+  }, []);
+
+  // Keep the same point under the fingers or mouse when zooming.
+  const zoomTo = useCallback((scale, focal = { x: 0, y: 0 }) => {
+    const current = viewRef.current;
+    const nextScale = Math.max(1, Math.min(MAX_BOOK_ZOOM, scale));
+    const ratio = nextScale / current.scale;
+    applyView({
+      scale: nextScale,
+      x: focal.x - (focal.x - current.x) * ratio,
+      y: focal.y - (focal.y - current.y) * ratio,
+    });
+  }, [applyView]);
+
+  const changePage = useCallback((nextPage) => {
+    if (nextPage < 0 || nextPage >= totalPages || nextPage === pageIndex) return;
+    resetView();
+    onPageChange(nextPage);
+  }, [onPageChange, pageIndex, resetView, totalPages]);
+
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current;
+    const measure = () => {
+      setFrame(fittedBookPage(viewport.clientWidth, viewport.clientHeight));
+      applyView(viewRef.current);
+    };
+    measure();
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    observer?.observe(viewport);
+    window.addEventListener("resize", measure);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [applyView]);
+
+  useEffect(() => {
+    const previouslyFocused = document.activeElement;
+    const focusFrame = window.requestAnimationFrame(() => closeRef.current?.focus());
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      if (previouslyFocused instanceof HTMLElement && previouslyFocused.isConnected) {
+        previouslyFocused.focus({ preventScroll: true });
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    const handleWheel = (event) => {
+      event.preventDefault();
+      zoomTo(viewRef.current.scale * Math.exp(-event.deltaY * 0.002), pointInViewport(event.clientX, event.clientY));
+    };
+    viewport.addEventListener("wheel", handleWheel, { passive: false });
+    return () => viewport.removeEventListener("wheel", handleWheel);
+  }, [pointInViewport, zoomTo]);
+
+  const beginGesture = () => {
+    const points = Array.from(pointersRef.current.values());
+    if (points.length >= 2) {
+      const [first, second] = points;
+      gestureRef.current = {
+        type: "pinch",
+        distance: Math.max(1, Math.hypot(second.x - first.x, second.y - first.y)),
+        midpoint: { x: (first.x + second.x) / 2, y: (first.y + second.y) / 2 },
+        view: { ...viewRef.current },
+      };
+    } else if (points.length === 1) {
+      gestureRef.current = { type: "pan", point: points[0], view: { ...viewRef.current } };
+    } else {
+      gestureRef.current = null;
+    }
+  };
+
+  const handlePointerDown = (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    event.preventDefault();
+    event.currentTarget.focus({ preventScroll: true });
+    event.currentTarget.setPointerCapture(event.pointerId);
+    pointersRef.current.set(event.pointerId, pointInViewport(event.clientX, event.clientY));
+    beginGesture();
+  };
+
+  const handlePointerMove = (event) => {
+    if (!pointersRef.current.has(event.pointerId)) return;
+    pointersRef.current.set(event.pointerId, pointInViewport(event.clientX, event.clientY));
+    const gesture = gestureRef.current;
+    if (!gesture) return;
+    const points = Array.from(pointersRef.current.values());
+    if (gesture.type === "pinch" && points.length >= 2) {
+      const [first, second] = points;
+      const midpoint = { x: (first.x + second.x) / 2, y: (first.y + second.y) / 2 };
+      const distance = Math.hypot(second.x - first.x, second.y - first.y);
+      const scale = Math.max(1, Math.min(MAX_BOOK_ZOOM, gesture.view.scale * distance / gesture.distance));
+      const ratio = scale / gesture.view.scale;
+      applyView({
+        scale,
+        x: midpoint.x - (gesture.midpoint.x - gesture.view.x) * ratio,
+        y: midpoint.y - (gesture.midpoint.y - gesture.view.y) * ratio,
+      });
+    } else if (gesture.type === "pan" && points.length === 1 && viewRef.current.scale > 1) {
+      applyView({
+        scale: gesture.view.scale,
+        x: gesture.view.x + points[0].x - gesture.point.x,
+        y: gesture.view.y + points[0].y - gesture.point.y,
+      });
+    }
+  };
+
+  const handlePointerEnd = (event) => {
+    pointersRef.current.delete(event.pointerId);
+    beginGesture();
+  };
+
+  const handleKeyDown = useCallback((event) => {
+    // Reader keys must not also close or turn pages in the underlying modal.
+    event.stopPropagation();
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      onClose();
+    } else if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      event.preventDefault();
+      changePage(pageIndex + (event.key === "ArrowLeft" ? -1 : 1));
+    } else if (event.key === "+" || event.key === "=") {
+      event.preventDefault();
+      zoomTo(viewRef.current.scale + 0.5);
+    } else if (event.key === "-") {
+      event.preventDefault();
+      zoomTo(viewRef.current.scale - 0.5);
+    } else if (event.key === "0") {
+      event.preventDefault();
+      resetView();
+    } else if (event.key === "Tab") {
+      const focusable = Array.from(dialogRef.current.querySelectorAll('button:not([disabled]), [tabindex="0"]'))
+        .filter((element) => element.getClientRects().length > 0);
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!dialogRef.current.contains(document.activeElement)) {
+        event.preventDefault();
+        first?.focus();
+      } else if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    }
+  }, [changePage, onClose, pageIndex, resetView, zoomTo]);
+
+  useEffect(() => {
+    // Capture keys even when a navigation button becomes disabled at a boundary.
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, [handleKeyDown]);
+
+  const controlClass = "inline-flex h-11 min-w-11 shrink-0 items-center justify-center rounded-full border border-[#704214]/25 bg-[#FFF6E8] px-3 text-[#704214] transition-colors hover:bg-[#F5E6CC] disabled:cursor-not-allowed disabled:opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#704214] focus-visible:ring-offset-2";
+
+  return createPortal(
+    <div
+      ref={dialogRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="family-history-reader-title"
+      data-cursor-theme="dark"
+      data-book-reader="true"
+      className="fixed inset-0 z-[9100] grid h-[100dvh] w-full grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden bg-[#EFE7DA] text-[#704214]"
+    >
+      <header className="flex items-center justify-between gap-3 border-b border-[#704214]/15 bg-[#F5E6CC] px-3 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))] sm:px-5">
+        <h2 id="family-history-reader-title" className="font-heading text-base sm:text-xl">Family History Document</h2>
+        <button ref={closeRef} type="button" onClick={onClose} aria-label="Close document reader" data-cursor="Close" className={controlClass}>
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+      </header>
+
+      <div
+        ref={viewportRef}
+        role="region"
+        aria-label="Zoomable document page"
+        tabIndex={0}
+        className="relative min-h-0 min-w-0 touch-none overflow-hidden select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#704214]"
+        style={{ cursor: view.scale > 1 ? "grab" : "zoom-in" }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
+        onLostPointerCapture={handlePointerEnd}
+        onDoubleClick={(event) => zoomTo(viewRef.current.scale > 1 ? 1 : 2, pointInViewport(event.clientX, event.clientY))}
+      >
+        <div
+          className="absolute left-1/2 top-1/2 origin-center overflow-hidden bg-[#FFF6E8] shadow-xl"
+          data-book-zoom={view.scale.toFixed(2)}
+          data-book-pan-x={view.x.toFixed(2)}
+          data-book-pan-y={view.y.toFixed(2)}
+          style={{
+            width: frame.width,
+            height: frame.height,
+            transform: `translate(-50%, -50%) translate(${view.x}px, ${view.y}px) scale(${view.scale})`,
+          }}
+        >
+          {failedSource === source ? (
+            <p role="status" className="flex h-full items-center justify-center p-4 text-center font-body">Preview page {pageIndex + 1} is unavailable.</p>
+          ) : (
+            <img key={source} src={source} alt={`${alt || "Family history document"} — page ${pageIndex + 1}`} draggable={false} decoding="async" onError={() => setFailedSource(source)} className="pointer-events-none block h-full w-full object-contain" />
+          )}
+        </div>
+      </div>
+
+      <footer className="border-t border-[#704214]/15 bg-[#F5E6CC] px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:px-5">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 sm:justify-between">
+          <div className="flex items-center gap-3">
+            <button type="button" onClick={() => changePage(pageIndex - 1)} disabled={pageIndex <= 0} aria-label="Previous reader page" className={`${controlClass} text-2xl`}>‹</button>
+            <p aria-live="polite" aria-atomic="true" className="min-w-[6rem] text-center font-body text-base font-semibold">Page {pageIndex + 1} of {totalPages}</p>
+            <button type="button" onClick={() => changePage(pageIndex + 1)} disabled={pageIndex >= totalPages - 1} aria-label="Next reader page" className={`${controlClass} text-2xl`}>›</button>
+          </div>
+          <div className="flex items-center gap-2" role="group" aria-label="Document zoom controls">
+            <button type="button" onClick={() => zoomTo(viewRef.current.scale - 0.5)} disabled={view.scale <= 1} aria-label="Zoom out" className={`${controlClass} text-xl`}>−</button>
+            <output aria-label="Zoom level" className="min-w-[3rem] text-center font-body text-base font-semibold">{Math.round(view.scale * 100)}%</output>
+            <button type="button" onClick={() => zoomTo(viewRef.current.scale + 0.5)} disabled={view.scale >= MAX_BOOK_ZOOM} aria-label="Zoom in" className={`${controlClass} text-xl`}>+</button>
+            <button type="button" onClick={resetView} aria-label="Fit page to screen" className={`${controlClass} font-body font-semibold`}>Fit</button>
+          </div>
+        </div>
+        <p className="mt-2 text-center font-body text-sm leading-tight text-[#704214]/75">Use + / − or pinch to zoom. Drag to move around the page.</p>
+      </footer>
+    </div>,
+    document.body,
+  );
+}
+
 function FamilyHistoryBookViewer({
   pages,
   alt,
+  isExpanded,
+  onExpandedChange,
 }) {
   const stageRef = useRef(null);
   // React owns this host. PageFlip only owns a disposable child inside it.
@@ -541,6 +832,7 @@ function FamilyHistoryBookViewer({
   const showNextPage = () => turnPage(1);
 
   useEffect(() => {
+    if (isExpanded) return undefined;
     const handleKeyDown = (event) => {
       if (event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
       if (event.target instanceof HTMLElement && event.target.closest("input, textarea, select, video, [contenteditable]:not([contenteditable='false'])")) return;
@@ -551,69 +843,59 @@ function FamilyHistoryBookViewer({
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [turnPage]);
+  }, [turnPage, isExpanded]);
 
-  const arrowClassName = "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#704214]/20 bg-[#704214] text-[1.6rem] leading-none text-[#FFF6E8] shadow-md transition-colors hover:bg-[#9C645E] disabled:cursor-not-allowed disabled:opacity-25 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#704214] focus-visible:ring-offset-2 focus-visible:ring-offset-[#EFE7DA] sm:h-11 sm:w-11";
+  const goToPage = useCallback((index) => {
+    if (totalPages === 0) return;
+    const page = Math.max(0, Math.min(totalPages - 1, index));
+    const instance = pageFlipRef.current;
+    instance?.getRender().finishAnimation();
+    instance?.turnToPage(page);
+    currentPageRef.current = page;
+    setCurrentPage(page);
+  }, [totalPages]);
+
+  const openReader = () => {
+    pageFlipRef.current?.getRender().finishAnimation();
+    onExpandedChange(true);
+  };
+  const closeReader = useCallback(() => onExpandedChange(false), [onExpandedChange]);
+  const pageLabel = totalPages > 0 ? `Page ${Math.min(currentPage + 1, totalPages)} of ${totalPages}` : "No pages";
+  const arrowClassName = "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#704214]/20 bg-[#704214] text-[1.6rem] leading-none text-[#FFF6E8] shadow-md transition-colors hover:bg-[#9C645E] disabled:cursor-not-allowed disabled:opacity-25 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#704214] focus-visible:ring-offset-2 focus-visible:ring-offset-[#EFE7DA]";
 
   return (
-    <div
-      className="relative w-full overflow-hidden rounded-[20px] border border-[#704214]/15 bg-[#EFE7DA] px-2 pb-3 pt-10 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] sm:rounded-[28px] sm:px-4 sm:pb-4 lg:rounded-[34px]"
-    >
-      <p className="mb-3 text-center font-['Cormorant_Garamond',serif] text-[0.88rem] leading-[1.25] text-[#704214]/75 sm:text-[1rem]">
-        {totalPages > 0
-          ? "Drag the page, swipe, or use the arrows to browse the book."
-          : "No preview pages are available yet."}
+    <div className="relative w-full overflow-hidden rounded-[20px] border border-[#704214]/15 bg-[#EFE7DA] px-1 pb-3 pt-14 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] sm:rounded-[28px] sm:px-4 sm:pb-4 sm:pt-10 lg:rounded-[34px]">
+      <p className="mb-3 px-2 text-center font-body text-sm leading-tight text-[#704214]/75 sm:text-base">
+        {totalPages > 0 ? (
+          <>
+            <span className="sm:hidden">Swipe or use the arrows. Expand to zoom.</span>
+            <span className="hidden sm:inline">Drag the page, swipe, or use the arrows to browse the book.</span>
+          </>
+        ) : "No preview pages are available yet."}
       </p>
 
-      {/* Limit both width and height so a complete A4 landscape page and the
-          counter fit above the fold. The arrow columns never overlap the page. */}
-      <div
-        className="mx-auto grid w-full grid-cols-[36px_minmax(0,1fr)_36px] items-center gap-2 sm:grid-cols-[44px_minmax(0,1fr)_44px] sm:gap-3"
-        style={{
-          maxWidth: "calc(max(0px, 100dvh - 220px) * 1.4142857143 + 112px)",
-        }}
-      >
-        <button
-          type="button"
-          onClick={showPreviousPage}
-          disabled={!isReady || isTurning || currentPage <= 0}
-          aria-label="Turn to previous page"
-          className={arrowClassName}
-        >
-          ‹
-        </button>
-
-        <div
-          ref={stageRef}
-          className="relative flex aspect-[297/210] w-full min-w-0 items-center justify-center overflow-hidden"
-          style={{ maxHeight: "max(0px, calc(100dvh - 220px))" }}
-        >
-          <div
-            ref={bookContainerRef}
-            aria-label={alt}
-            className="relative shrink-0 overflow-visible shadow-[0_12px_30px_rgba(70,37,5,0.22)]"
-          />
+      {/* Mobile: page spans the entire row; arrows and counter sit underneath.
+          Desktop: arrows remain beside the A4 landscape page. */}
+      <div className="mx-auto grid w-full grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-x-3 gap-y-3" style={{ maxWidth: "calc(max(0px, 100dvh - 260px) * 1.4142857143 + 112px)" }}>
+        <button type="button" onClick={showPreviousPage} disabled={!isReady || isTurning || currentPage <= 0} aria-label="Turn to previous page" className={`${arrowClassName} order-2 sm:order-1`}>‹</button>
+        <div ref={stageRef} className="relative order-1 col-span-3 flex aspect-[297/210] w-full min-w-0 items-center justify-center overflow-hidden sm:order-2 sm:col-span-1" style={{ maxHeight: "max(0px, calc(100dvh - 260px))" }}>
+          <div ref={bookContainerRef} aria-label={alt} className="relative shrink-0 overflow-visible shadow-[0_12px_30px_rgba(70,37,5,0.22)]" />
         </div>
+        <p aria-live="polite" aria-atomic="true" className="order-3 text-center font-body text-base font-semibold leading-5 text-[#704214] sm:hidden">{pageLabel}</p>
+        <button type="button" onClick={showNextPage} disabled={!isReady || isTurning || totalPages === 0 || currentPage >= totalPages - 1} aria-label="Turn to next page" className={`${arrowClassName} order-4 sm:order-3`}>›</button>
+      </div>
 
-        <button
-          type="button"
-          onClick={showNextPage}
-          disabled={!isReady || isTurning || totalPages === 0 || currentPage >= totalPages - 1}
-          aria-label="Turn to next page"
-          className={arrowClassName}
-        >
-          ›
+      <p aria-live="polite" aria-atomic="true" className="mt-3 hidden text-center font-body text-base font-semibold leading-5 text-[#704214] sm:block">{pageLabel}</p>
+      <div className="mt-3 flex justify-center">
+        <button type="button" onClick={openReader} disabled={!isReady || totalPages === 0} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-[#704214]/25 bg-[#FFF6E8] px-4 font-body text-base font-semibold text-[#704214] transition-colors hover:bg-[#F5E6CC] disabled:opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#704214] focus-visible:ring-offset-2 sm:w-auto">
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" /></svg>
+          Expand document
         </button>
       </div>
 
-      <p
-        aria-live="polite"
-        className="mt-3 text-center font-['Cormorant_Garamond',serif] text-[0.92rem] font-semibold leading-5 text-[#704214] sm:text-[1rem]"
-      >
-        {totalPages > 0
-          ? `Page ${Math.min(currentPage + 1, totalPages)} of ${totalPages}`
-          : "No pages"}
-      </p>
+      {isExpanded && (
+        <FamilyHistoryReader pages={pages} alt={alt} pageIndex={currentPage} onPageChange={goToPage} onClose={closeReader} />
+      )}
     </div>
   );
 }
@@ -626,6 +908,13 @@ function ExampleModal({
   example,
   onClose,
 }) {
+  const [isReaderOpen, setIsReaderOpen] = useState(false);
+  const readerOpenRef = useRef(false);
+  const handleReaderOpenChange = useCallback((isOpen) => {
+    readerOpenRef.current = isOpen;
+    setIsReaderOpen(isOpen);
+  }, []);
+
   const [
     currentSlide,
     setCurrentSlide,
@@ -970,6 +1259,8 @@ function ExampleModal({
     const handleKeyDown = (
       event,
     ) => {
+      if (readerOpenRef.current) return;
+
       /* ESCAPE */
 
       if (
@@ -1198,6 +1489,8 @@ function ExampleModal({
     <AnimatePresence>
       {example && (
         <motion.div
+          aria-hidden={isReaderOpen || undefined}
+          inert={isReaderOpen}
           data-cursor-theme="light"
           className="
             fixed
@@ -1251,7 +1544,7 @@ function ExampleModal({
           <motion.div
             ref={dialogRef}
             role="dialog"
-            aria-modal="true"
+            aria-modal={isReaderOpen ? undefined : true}
             aria-labelledby={`example-title-${example.id}`}
             aria-describedby={`example-description-${example.id}`}
             data-cursor-theme="dark"
@@ -1422,11 +1715,7 @@ function ExampleModal({
 
               <div
                 className={`
-                  p-4
-                  pb-0
-
-                  sm:p-7
-                  sm:pb-0
+                  ${isBookMedia ? "p-2 pb-0 sm:p-7 sm:pb-0" : "p-4 pb-0 sm:p-7 sm:pb-0"}
 
                   ${
                     isBookMedia
@@ -1446,6 +1735,8 @@ function ExampleModal({
                    * the interactive page-turning book.
                    */
                   <FamilyHistoryBookViewer
+                    isExpanded={isReaderOpen}
+                    onExpandedChange={handleReaderOpenChange}
                     pages={
                       activeMedia.pages
                     }
