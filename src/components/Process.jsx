@@ -1,6 +1,13 @@
+
 import ScrollReveal from "./ScrollReveal";
 import ScrollRevealGroup from "./ScrollRevealGroup";
 
+/* =====================================================
+   PROCESS STEPS
+
+   Includes specific Oral History Package
+   descriptions for steps 2–5.
+===================================================== */
 
 const processSteps = [
   {
@@ -13,8 +20,7 @@ const processSteps = [
     description:
       "Choose the package that suits your needs or commission a custom project. Pay a 50% deposit to secure your research slot and for work to begin.",
 
-    image:
-      "/Images/step-1.png",
+    image: "/Images/step-1.png",
 
     alt:
       "Family photographs, notes, and historical documents",
@@ -30,8 +36,10 @@ const processSteps = [
     description:
       "Complete the form we send you which captures the information you already have, such as names, dates, places, and family stories.",
 
-    image:
-      "/Images/step-2.png",
+    oralHistory:
+      "We set up dates and times to conduct the interviews.",
+
+    image: "/Images/step-2.png",
 
     alt:
       "An open historical record with a magnifying glass",
@@ -47,8 +55,10 @@ const processSteps = [
     description:
       "We research your family by looking for available records such as birth certificates, parish register entries, marriage certificates, census records, and death notices, and update you weekly.",
 
-    image:
-      "/Images/step-3.png",
+    oralHistory:
+      "We conduct the interviews and you provide scanned family photographs that you want included.",
+
+    image: "/Images/step-3.png",
 
     alt:
       "Historical books, archive boxes, and research documents",
@@ -64,8 +74,10 @@ const processSteps = [
     description:
       "The research is carefully written up into a personal family history document and family tree charts are put together so you can understand the connections and discoveries. We will send you drafts to check.",
 
-    image:
-      "/Images/step-4.png",
+    oralHistory:
+      "We transcribe the interviews and create the digital story.",
+
+    image: "/Images/step-4.png",
 
     alt:
       "Organized family history documents and archive folders",
@@ -81,14 +93,15 @@ const processSteps = [
     description:
       "After paying the balance, you receive your personal family history document and family tree charts for you to enjoy and share with others.",
 
-    image:
-      "/Images/step-5.png",
+    oralHistory:
+      "After paying the balance, you receive the audio recordings, interview transcripts, and digital story.",
+
+    image: "/Images/step-5.png",
 
     alt:
       "A completed family history story with a feather and ink",
   },
 ];
-
 
 export default function Process() {
   return (
@@ -125,9 +138,9 @@ export default function Process() {
           max-w-7xl
         "
       >
-        {/* =================================================
+        {/* ==========================================
             SECTION NAME
-        ================================================= */}
+        ========================================== */}
 
         <ScrollReveal
           as="p"
@@ -145,10 +158,9 @@ export default function Process() {
           Our Process
         </ScrollReveal>
 
-
-        {/* =================================================
+        {/* ==========================================
             MAIN HEADING
-        ================================================= */}
+        ========================================== */}
 
         <ScrollReveal
           as="h2"
@@ -169,10 +181,9 @@ export default function Process() {
           How the Research Journey Works
         </ScrollReveal>
 
-
-        {/* =================================================
+        {/* ==========================================
             INTRODUCTION
-        ================================================= */}
+        ========================================== */}
 
         <ScrollReveal
           as="p"
@@ -194,10 +205,9 @@ export default function Process() {
           begin with what you already know and guide the research from there.
         </ScrollReveal>
 
-
-        {/* =================================================
+        {/* ==========================================
             TIMELINE
-        ================================================= */}
+        ========================================== */}
 
         <div
           className="
@@ -214,14 +224,9 @@ export default function Process() {
             [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:mt-10
           "
         >
-          {/* =================================================
+          {/* ========================================
               DESKTOP HORIZONTAL LINE
-
-              Only starts at 1280px.
-
-              This prevents the five-column timeline from
-              becoming cramped on tablets and small laptops.
-          ================================================= */}
+          ======================================== */}
 
           <div
             aria-hidden="true"
@@ -242,10 +247,9 @@ export default function Process() {
             "
           />
 
-
-          {/* =================================================
-              MOBILE / TABLET / SMALL LAPTOP VERTICAL LINE
-          ================================================= */}
+          {/* ========================================
+              MOBILE / TABLET VERTICAL LINE
+          ======================================== */}
 
           <div
             aria-hidden="true"
@@ -266,16 +270,15 @@ export default function Process() {
             "
           />
 
+          {/* ========================================
+              ANIMATED PROCESS STEPS
 
-          {/* =================================================
-              ANIMATED STEPS
+              Mobile and tablet:
+              Vertical layout
 
-              Mobile / tablet / small laptop:
-              vertical
-
-              1280px+:
-              five-column horizontal timeline
-          ================================================= */}
+              Desktop 1280px+:
+              Five-column horizontal timeline
+          ======================================== */}
 
           <ScrollRevealGroup
             y={45}
@@ -301,215 +304,275 @@ export default function Process() {
               [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:gap-y-10
             "
           >
-            {processSteps.map(
-              (step) => (
-                <article
-                  key={step.number}
-                  data-reveal-item
+            {processSteps.map((step) => (
+              <article
+                key={step.number}
+                data-reveal-item
+                className="
+                  relative
+
+                  grid
+
+                  grid-cols-[48px_minmax(0,1fr)]
+
+                  items-start
+
+                  gap-x-5
+
+                  text-left
+
+                  will-change-[opacity,transform]
+
+                  sm:gap-x-6
+
+                  xl:block
+                "
+              >
+                {/* =====================================
+                    STEP NUMBER
+                ===================================== */}
+
+                <div
                   className="
                     relative
+                    z-20
 
-                    grid
+                    col-start-1
+                    row-start-1
 
-                    grid-cols-[48px_minmax(0,1fr)]
+                    flex
 
-                    items-start
+                    h-12
+                    w-12
 
-                    gap-x-5
+                    items-center
+                    justify-center
+
+                    rounded-full
+
+                    bg-[#704214]
+
+                    font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
+
+                    text-[1.5rem]
+                    font-normal
+                    leading-none
+
+                    text-[#FFF6E8]
+
+                    [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:h-11
+
+                    [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:w-11
+
+                    [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[1.35rem]
+                  "
+                >
+                  {step.number}
+                </div>
+
+                {/* =====================================
+                    STEP CONTENT
+                ===================================== */}
+
+                <div
+                  className="
+                    col-start-2
+                    row-start-1
+
+                    min-w-0
 
                     text-left
 
-                    will-change-[opacity,transform]
+                    md:pl-6
 
-                    sm:gap-x-6
+                    lg:pl-8
 
+                    xl:col-auto
+                    xl:row-auto
+                    xl:mt-8
                     xl:block
+                    xl:pl-0
                   "
                 >
-                  {/* =========================================
-                      NUMBER
-                  ========================================= */}
+                  {/* ==================================
+                      STEP HEADING
+                  ================================== */}
 
-                  <div
+                  <h3
                     className="
-                      relative
-                      z-20
-
-                      col-start-1
-                      row-start-1
-
-                      flex
-
-                      h-12
-                      w-12
-
-                      items-center
-                      justify-center
-
-                      rounded-full
-
-                      bg-[#704214]
+                      mt-3
 
                       font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
 
                       text-[1.5rem]
                       font-normal
-                      leading-none
 
-                      text-[#FFF6E8]
+                      leading-[1.15]
 
-                      [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:h-11
+                      text-[#704214]
 
-                      [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:w-11
+                      sm:text-[1.5rem]
 
-                      [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[1.35rem]
+                      md:mt-1
+                      md:mb-2
+
+                      md:text-[1.55rem]
+
+                      lg:text-[1.6rem]
+
+                      xl:mt-6
+                      xl:text-[1.5rem]
+
+                      2xl:text-[1.45rem]
+
+                      [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[1.3rem]
                     "
                   >
-                    {step.number}
-                  </div>
+                    {step.titleLines.map((line) => (
+                      <span
+                        key={line}
+                        className="block"
+                      >
+                        {line}
+                      </span>
+                    ))}
+                  </h3>
 
+                  {/* ==================================
+                      EXISTING STEP DESCRIPTION
+                  ================================== */}
 
-                  {/* =========================================
-                      STEP CONTENT
-
-                      Phone:
-                      Image above heading/text.
-
-                      Tablet/iPad:
-                      Image on the left, text on the right.
-
-                      Desktop 1280px+:
-                      Returns to the original vertical card
-                      arrangement beneath the number.
-                  ========================================= */}
-
-                  <div
+                  <p
                     className="
-                      col-start-2
-                      row-start-1
+                      mt-3
 
-                      min-w-0
+                      md:mt-0
 
-                      text-left
+                      xl:mt-4
 
-                      md:pl-6
+                      max-w-[32rem]
 
-                      lg:pl-8
+                      section-body
+
+                      text-[1.1rem]
+
+                      leading-[1.35]
+
+                      text-[#1C1C1C]
+
+                      sm:text-[1.12rem]
+
+                      md:max-w-[38rem]
+
+                      md:text-[1.12rem]
+                      md:leading-[1.45]
+                      md:max-w-[36rem]
+
+                      lg:max-w-[44rem]
+
+                      lg:text-[1.15rem]
 
                       xl:col-auto
                       xl:row-auto
-                      xl:mt-8
-                      xl:block
-                      xl:pl-0
+
+                      xl:max-w-[230px]
+
+                      xl:text-[1.12rem]
+                      xl:leading-[1.35]
+
+                      2xl:text-[1.1rem]
+
+                      [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:mt-2
+
+                      [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[1rem]
+
+                      [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:leading-[1.35]
                     "
                   >
+                    {step.description}
+                  </p>
 
+                  {/* ==================================
+                      ORAL HISTORY PACKAGE
 
-                    {/* =====================================
-                        STEP HEADING
-                    ===================================== */}
+                      Steps 2–5 have individual
+                      descriptions.
 
-                    <h3
+                      Step 1 has no oralHistory
+                      property, so this section
+                      is not rendered for step 1.
+                  ================================== */}
+
+                  {step.oralHistory && (
+                    <div
                       className="
-                        mt-3
-
-                        font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
-
-                        text-[1.5rem]
-                        font-normal
-
-                        leading-[1.15]
-
-                        text-[#704214]
-
-                        sm:text-[1.5rem]
-
-                        md:mt-1
-                        
-                        md:mb-2
-
-                        md:text-[1.55rem]
-
-                        lg:text-[1.6rem]
-
-                        xl:mt-6
-                        xl:text-[1.5rem]
-
-                        2xl:text-[1.45rem]
-
-                        [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[1.3rem]
-                      "
-                    >
-                      {step.titleLines.map(
-                        (line) => (
-                          <span
-                            key={line}
-                            className="block"
-                          >
-                            {line}
-                          </span>
-                        ),
-                      )}
-                    </h3>
-
-
-                    {/* =====================================
-                        STEP DESCRIPTION
-                    ===================================== */}
-
-                    <p
-                      className="
-                        mt-3
-
-                        md:mt-0
-
-                        xl:mt-4
+                        mt-5
 
                         max-w-[32rem]
 
-                        section-body
-
-                        text-[1.1rem]
-
-                        leading-[1.35]
-
-                        text-[#1C1C1C]
-
-                        sm:text-[1.12rem]
-
-                        md:max-w-[38rem]
-
-                        md:text-[1.12rem]
-                        md:leading-[1.45]
                         md:max-w-[36rem]
 
                         lg:max-w-[44rem]
 
-                        lg:text-[1.15rem]
-
-                        xl:col-auto
-                        xl:row-auto
-
                         xl:max-w-[230px]
-
-                        xl:text-[1.12rem]
-                        xl:leading-[1.35]
-
-                        2xl:text-[1.1rem]
-
-                        [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:mt-2
-
-                        [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[1rem]
-
-                        [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:leading-[1.35]
                       "
                     >
-                      {step.description}
-                    </p>
-                  </div>
-                </article>
-              ),
-            )}
+                      {/* SUBHEADING */}
+
+                      <h4
+                        className="
+                          font-['Book_Antiqua','Palatino_Linotype',Palatino,serif]
+
+                          text-[1.1rem]
+                          font-semibold
+
+                          leading-[1.25]
+
+                          text-[#704214]
+
+                          sm:text-[1.15rem]
+
+                          xl:text-[1.1rem]
+                        "
+                      >
+                        Oral history package:
+                      </h4>
+
+                      {/* PARAGRAPH */}
+
+                      <p
+                        className="
+                          mt-2
+
+                          section-body
+
+                          text-[1.1rem]
+
+                          leading-[1.35]
+
+                          text-[#1C1C1C]
+
+                          sm:text-[1.12rem]
+
+                          md:leading-[1.45]
+
+                          lg:text-[1.15rem]
+
+                          xl:text-[1.12rem]
+                          xl:leading-[1.35]
+
+                          2xl:text-[1.1rem]
+
+                          [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:text-[1rem]
+                        "
+                      >
+                        {step.oralHistory}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </article>
+            ))}
           </ScrollRevealGroup>
         </div>
       </div>

@@ -1,3 +1,4 @@
+
 import {
   AnimatePresence,
   motion,
@@ -5,8 +6,14 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
+
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+
+/* =====================================================
+   ORIGINAL CURSOR THEMES
+   NO COLOUR CHANGES
+===================================================== */
 
 const cursorThemes = {
   light: {
@@ -43,23 +50,16 @@ const cursorThemes = {
 };
 
 export default function CustomCursor() {
-  const [isDesktopCursor, setIsDesktopCursor] =
-    useState(() => {
-      if (typeof window === "undefined") {
-        return false;
-      }
+  /* =====================================================
+     POSITION VALUES
 
-      return window.matchMedia(
-        "(hover: hover) and (pointer: fine)"
-      ).matches;
-    });
+     The ring follows using springs.
+     The dot follows the actual pointer.
+  ===================================================== */
+
   const mouseX = useMotionValue(-100);
   const mouseY = useMotionValue(-100);
 
-  /*
-   * The ring follows the true pointer position
-   * with a smooth spring delay.
-   */
   const ringX = useSpring(mouseX, {
     stiffness: 420,
     damping: 30,
@@ -72,16 +72,6 @@ export default function CustomCursor() {
     mass: 0.55,
   });
 
-  /*
-   * Calculate where the true pointer is in relation
-   * to the centre of the trailing ring.
-   *
-   * When the ring catches up:
-   * mouseX - ringX = 0
-   * mouseY - ringY = 0
-   *
-   * The dot therefore settles in the centre.
-   */
   const dotOffsetX = useTransform(
     () => mouseX.get() - ringX.get()
   );
@@ -90,58 +80,37 @@ export default function CustomCursor() {
     () => mouseY.get() - ringY.get()
   );
 
+  /* =====================================================
+     STATE AND REFERENCES
+  ===================================================== */
+
+  const [visible, setVisible] = useState(false);
+  const [hovering, setHovering] = useState(false);
+  const [pressed, setPressed] = useState(false);
+  const [label, setLabel] = useState("");
+  const [cursorTheme, setCursorTheme] =
+    useState("dark");
+
   const lastPointerPosition = useRef({
     x: -100,
     y: -100,
   });
 
   const animationFrameRef = useRef(null);
+  const hasMovedRef = useRef(false);
 
-  const [visible, setVisible] = useState(false);
-  const [hovering, setHovering] = useState(false);
-  const [pressed, setPressed] = useState(false);
-  const [label, setLabel] = useState("");
-  const [cursorTheme, setCursorTheme] = useState("dark");
+  const theme =
+    cursorThemes[cursorTheme] ??
+    cursorThemes.dark;
 
-  const theme = cursorThemes[cursorTheme] ?? cursorThemes.dark;
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia(
-      "(hover: hover) and (pointer: fine)"
-    );
-
-    const updateCursorSupport = (
-      event
-    ) => {
-      setIsDesktopCursor(
-        event.matches
-      );
-
-      if (!event.matches) {
-        setVisible(false);
-        setHovering(false);
-        setPressed(false);
-        setLabel("");
-      }
-    };
-
-    mediaQuery.addEventListener(
-      "change",
-      updateCursorSupport
-    );
-
-    return () => {
-      mediaQuery.removeEventListener(
-        "change",
-        updateCursorSupport
-      );
-    };
-  }, []);
+  /* =====================================================
+     ACTIVATE NATIVE CURSOR HIDING ONLY WHEN VISIBLE
+  ===================================================== */
 
   useEffect(() => {
     document.documentElement.classList.toggle(
       "custom-cursor-active",
-      isDesktopCursor
+      visible
     );
 
     return () => {
@@ -149,21 +118,33 @@ export default function CustomCursor() {
         "custom-cursor-active"
       );
     };
-  }, [isDesktopCursor]);
+  }, [visible]);
+
+  /* =====================================================
+     POINTER TRACKING
+
+     IMPORTANT CHANGE:
+
+     We do NOT rely on matchMedia to render the
+     custom cursor.
+
+     Instead, we show it when actual mouse input
+     occurs.
+
+     Trackpads report pointerType="mouse".
+  ===================================================== */
 
   useEffect(() => {
-    if (!isDesktopCursor) {
-      return undefined;
-    }
+    /* -----------------------------------------
+       DETECT THE CURRENT THEME AND HOVER TARGET
+    ----------------------------------------- */
 
-    /*
-     * Determines which section or interactive element
-     * is currently underneath the pointer.
-     */
     const updateCursorTarget = (x, y) => {
       const target = document.elementFromPoint(x, y);
 
       if (!(target instanceof Element)) {
+        setHovering(false);
+        setLabel("");
         return;
       }
 
@@ -178,22 +159,35 @@ export default function CustomCursor() {
       setHovering(Boolean(interactiveElement));
 
       setLabel(
-        interactiveElement?.getAttribute("data-cursor") ?? ""
+        interactiveElement?.getAttribute(
+          "data-cursor"
+        ) ?? ""
       );
 
-      /*
-       * First use an explicit data-cursor-theme.
-       *
-       * The #home fallback guarantees that the cursor
-       * becomes white inside your Home section even if
-       * you forgot to add the data attribute.
-       */
+      
       let requestedTheme =
-        themedElement?.getAttribute("data-cursor-theme");
+        themedElement?.getAttribute(
+          "data-cursor-theme"
+        );
 
-      if (!requestedTheme && target.closest("#home")) {
+      // Keep the existing homepage colour behaviour.
+      if (
+        !requestedTheme &&
+        target.closest("#home")
+      ) {
         requestedTheme = "light";
       }
+
+      // Override the cursor colour to WHITE
+      // whenever it hovers over a button.
+      const isButton = target.closest(
+        "button, [role='button'], input[type='button'], input[type='submit']"
+      );
+
+      if (isButton) {
+        requestedTheme = "light";
+      }
+
 
       const isValidTheme =
         requestedTheme &&
@@ -202,10 +196,28 @@ export default function CustomCursor() {
           requestedTheme
         );
 
-      setCursorTheme(isValidTheme ? requestedTheme : "dark");
+      setCursorTheme(
+        isValidTheme
+          ? requestedTheme
+          : "dark"
+      );
     };
 
+    /* -----------------------------------------
+       MOUSE / TRACKPAD MOVEMENT
+    ----------------------------------------- */
+
     const handlePointerMove = (event) => {
+      // Touch and pen input do not activate
+      // the custom cursor.
+      if (event.pointerType !== "mouse") {
+        setVisible(false);
+        setPressed(false);
+        setHovering(false);
+        setLabel("");
+        return;
+      }
+
       const { clientX, clientY } = event;
 
       lastPointerPosition.current = {
@@ -216,69 +228,103 @@ export default function CustomCursor() {
       mouseX.set(clientX);
       mouseY.set(clientY);
 
+      // On the first movement, place the ring
+      // at the pointer immediately rather than
+      // animating from outside the screen.
+      if (!hasMovedRef.current) {
+        ringX.jump(clientX);
+        ringY.jump(clientY);
+        hasMovedRef.current = true;
+      }
+
       setVisible(true);
 
-      updateCursorTarget(clientX, clientY);
+      updateCursorTarget(
+        clientX,
+        clientY
+      );
     };
 
-    /*
-     * Recheck the element under the pointer when scrolling.
-     *
-     * Without this, the page can scroll into a new section
-     * while the cursor remains on the old colour.
-     */
+    /* -----------------------------------------
+       UPDATE THE THEME AFTER SCROLLING
+    ----------------------------------------- */
+
     const handlePageChange = () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(
+          animationFrameRef.current
+        );
       }
 
-      animationFrameRef.current = requestAnimationFrame(() => {
-        const { x, y } = lastPointerPosition.current;
+      animationFrameRef.current =
+        requestAnimationFrame(() => {
+          animationFrameRef.current = null;
 
-        if (x >= 0 && y >= 0) {
-          updateCursorTarget(x, y);
-        }
-      });
+          const { x, y } =
+            lastPointerPosition.current;
+
+          if (x >= 0 && y >= 0) {
+            updateCursorTarget(x, y);
+          }
+        });
     };
 
-    const handlePointerLeave = () => {
-      setVisible(false);
-      setHovering(false);
-      setLabel("");
-    };
+    /* -----------------------------------------
+       POINTER LEAVES THE WINDOW
+    ----------------------------------------- */
 
-    const handlePointerEnter = () => {
-      setVisible(true);
-
-      const { x, y } = lastPointerPosition.current;
-
-      if (x >= 0 && y >= 0) {
-        updateCursorTarget(x, y);
+    const handlePointerLeave = (event) => {
+      if (event.pointerType === "mouse") {
+        setVisible(false);
+        setHovering(false);
+        setPressed(false);
+        setLabel("");
       }
     };
 
-    const handlePointerDown = () => {
-      setPressed(true);
+    /* -----------------------------------------
+       PRESS AND RELEASE
+    ----------------------------------------- */
+
+    const handlePointerDown = (event) => {
+      if (event.pointerType === "mouse") {
+        setPressed(true);
+      }
     };
 
     const handlePointerUp = () => {
       setPressed(false);
     };
 
+    /* -----------------------------------------
+       WINDOW LOSES FOCUS
+    ----------------------------------------- */
+
     const handleWindowBlur = () => {
       setVisible(false);
       setPressed(false);
     };
 
-    window.addEventListener("pointermove", handlePointerMove, {
-      passive: true,
-    });
+    /* =====================================================
+       EVENT LISTENERS
+    ===================================================== */
 
-    window.addEventListener("scroll", handlePageChange, {
-      passive: true,
-    });
+    window.addEventListener(
+      "pointermove",
+      handlePointerMove,
+      { passive: true }
+    );
 
-    window.addEventListener("resize", handlePageChange);
+    window.addEventListener(
+      "scroll",
+      handlePageChange,
+      { passive: true }
+    );
+
+    window.addEventListener(
+      "resize",
+      handlePageChange
+    );
 
     window.addEventListener(
       "pointerdown",
@@ -290,21 +336,30 @@ export default function CustomCursor() {
       handlePointerUp
     );
 
-    window.addEventListener("blur", handleWindowBlur);
+    window.addEventListener(
+      "pointercancel",
+      handlePointerUp
+    );
+
+    window.addEventListener(
+      "blur",
+      handleWindowBlur
+    );
 
     document.documentElement.addEventListener(
-      "mouseleave",
+      "pointerleave",
       handlePointerLeave
     );
 
-    document.documentElement.addEventListener(
-      "mouseenter",
-      handlePointerEnter
-    );
+    /* =====================================================
+       CLEANUP
+    ===================================================== */
 
     return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(
+          animationFrameRef.current
+        );
       }
 
       window.removeEventListener(
@@ -333,35 +388,58 @@ export default function CustomCursor() {
       );
 
       window.removeEventListener(
+        "pointercancel",
+        handlePointerUp
+      );
+
+      window.removeEventListener(
         "blur",
         handleWindowBlur
       );
 
       document.documentElement.removeEventListener(
-        "mouseleave",
+        "pointerleave",
         handlePointerLeave
       );
-
-      document.documentElement.removeEventListener(
-        "mouseenter",
-        handlePointerEnter
-      );
     };
-  }, [isDesktopCursor, mouseX, mouseY]);
+  }, [
+    mouseX,
+    mouseY,
+    ringX,
+    ringY,
+  ]);
 
-  if (!isDesktopCursor) {
+  /* =====================================================
+     CUSTOM CURSOR ELEMENT
+
+     Always mounted, but invisible until the
+     first mouse/trackpad movement.
+
+     Touch-only devices never activate it.
+
+     We position with left/top MotionValues
+     and use a separate HTML element to center
+     the ring. This avoids transform conflicts.
+  ===================================================== */
+
+  if (typeof document === "undefined") {
     return null;
   }
 
-  // Keep the cursor in the same stacking context as body-level modal portals.
   return createPortal(
     <motion.div
+      data-custom-cursor="true"
       aria-hidden="true"
-      className="pointer-events-none fixed left-0 top-0 z-[99999]"
+      className="
+        pointer-events-none
+        fixed
+        z-[99999]
+      "
       style={{
-        x: ringX,
-        y: ringY,
+        left: ringX,
+        top: ringY,
       }}
+      initial={false}
       animate={{
         opacity: visible ? 1 : 0,
       }}
@@ -372,114 +450,167 @@ export default function CustomCursor() {
         },
       }}
     >
-      {/* Trailing ring */}
-      <motion.div
-        className="relative flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border"
-        initial={false}
-        animate={{
-          width: hovering ? 50 : 34,
-          height: hovering ? 50 : 34,
-          scale: pressed ? 0.85 : 1,
-
-          backgroundColor: hovering
-            ? theme.hoverBackground
-            : theme.background,
-
-          borderColor: theme.ring,
-        }}
-        transition={{
-          width: {
-            type: "spring",
-            stiffness: 400,
-            damping: 28,
-          },
-
-          height: {
-            type: "spring",
-            stiffness: 400,
-            damping: 28,
-          },
-
-          scale: {
-            type: "spring",
-            stiffness: 400,
-            damping: 28,
-          },
-
-          backgroundColor: {
-            duration: 0.3,
-            ease: "easeOut",
-          },
-
-          borderColor: {
-            duration: 0.3,
-            ease: "easeOut",
-          },
+      {/* POSITIONING WRAPPER */}
+      <div
+        style={{
+          transform: "translate(-50%, -50%)",
         }}
       >
-        {/* Small cursor dot */}
+        {/* TRAILING RING */}
         <motion.div
-          className="absolute left-1/2 top-1/2 z-10"
-          style={{
-            x: dotOffsetX,
-            y: dotOffsetY,
-          }}
+          className="
+            relative
+            flex
+            items-center
+            justify-center
+            rounded-full
+            border
+          "
+          initial={false}
           animate={{
-            scale: pressed ? 0.7 : 1,
-            opacity: label && hovering ? 0 : 1,
+            width: hovering ? 50 : 34,
+            height: hovering ? 50 : 34,
+
+            scale: pressed ? 0.85 : 1,
+
+            backgroundColor: hovering
+              ? theme.hoverBackground
+              : theme.background,
+
+            borderColor: theme.ring,
           }}
           transition={{
-            scale: {
-              duration: 0.15,
+            width: {
+              type: "spring",
+              stiffness: 400,
+              damping: 28,
             },
 
-            opacity: {
-              duration: 0.18,
+            height: {
+              type: "spring",
+              stiffness: 400,
+              damping: 28,
+            },
+
+            scale: {
+              type: "spring",
+              stiffness: 400,
+              damping: 28,
+            },
+
+            backgroundColor: {
+              duration: 0.3,
+              ease: "easeOut",
+            },
+
+            borderColor: {
+              duration: 0.3,
+              ease: "easeOut",
             },
           }}
         >
+          {/* ====================================
+              CURSOR DOT
+
+              Keep the dot at the true pointer
+              position while the ring trails.
+          ==================================== */}
+
           <motion.div
-            className="h-[7px] w-[7px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-            initial={false}
+            className="
+              absolute
+              left-1/2
+              top-1/2
+              z-10
+            "
+            style={{
+              x: dotOffsetX,
+              y: dotOffsetY,
+            }}
             animate={{
-              backgroundColor: theme.dot,
-              boxShadow: `0 0 0px ${theme.dot}`,
+              scale: pressed ? 0.7 : 1,
+              opacity:
+                label && hovering ? 0 : 1,
             }}
             transition={{
-              duration: 0.3,
-              ease: "easeOut",
-            }}
-          />
-        </motion.div>
+              scale: {
+                duration: 0.15,
+              },
 
-        {/* Optional cursor label */}
-        <AnimatePresence mode="wait">
-          {label && hovering && (
-            <motion.span
-              key={`${label}-${cursorTheme}`}
-              initial={{
-                opacity: 0,
-                scale: 0.7,
-              }}
-              animate={{
-                opacity: 1,
-                scale: 1,
-                color: theme.text,
-              }}
-              exit={{
-                opacity: 0,
-                scale: 0.7,
-              }}
-              transition={{
+              opacity: {
                 duration: 0.18,
+              },
+            }}
+          >
+            <div
+              style={{
+                transform:
+                  "translate(-50%, -50%)",
               }}
-              className="relative z-20 max-w-[60px] text-center font-body text-[11px] font-semibold uppercase leading-tight tracking-[0.08em]"
             >
-              {label}
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </motion.div>
+              <motion.div
+                className="
+                  h-[7px]
+                  w-[7px]
+                  rounded-full
+                "
+                initial={false}
+                animate={{
+                  backgroundColor: theme.dot,
+                  boxShadow:
+                    `0 0 0px ${theme.dot}`,
+                }}
+                transition={{
+                  duration: 0.3,
+                  ease: "easeOut",
+                }}
+              />
+            </div>
+          </motion.div>
+
+          {/* ====================================
+              OPTIONAL HOVER LABEL
+          ==================================== */}
+
+          <AnimatePresence mode="wait">
+            {label && hovering && (
+              <motion.span
+                key={`${label}-${cursorTheme}`}
+                initial={{
+                  opacity: 0,
+                  scale: 0.7,
+                }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  color: theme.text,
+                }}
+                exit={{
+                  opacity: 0,
+                  scale: 0.7,
+                }}
+                transition={{
+                  duration: 0.18,
+                }}
+                className="
+                  relative
+                  z-20
+                  max-w-[60px]
+                  text-center
+                  font-body
+                  text-[11px]
+                  font-semibold
+                  uppercase
+                  leading-tight
+                  tracking-[0.08em]
+                "
+              >
+                {label}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </div>
     </motion.div>,
     document.body
   );

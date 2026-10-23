@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+
+import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -10,470 +11,279 @@ const quote =
 
 export default function QuoteReveal() {
   const sectionRef = useRef(null);
+  const washRef = useRef(null);
+  const quoteMarkRef = useRef(null);
   const quoteRef = useRef(null);
+  const authorRef = useRef(null);
+  const labelRef = useRef(null);
+  const labelLineRef = useRef(null);
+  const cornerRef = useRef(null);
 
+  // Keep the original word structure and layout.
   const words = quote.split(" ");
 
-  /*
-   * =====================================================
-   * REFRESH SCROLLTRIGGER WHEN VIEWPORT DIMENSIONS CHANGE
-   *
-   * Important for:
-   * - mobile browser bars
-   * - phone rotation
-   * - tablet rotation
-   * - fullscreen changes
-   * - responsive font/layout changes
-   * =====================================================
-   */
+  /* =====================================================
+     MATCH THE OTHER QUOTE SECTION ANIMATIONS
 
-  useEffect(() => {
-    let refreshFrame = 0;
-    let refreshTimeout = 0;
-    let isMounted = true;
-    let lastViewportWidth = window.innerWidth;
-
-    const refreshScrollTrigger = () => {
-      window.cancelAnimationFrame(
-        refreshFrame,
-      );
-
-      window.clearTimeout(
-        refreshTimeout,
-      );
-
-      refreshFrame =
-        window.requestAnimationFrame(() => {
-          if (!isMounted) {
-            return;
-          }
-
-          ScrollTrigger.refresh();
-        });
-
-      /*
-       * Some mobile browsers update the
-       * viewport dimensions slightly later.
-       */
-      refreshTimeout =
-        window.setTimeout(() => {
-          if (!isMounted) {
-            return;
-          }
-
-          ScrollTrigger.refresh();
-        }, 180);
-    };
-
-    const handleResize = () => {
-      const nextViewportWidth = window.innerWidth;
-
-      if (nextViewportWidth === lastViewportWidth) {
-        return;
-      }
-
-      lastViewportWidth = nextViewportWidth;
-      refreshScrollTrigger();
-    };
-
-    window.addEventListener(
-      "resize",
-      handleResize,
-    );
-
-    window.addEventListener(
-      "orientationchange",
-      refreshScrollTrigger,
-    );
-
-    document.addEventListener(
-      "fullscreenchange",
-      refreshScrollTrigger,
-    );
-
-    /*
-     * Font loading can change the number of
-     * lines in the quote, so refresh once the
-     * fonts have settled.
-     */
-    if (document.fonts?.ready) {
-      document.fonts.ready.then(() => {
-        if (isMounted) {
-          refreshScrollTrigger();
-        }
-      });
-    }
-
-    return () => {
-      isMounted = false;
-
-      window.cancelAnimationFrame(
-        refreshFrame,
-      );
-
-      window.clearTimeout(
-        refreshTimeout,
-      );
-
-      window.removeEventListener(
-        "resize",
-        handleResize,
-      );
-
-      window.removeEventListener(
-        "orientationchange",
-        refreshScrollTrigger,
-      );
-
-      document.removeEventListener(
-        "fullscreenchange",
-        refreshScrollTrigger,
-      );
-
-    };
-  }, []);
-
-  /*
-   * =====================================================
-   * QUOTE REVEAL ANIMATION
-   * =====================================================
-   */
+     - Cream background
+     - Dusty rose wash from left to right
+     - Quote fades upward
+     - Author fades upward
+     - Quote mark scales into view
+     - Reverses when scrolling back
+     - No pinning or word-by-word reveal
+  ===================================================== */
 
   useGSAP(
     () => {
-      const wordElements =
-        quoteRef.current?.querySelectorAll(
-          ".quote-word",
-        );
-
-      const authorElement =
-        sectionRef.current?.querySelector(
-          ".quote-author",
-        );
+      const section = sectionRef.current;
+      const wash = washRef.current;
+      const quoteMark = quoteMarkRef.current;
+      const quoteElement = quoteRef.current;
+      const author = authorRef.current;
+      const label = labelRef.current;
+      const labelLine = labelLineRef.current;
+      const corner = cornerRef.current;
 
       if (
-        !wordElements?.length ||
-        !authorElement
+        !section ||
+        !wash ||
+        !quoteMark ||
+        !quoteElement ||
+        !author ||
+        !label ||
+        !labelLine ||
+        !corner
       ) {
-        return undefined;
+        return;
       }
 
-      const mediaQuery =
-        gsap.matchMedia();
+      const mediaQuery = gsap.matchMedia();
 
-      /*
-       * One matchMedia context handles:
-       *
-       * - desktop / tablet
-       * - mobile portrait
-       * - short mobile/tablet landscape
-       * - reduced motion
-       *
-       * The order below matters:
-       *
-       * reduced motion wins first,
-       * then short landscape,
-       * then desktop/mobile.
-       */
+      /* =====================================================
+         NORMAL MOTION
+
+         Uses the same trigger, duration, and easing
+         as QuoteBaldwin, QuoteAtlas, and QuoteAngelou.
+      ===================================================== */
 
       mediaQuery.add(
-        {
-          reduceMotion:
-            "(prefers-reduced-motion: reduce)",
-
-          shortLandscape:
-            "(max-width: 1023px) and (orientation: landscape) and (max-height: 600px)",
-
-          desktopLarge:
-            "(min-width: 1024px)",
-
-          tablet:
-            "(min-width: 768px) and (max-width: 1023px)",
-
-          mobile:
-            "(max-width: 767px)",
-        },
-
-        (context) => {
-          const {
-            reduceMotion,
-            shortLandscape,
-            desktopLarge,
-            tablet,
-          } = context.conditions;
-
-          /*
-           * ==========================================
-           * REDUCED MOTION
-           *
-           * No pinning.
-           * No scrub.
-           * Everything is immediately readable.
-           * ==========================================
-           */
-
-          if (reduceMotion) {
-            gsap.set(
-              wordElements,
-              {
-                color: "#FFF6E8",
-              },
-            );
-
-            gsap.set(
-              authorElement,
-              {
-                opacity: 1,
-                y: 0,
-              },
-            );
-
-            return undefined;
-          }
-
-          /*
-           * Start all words faded.
-           */
-
-          gsap.set(
-            wordElements,
-            {
-              color:
-                "rgba(255, 246, 232, 0.2)",
-            },
-          );
-
-          /*
-           * ==========================================
-           * SHORT LANDSCAPE
-           *
-           * Examples:
-           *
-           * 667 × 375
-           * 740 × 360
-           * 812 × 375
-           * 844 × 390
-           * 932 × 430
-           *
-           * We intentionally DO NOT pin this layout.
-           *
-           * The quote still reveals as the visitor
-           * scrolls through the section, but the
-           * screen is not trapped inside a very
-           * short viewport.
-           * ==========================================
-           */
-
-          if (shortLandscape) {
-            gsap.set(
-              authorElement,
-              {
-                opacity: 0,
-                y: 10,
-              },
-            );
-
-            const timeline =
-              gsap.timeline({
-                scrollTrigger: {
-                  trigger:
-                    sectionRef.current,
-
-                  start:
-                    "top 78%",
-
-                  end:
-                    "bottom 24%",
-
-                  scrub: 0.45,
-
-                  invalidateOnRefresh:
-                    true,
-                },
-              });
-
-            timeline
-              .to(
-                wordElements,
-                {
-                  color:
-                    "#FFF6E8",
-
-                  stagger: {
-                    each: 0.035,
-                    from: "start",
-                  },
-
-                  ease: "none",
-                },
-              )
-              .to(
-                authorElement,
-                {
-                  opacity: 1,
-                  y: 0,
-
-                  duration: 0.25,
-
-                  ease:
-                    "power2.out",
-                },
-
-                "-=0.08",
-              );
-
-            return undefined;
-          }
-
-          /*
-           * ==========================================
-           * TABLET / DESKTOP
-           * ==========================================
-           */
-
-          if (
-            desktopLarge ||
-            tablet
-          ) {
-            gsap.set(
-              authorElement,
-              {
-                opacity: 0,
-                y: 20,
-              },
-            );
-
-            const timeline =
-              gsap.timeline({
-                scrollTrigger: {
-                  trigger:
-                    sectionRef.current,
-
-                  start:
-                    "top top",
-
-                  end:
-                    "+=170%",
-
-                  pin: true,
-
-                  scrub: 0.7,
-
-                  anticipatePin: 1,
-
-                  invalidateOnRefresh:
-                    true,
-                },
-              });
-
-            timeline
-              .to(
-                wordElements,
-                {
-                  color:
-                    "#FFF6E8",
-
-                  stagger: {
-                    each: 0.075,
-                    from: "start",
-                  },
-
-                  ease: "none",
-                },
-              )
-              .to(
-                authorElement,
-                {
-                  opacity: 1,
-                  y: 0,
-
-                  duration: 0.4,
-
-                  ease:
-                    "power2.out",
-                },
-
-                "-=0.15",
-              );
-
-            return undefined;
-          }
-
-          /*
-           * ==========================================
-           * MOBILE PORTRAIT
-           * ==========================================
-           */
-
-          gsap.set(
-            authorElement,
-            {
-              opacity: 0,
-              y: 14,
-            },
-          );
-
-          const timeline =
-            gsap.timeline({
-              scrollTrigger: {
-                trigger:
-                  sectionRef.current,
-
-                start:
-                  "top 78%",
-
-                end:
-                  "bottom 68%",
-
-                scrub: 0.2,
-
-                invalidateOnRefresh:
-                  true,
-              },
-            });
+        "(prefers-reduced-motion: no-preference)",
+        () => {
+          const timeline = gsap.timeline({
+            paused: true,
+          });
 
           timeline
-            .to(
-              wordElements,
+            /* -----------------------------------------
+               BACKGROUND COLOR WASH
+            ----------------------------------------- */
+            .fromTo(
+              wash,
               {
-                color:
-                  "#FFF6E8",
-
-                stagger: {
-                  each: 0.034,
-                  from: "start",
-                },
-
-                ease: "none",
+                scaleX: 0,
+                transformOrigin: "left center",
               },
+              {
+                scaleX: 1,
+                duration: 1.35,
+                ease: "power4.inOut",
+              },
+              0
             )
+
+            /* -----------------------------------------
+               QUOTE TEXT COLOR
+            ----------------------------------------- */
             .to(
-              authorElement,
+              quoteElement,
+              {
+                color: "#FFF6E8",
+                duration: 0.8,
+                ease: "power2.out",
+              },
+              0.45
+            )
+
+            /* -----------------------------------------
+               AUTHOR COLOR
+            ----------------------------------------- */
+            .to(
+              author,
+              {
+                color: "#F5E6CC",
+                duration: 0.8,
+                ease: "power2.out",
+              },
+              0.5
+            )
+
+            /* -----------------------------------------
+               SECTION LABEL COLOR
+            ----------------------------------------- */
+            .to(
+              label,
+              {
+                color: "#FFF6E8",
+                duration: 0.8,
+                ease: "power2.out",
+              },
+              0.45
+            )
+
+            /* -----------------------------------------
+               LABEL DECORATIVE LINE
+            ----------------------------------------- */
+            .to(
+              labelLine,
+              {
+                backgroundColor: "#FFF6E8",
+                duration: 0.8,
+                ease: "power2.out",
+              },
+              0.45
+            )
+
+            /* -----------------------------------------
+               DECORATIVE CORNER COLOR
+            ----------------------------------------- */
+            .to(
+              corner,
+              {
+                borderColor: "rgba(255,246,232,0.3)",
+                duration: 0.8,
+                ease: "power2.out",
+              },
+              0.45
+            )
+
+            /* -----------------------------------------
+               QUOTE FADE AND SLIDE
+            ----------------------------------------- */
+            .fromTo(
+              quoteElement,
+              {
+                y: 35,
+                opacity: 0,
+              },
+              {
+                y: 0,
+                opacity: 1,
+                duration: 0.9,
+                ease: "power3.out",
+              },
+              0.45
+            )
+
+            /* -----------------------------------------
+               AUTHOR FADE AND SLIDE
+            ----------------------------------------- */
+            .fromTo(
+              author,
+              {
+                y: 18,
+                opacity: 0,
+              },
+              {
+                y: 0,
+                opacity: 1,
+                duration: 0.65,
+                ease: "power3.out",
+              },
+              0.85
+            )
+
+            /* -----------------------------------------
+               OPENING QUOTE MARK
+            ----------------------------------------- */
+            .fromTo(
+              quoteMark,
+              {
+                opacity: 0,
+                scale: 0.7,
+                transformOrigin: "left center",
+              },
               {
                 opacity: 1,
-                y: 0,
-
-                duration: 0.35,
-
-                ease:
-                  "power2.out",
+                scale: 1,
+                duration: 0.6,
+                ease: "back.out(1.5)",
               },
-
-              "-=0.48",
+              0.45
             );
 
-          return undefined;
-        },
+          /* -----------------------------------------
+             SAME SCROLL TRIGGER AS OTHER QUOTES
+          ----------------------------------------- */
+
+          const trigger = ScrollTrigger.create({
+            trigger: section,
+            start: "top 82%",
+            animation: timeline,
+            toggleActions: "play none none reverse",
+            invalidateOnRefresh: true,
+          });
+
+          return () => {
+            trigger.kill();
+            timeline.kill();
+          };
+        }
+      );
+
+      /* =====================================================
+         REDUCED MOTION
+
+         Show the finished colour scheme and all text
+         immediately without animation.
+      ===================================================== */
+
+      mediaQuery.add(
+        "(prefers-reduced-motion: reduce)",
+        () => {
+          gsap.set(wash, {
+            scaleX: 1,
+            transformOrigin: "left center",
+          });
+
+          gsap.set(quoteElement, {
+            color: "#FFF6E8",
+            opacity: 1,
+            y: 0,
+          });
+
+          gsap.set(author, {
+            color: "#F5E6CC",
+            opacity: 1,
+            y: 0,
+          });
+
+          gsap.set(quoteMark, {
+            opacity: 1,
+            scale: 1,
+          });
+
+          gsap.set(label, {
+            color: "#FFF6E8",
+          });
+
+          gsap.set(labelLine, {
+            backgroundColor: "#FFF6E8",
+          });
+
+          gsap.set(corner, {
+            borderColor: "rgba(255,246,232,0.3)",
+          });
+        }
       );
 
       return () => {
         mediaQuery.revert();
       };
     },
-
     {
       scope: sectionRef,
-    },
+    }
   );
 
   return (
@@ -487,19 +297,19 @@ export default function QuoteReveal() {
 
         flex
         h-auto
-        min-h-[100svh]
         w-full
+        min-h-[100svh]
         items-center
 
         overflow-visible
 
         border-0
-        bg-[#462505]
+        bg-[#F5E6CC]
 
         px-6
         py-12
 
-        text-[#FFF6E8]
+        text-[#704214]
 
         outline-none
 
@@ -524,8 +334,40 @@ export default function QuoteReveal() {
         [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:!py-6
       "
     >
+      {/* ========================================
+          COLOR WASH
+
+          Matches the other quote sections.
+          Absolute positioning preserves layout.
+      ======================================== */}
+
+      <div
+        ref={washRef}
+        aria-hidden="true"
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          z-0
+
+          origin-left
+          scale-x-0
+
+          bg-[#9C645E]
+        "
+      />
+
+      {/* ========================================
+          ORIGINAL CONTENT CONTAINER
+
+          Same width, alignment, and spacing.
+      ======================================== */}
+
       <div
         className="
+          relative
+          z-10
+
           mx-auto
           w-full
           max-w-[1500px]
@@ -552,13 +394,14 @@ export default function QuoteReveal() {
           "
         >
           <span
+            ref={labelLineRef}
             aria-hidden="true"
             className="
               block
               h-px
               w-10
 
-              bg-[#FFF6E8]
+              bg-[#704214]
 
               sm:w-14
 
@@ -567,6 +410,7 @@ export default function QuoteReveal() {
           />
 
           <p
+            ref={labelRef}
             className="
               section-body
 
@@ -575,7 +419,7 @@ export default function QuoteReveal() {
               uppercase
               tracking-[0.18em]
 
-              text-[#FFF6E8]
+              text-[#704214]
 
               sm:text-[1rem]
 
@@ -588,6 +432,9 @@ export default function QuoteReveal() {
 
         {/* ========================================
             QUOTE
+
+            Original text, font sizing, line height,
+            letter spacing, and word layout retained.
         ======================================== */}
 
         <blockquote
@@ -623,11 +470,11 @@ export default function QuoteReveal() {
             {/* ========================================
                 OPENING QUOTATION MARK
 
-                Remains the first .quote-word, so it
-                is still the first part of the reveal.
+                Same position and dimensions.
             ======================================== */}
 
             <span
+              ref={quoteMarkRef}
               aria-hidden="true"
               className="
                 quote-word
@@ -644,8 +491,6 @@ export default function QuoteReveal() {
 
                 font-bold
                 leading-[0.65]
-
-                will-change-[color]
 
                 sm:mb-10
                 sm:h-10
@@ -665,33 +510,34 @@ export default function QuoteReveal() {
 
             {/* ========================================
                 QUOTE WORDS
+
+                Keeping inline-block and non-breaking
+                spaces preserves the existing wrapping.
             ======================================== */}
 
-            {words.map(
-              (word, index) => (
-                <span
-                  key={`${word}-${index}`}
-                  className="
-                    quote-word
-                    inline-block
-                    will-change-[color]
-                  "
-                >
-                  {word}
+            {words.map((word, index) => (
+              <span
+                key={`${word}-${index}`}
+                className="
+                  quote-word
+                  inline-block
+                "
+              >
+                {word}
 
-                  {index !==
-                    words.length - 1 &&
-                    "\u00A0"}
-                </span>
-              ),
-            )}
+                {index !== words.length - 1 && "\u00A0"}
+              </span>
+            ))}
           </p>
 
           {/* ========================================
               AUTHOR
+
+              Same original position and spacing.
           ======================================== */}
 
           <footer
+            ref={authorRef}
             aria-hidden="true"
             className="
               quote-author
@@ -704,7 +550,7 @@ export default function QuoteReveal() {
 
               gap-1
 
-              opacity-0
+              text-[#566735]
 
               sm:mt-10
 
@@ -722,7 +568,7 @@ export default function QuoteReveal() {
                 text-[1.1rem]
                 font-semibold
 
-                text-[#FFF6E8]
+                text-inherit
 
                 sm:text-[1.4rem]
 
@@ -739,7 +585,8 @@ export default function QuoteReveal() {
                 text-[1rem]
                 italic
 
-                text-[#FFF6E8]/75
+                text-inherit
+                opacity-75
 
                 sm:text-[1.2rem]
 
@@ -754,9 +601,13 @@ export default function QuoteReveal() {
 
       {/* ========================================
           DECORATIVE CORNER
+
+          Same exact position and size.
+          Only the border colour changes.
       ======================================== */}
 
       <div
+        ref={cornerRef}
         aria-hidden="true"
         className="
           absolute
@@ -771,7 +622,7 @@ export default function QuoteReveal() {
 
           border-b
           border-r
-          border-[#FFF6E8]/30
+          border-[#704214]/30
 
           md:block
 

@@ -98,7 +98,7 @@ const packages = [
       "Grandparent Trace package illustration",
 
     features: [
-      "4 surnames to late 1700s/early 1800s*",
+      "4 surnames traced to the late 1700s/early 1800s*",
       "Traces ancestors in South Africa",
       "4 Family Tree Charts (1 for each surname)",
       "Personalised family tree book (digital)",
@@ -132,10 +132,10 @@ const packages = [
       "Comprehensive Ancestry Trace package illustration",
 
     features: [
-      "16 great, great grandparents",
+      "16 great, great grandparents traced to the late 1700s/early 1800s*",
       "Traces ancestors in South Africa",
       "5+ Family Tree Charts (4 surnames + pedigree)",
-      "Personalised family tree book",
+      "Personalised family tree book (digital)",
       "Digital copies of documents (census records, death notices etc.)",
       "Ready in 16 weeks",
     ],

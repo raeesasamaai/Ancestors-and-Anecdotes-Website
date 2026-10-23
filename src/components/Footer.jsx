@@ -37,7 +37,7 @@ export default function Footer({
   const socialLinks = [
     {
       label: "Instagram",
-      href: "https://www.instagram.com/",
+      href: "https://www.instagram.com/ancestors_and_anecdotes?utm_source=ig_web_button_share_sheet&vrfl=ZDNlZDc0MzIxNw==",
       icon: (
         <svg
           viewBox="0 0 24 24"

@@ -125,10 +125,9 @@ const exampleDetails = [
 
     media: [
       {
-        type: "image",
-        src: "/Images/family-video.png",
-        alt: "Research findings video example",
-        fit: "cover",
+        type: "youtube",
+        src: "https://www.youtube.com/embed/AQrIwsLSGZA?si=LB3_3ROcM3DA9gWR",
+        alt: "Oral history and digital story video example",
       },
     ],
   },
@@ -185,11 +184,11 @@ const exampleCards = [
   {
     example: exampleDetails[2],
 
-    image:
-      "/Images/family-video.png",
+    youtubeSrc:
+      "https://www.youtube.com/embed/AQrIwsLSGZA?si=LB3_3ROcM3DA9gWR",
 
     alt:
-      "Research Findings Video",
+      "Oral history and digital story video example",
 
     imageClass:
       "sepia-[25%]",
@@ -1446,6 +1445,8 @@ function ExampleModal({
       activeMedia?.type ===
         "video" ||
       activeMedia?.type ===
+        "youtube" ||
+      activeMedia?.type ===
         "book"
     ) {
       return undefined;
@@ -1805,7 +1806,22 @@ function ExampleModal({
                           }}
                         >
                           {activeMedia?.type ===
-                          "video" ? (
+                          "youtube" ? (
+                            <iframe
+                              src={
+                                activeMedia.src
+                              }
+                              title={
+                                activeMedia.alt
+                              }
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                              referrerPolicy="strict-origin-when-cross-origin"
+                              allowFullScreen
+                              className="h-full w-full bg-black"
+                            />
+                          ) : activeMedia?.type ===
+                            "video" ? (
                             <video
                               src={
                                 activeMedia.src
@@ -2397,30 +2413,44 @@ function ExampleCard({
       >
         {/* IMAGE */}
 
-        <img
-          src={card.image}
-          alt={card.alt}
-          loading="lazy"
-          decoding="async"
-          className={`
-            absolute
-            inset-0
+        {card.youtubeSrc ? (
+          <iframe
+            src={card.youtubeSrc}
+            title={card.alt}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            tabIndex={-1}
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 h-full w-full bg-black"
+          />
+        ) : (
+          <img
+            src={card.image}
+            alt={card.alt}
+            loading="lazy"
+            decoding="async"
+            className={`
+              absolute
+              inset-0
 
-            h-full
-            w-full
+              h-full
+              w-full
 
-            object-cover
-            object-center
+              object-cover
+              object-center
 
-            transition-transform
-            duration-700
+              transition-transform
+              duration-700
 
-            group-hover:scale-110
-            group-focus-within:scale-110
+              group-hover:scale-110
+              group-focus-within:scale-110
 
-            ${card.imageClass}
-          `}
-        />
+              ${card.imageClass}
+            `}
+          />
+        )}
 
 
         {/* GRADIENT */}
@@ -2618,24 +2648,38 @@ function ExampleCard({
     >
       {/* IMAGE */}
 
-      <img
-        src={card.image}
-        alt={card.alt}
-        loading="lazy"
-        decoding="async"
-        className={`
-          absolute
-          inset-0
+      {card.youtubeSrc ? (
+        <iframe
+          src={card.youtubeSrc}
+          title={card.alt}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
+          tabIndex={-1}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full bg-black"
+        />
+      ) : (
+        <img
+          src={card.image}
+          alt={card.alt}
+          loading="lazy"
+          decoding="async"
+          className={`
+            absolute
+            inset-0
 
-          h-full
-          w-full
+            h-full
+            w-full
 
-          object-cover
-          object-center
+            object-cover
+            object-center
 
-          ${card.imageClass}
-        `}
-      />
+            ${card.imageClass}
+          `}
+        />
+      )}
 
 
       {/* GRADIENT */}

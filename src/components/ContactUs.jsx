@@ -1122,6 +1122,10 @@ export default function ContactUs() {
                   <option value="Life Story and Oral History">
                     Life Story and Oral History
                   </option>
+
+                  <option value="Custom Package">
+                    Custom Package
+                  </option>
                 </select>
 
                 <svg
@@ -1202,20 +1206,20 @@ export default function ContactUs() {
                     Select an option
                   </option>
 
-                  <option value="Under R2,500">
-                    Under R2,500
+                  <option value="R5000 - R7000">
+                    R5000 - R7000
                   </option>
 
-                  <option value="R2,500 – R5,000">
-                    R2,500 – R5,000
+                  <option value="R7000 - R9000">
+                    R7000 - R9000
                   </option>
 
-                  <option value="R5,000 – R10,000">
-                    R5,000 – R10,000
+                  <option value="R9000 - R12000">
+                    R9000 - R12000
                   </option>
 
-                  <option value="R10,000+">
-                    R10,000+
+                  <option value="R12000 - R14000">
+                    R12000 - R14000
                   </option>
 
                   <option value="Unsure">
