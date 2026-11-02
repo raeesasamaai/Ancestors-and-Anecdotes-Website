@@ -90,10 +90,12 @@ const exampleDetails = [
           "Interactive family history document example",
 
         pages: [
-          "/Images/Family-History-Document-Cover-Example.png",
-          "/Images/Introduction.png",
-          "/Images/Contents.png",
-          "/Images/Nissen_family tree-1.png",
+          "/Images/BookPage01.jpg",
+          "/Images/BookPage02.jpg",
+          "/Images/BookPage03.jpg",
+          "/Images/BookPage04.jpg",
+          "/Images/BookPage05.jpg",
+          "/Images/BookPage06.jpg",
         ],
       },
     ],
@@ -164,7 +166,7 @@ const exampleCards = [
     example: exampleDetails[1],
 
     image:
-      "/Images/Family-History-Document-Cover-Example.png",
+      "/Images/BookPage01.jpg",
 
     alt:
       "Family History Document",
@@ -383,7 +385,8 @@ function shouldUseLaptopHoverMode() {
    remains mounted so closing the reader preserves the current page.
 ========================================================= */
 
-const BOOK_PAGE_RATIO = 297 / 210;
+// A4 portrait: page width / page height.
+const BOOK_PAGE_RATIO = 210 / 297;
 const MAX_BOOK_ZOOM = 4;
 
 function fittedBookPage(width, height) {
@@ -665,6 +668,42 @@ function FamilyHistoryReader({ pages, alt, pageIndex, onPageChange, onClose }) {
   );
 }
 
+
+/* =========================================================
+   FAMILY HISTORY BOOK VIEWER
+
+   Six-page portrait book.
+
+   Desktop:
+   - Two portrait pages displayed side by side
+   - Front and back covers displayed individually
+
+   Mobile:
+   - One portrait page at a time
+
+   Preserves:
+   - PageFlip animations
+   - Page shadows
+   - Mouse dragging and touch swiping
+   - Navigation arrows
+   - Expanded document reader
+   - Current page when expanding / closing
+========================================================= */
+
+
+/* =========================================================
+   FAMILY HISTORY BOOK VIEWER — CORRECTED
+
+   - Six portrait pages
+   - First spread starts on the left
+   - Two-page desktop layout
+   - Single-page mobile layout
+   - Small, stable corner-hover animation
+   - Original animated page turns
+   - Subtle centre seam
+   - Expanded document with independent page navigation
+========================================================= */
+
 function FamilyHistoryBookViewer({
   pages,
   alt,
@@ -672,232 +711,936 @@ function FamilyHistoryBookViewer({
   onExpandedChange,
 }) {
   const stageRef = useRef(null);
-  // React owns this host. PageFlip only owns a disposable child inside it.
   const bookContainerRef = useRef(null);
   const pageFlipRef = useRef(null);
   const currentPageRef = useRef(0);
+
   const [currentPage, setCurrentPage] = useState(0);
+  const [readerPage, setReaderPage] = useState(0);
+  const [orientation, setOrientation] = useState("portrait");
   const [isReady, setIsReady] = useState(false);
   const [isTurning, setIsTurning] = useState(false);
+  const [hoverCorner, setHoverCorner] = useState(null);
+
+  const [bookSize, setBookSize] = useState({
+    width: 0,
+    height: 0,
+  });
+
   const totalPages = pages?.length ?? 0;
+
+  /* =====================================================
+     INITIALIZE AND RESIZE THE PAGEFLIP BOOK
+  ===================================================== */
 
   useEffect(() => {
     const stage = stageRef.current;
     const host = bookContainerRef.current;
-    if (!stage || !host || totalPages === 0) return undefined;
+
+    if (!stage || !host || totalPages === 0) {
+      return undefined;
+    }
 
     let disposed = false;
     let resizeFrame = null;
+
     let previousWidth = 0;
     let previousHeight = 0;
-    const pageRatio = 297 / 210;
+    let previousMode = "";
 
     const destroyBook = () => {
       const instance = pageFlipRef.current;
       pageFlipRef.current = null;
+
       instance?.destroy();
       host.replaceChildren();
     };
 
     const createBook = () => {
       if (disposed) return;
-      // Layout dimensions are unaffected by the modal's animated scale.
-      const availableWidth = Math.max(0, stage.clientWidth - 12);
-      const availableHeight = Math.max(0, stage.clientHeight - 12);
-      const pageWidth = Math.floor(Math.min(availableWidth, availableHeight * pageRatio));
-      const pageHeight = Math.floor(pageWidth / pageRatio);
-      if (pageWidth < 1 || pageHeight < 1) return;
-      if (pageWidth === previousWidth && pageHeight === previousHeight && pageFlipRef.current) return;
 
-      // Finish a programmatic turn before resizing so its destination is retained.
-      pageFlipRef.current?.getRender().finishAnimation();
-      const startPage = Math.max(0, Math.min(currentPageRef.current, totalPages - 1));
+      const availableWidth = Math.max(
+        0,
+        stage.clientWidth - 16
+      );
+
+      const availableHeight = Math.max(
+        0,
+        stage.clientHeight - 16
+      );
+
+      if (!availableWidth || !availableHeight) {
+        return;
+      }
+
+      // Two portrait pages on wider screens.
+      // One portrait page on narrower screens.
+      const showTwoPages = availableWidth >= 600;
+
+      const mode = showTwoPages
+        ? "landscape"
+        : "portrait";
+
+      const pageWidth = Math.floor(
+        Math.min(
+          availableWidth / (showTwoPages ? 2 : 1),
+          availableHeight * BOOK_PAGE_RATIO
+        )
+      );
+
+      const pageHeight = Math.floor(
+        pageWidth / BOOK_PAGE_RATIO
+      );
+
+      if (pageWidth < 1 || pageHeight < 1) {
+        return;
+      }
+
+      if (
+        pageWidth === previousWidth &&
+        pageHeight === previousHeight &&
+        mode === previousMode &&
+        pageFlipRef.current
+      ) {
+        return;
+      }
+
+      // Complete a turn before rebuilding.
+      pageFlipRef.current
+        ?.getRender()
+        .finishAnimation();
+
+      const startPage = Math.max(
+        0,
+        Math.min(
+          currentPageRef.current,
+          totalPages - 1
+        )
+      );
+
       destroyBook();
+
       previousWidth = pageWidth;
       previousHeight = pageHeight;
+      previousMode = mode;
+
+      const bookWidth = showTwoPages
+        ? pageWidth * 2
+        : pageWidth;
 
       const mount = document.createElement("div");
-      mount.style.width = `${pageWidth}px`;
+
+      mount.style.width = `${bookWidth}px`;
       mount.style.height = `${pageHeight}px`;
-      host.style.width = `${pageWidth}px`;
+
+      host.style.width = `${bookWidth}px`;
       host.style.height = `${pageHeight}px`;
+
       host.appendChild(mount);
+
+      setBookSize({
+        width: bookWidth,
+        height: pageHeight,
+      });
+
+      setOrientation(mode);
+      setIsReady(false);
+      setIsTurning(false);
+      setHoverCorner(null);
+
+      /* ===================================================
+         PAGEFLIP CONFIGURATION
+      =================================================== */
 
       const instance = new PageFlip(mount, {
         width: pageWidth,
         height: pageHeight,
+
         size: "fixed",
         startPage,
         autoSize: false,
-        // The mount is one page wide, so PageFlip naturally uses its single-page
-        // ("portrait") viewer mode while retaining A4 landscape page dimensions.
+
+        // Allow single-page mode on smaller screens.
         usePortrait: true,
+
+        // IMPORTANT:
+        // Page 1 now starts on the LEFT.
+        // There is no empty cover-facing page.
         showCover: false,
+
+        // Original page-turn animation.
         flippingTime: 900,
+
+        // Keep shadows during real page turns.
         drawShadow: true,
         maxShadowOpacity: 0.38,
-        showPageCorners: true,
+
+        // IMPORTANT:
+        // Disable the built-in corner-hover rendering.
+        // It caused large areas of a page to disappear.
+        //
+        // We add our own small CSS corner flap below.
+        showPageCorners: false,
+
         disableFlipByClick: false,
         useMouseEvents: true,
         mobileScrollSupport: true,
         swipeDistance: 24,
       });
+
       pageFlipRef.current = instance;
-      const isCurrent = () => !disposed && pageFlipRef.current === instance;
-      const syncPage = (page) => {
+
+      const isCurrent = () =>
+        !disposed &&
+        pageFlipRef.current === instance;
+
+      const syncPage = (index) => {
         if (!isCurrent()) return;
-        currentPageRef.current = page;
-        setCurrentPage(page);
+
+        currentPageRef.current = index;
+        setCurrentPage(index);
       };
-      instance.on("flip", ({ data }) => syncPage(data));
+
+      instance.on("flip", ({ data }) => {
+        syncPage(data);
+        setHoverCorner(null);
+      });
+
       instance.on("init", () => {
         if (!isCurrent()) return;
-        syncPage(instance.getCurrentPageIndex());
+
+        syncPage(
+          instance.getCurrentPageIndex()
+        );
+
+        setOrientation(
+          instance.getOrientation()
+        );
+
         setIsReady(true);
         setIsTurning(false);
       });
+
+      instance.on(
+        "changeOrientation",
+        ({ data }) => {
+          if (!isCurrent()) return;
+
+          setOrientation(data);
+
+          syncPage(
+            instance.getCurrentPageIndex()
+          );
+
+          setHoverCorner(null);
+        }
+      );
+
       instance.on("changeState", ({ data }) => {
-        if (isCurrent()) setIsTurning(data === "flipping" || data === "user_fold");
+        if (!isCurrent()) return;
+
+        setIsTurning(
+          data === "flipping" ||
+          data === "user_fold"
+        );
+
+        if (
+          data === "flipping" ||
+          data === "user_fold"
+        ) {
+          setHoverCorner(null);
+        }
       });
 
-      // HTML pages retain image quality and use object-fit instead of stretching
-      // images onto a canvas. Missing images show a readable fallback per page.
-      const pageElements = pages.map((src, index) => {
-        const page = document.createElement("div");
-        page.style.background = "#FFF6E8";
-        const image = document.createElement("img");
-        image.alt = `${alt || "Family history document"} — page ${index + 1}`;
-        image.draggable = false;
-        image.decoding = "async";
-        image.style.cssText = "width:100%;height:100%;object-fit:contain;display:block;user-select:none;";
-        const fallback = document.createElement("p");
-        fallback.textContent = `Preview page ${index + 1} is unavailable.`;
-        fallback.style.cssText = "position:absolute;inset:0;margin:0;align-items:center;justify-content:center;padding:16px;text-align:center;color:#704214;";
-        fallback.style.display = "none";
-        image.addEventListener("error", () => {
-          image.style.display = "none";
-          fallback.style.display = "flex";
-        }, { once: true });
-        image.src = src;
-        page.append(image, fallback);
-        return page;
-      });
+      /* ===================================================
+         CREATE THE PORTRAIT BOOK PAGES
+      =================================================== */
+
+      const pageElements = pages.map(
+        (src, index) => {
+          const page = document.createElement("div");
+
+          // A CSS class keeps the background intact
+          // even when PageFlip rewrites inline styles.
+          page.className =
+            "relative overflow-hidden bg-[#FFF6E8]";
+
+          const image = document.createElement("img");
+
+          image.src = src;
+          image.alt = `${
+            alt || "Family history document"
+          } — page ${index + 1}`;
+
+          image.draggable = false;
+          image.decoding = "async";
+
+          image.style.cssText = `
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+            user-select: none;
+            -webkit-user-drag: none;
+          `;
+
+          const fallback = document.createElement("p");
+
+          fallback.textContent =
+            `Preview page ${index + 1} is unavailable.`;
+
+          fallback.style.cssText = `
+            position: absolute;
+            inset: 0;
+            margin: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            text-align: center;
+            color: #704214;
+          `;
+
+          image.addEventListener(
+            "error",
+            () => {
+              image.style.display = "none";
+              fallback.style.display = "flex";
+            },
+            { once: true }
+          );
+
+          page.append(image, fallback);
+
+          return page;
+        }
+      );
+
       instance.loadFromHTML(pageElements);
     };
 
+    /* ===================================================
+       RESPONSIVE RESIZE
+    =================================================== */
+
     const scheduleResize = () => {
-      if (disposed || resizeFrame !== null) return;
-      resizeFrame = window.requestAnimationFrame(() => {
-        resizeFrame = null;
-        createBook();
-      });
+      if (
+        disposed ||
+        resizeFrame !== null
+      ) {
+        return;
+      }
+
+      resizeFrame =
+        window.requestAnimationFrame(() => {
+          resizeFrame = null;
+          createBook();
+        });
     };
 
     createBook();
-    const observer = typeof ResizeObserver !== "undefined"
-      ? new ResizeObserver(scheduleResize)
-      : null;
+
+    const observer =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(scheduleResize)
+        : null;
+
     observer?.observe(stage);
-    window.addEventListener("resize", scheduleResize);
-    window.addEventListener("orientationchange", scheduleResize);
+
+    window.addEventListener(
+      "resize",
+      scheduleResize
+    );
+
+    window.addEventListener(
+      "orientationchange",
+      scheduleResize
+    );
 
     return () => {
       disposed = true;
-      if (resizeFrame !== null) window.cancelAnimationFrame(resizeFrame);
+
+      if (resizeFrame !== null) {
+        window.cancelAnimationFrame(resizeFrame);
+      }
+
       observer?.disconnect();
-      window.removeEventListener("resize", scheduleResize);
-      window.removeEventListener("orientationchange", scheduleResize);
+
+      window.removeEventListener(
+        "resize",
+        scheduleResize
+      );
+
+      window.removeEventListener(
+        "orientationchange",
+        scheduleResize
+      );
+
       destroyBook();
     };
   }, [pages, totalPages, alt]);
 
+  /* =====================================================
+     SPREAD NAVIGATION
+
+     When using a two-page spread:
+       1–2, 3–4, 5–6
+
+     When using a single-page view:
+       1, 2, 3, 4, 5, 6
+  ===================================================== */
+
+  const lastSpreadStart =
+    orientation === "landscape"
+      ? Math.floor(
+          (Math.max(0, totalPages - 1)) / 2
+        ) * 2
+      : Math.max(0, totalPages - 1);
+
+  const hasPrevious = currentPage > 0;
+
+  const hasNext =
+    currentPage < lastSpreadStart;
+
   const turnPage = useCallback((direction) => {
     const instance = pageFlipRef.current;
-    if (!instance || !instance.getOrientation()) return false;
-    if (["flipping", "user_fold"].includes(instance.getState())) return false;
+
+    if (!instance) return false;
+
+    const state = instance.getState();
+
+    if (
+      state === "flipping" ||
+      state === "user_fold" ||
+      state === "fold_corner"
+    ) {
+      return false;
+    }
+
     const index = instance.getCurrentPageIndex();
+    const count = instance.getPageCount();
+
+    const mode = instance.getOrientation();
+
+    const lastIndex =
+      mode === "landscape"
+        ? Math.floor((count - 1) / 2) * 2
+        : count - 1;
+
     if (direction < 0 && index > 0) {
       instance.flipPrev("bottom");
       return true;
     }
-    if (direction > 0 && index < instance.getPageCount() - 1) {
+
+    if (direction > 0 && index < lastIndex) {
       instance.flipNext("bottom");
       return true;
     }
+
     return false;
   }, []);
 
-  const showPreviousPage = () => turnPage(-1);
-  const showNextPage = () => turnPage(1);
+  /* =====================================================
+     SMALL CORNER-HOVER EFFECT
+
+     This does NOT call PageFlip's fold renderer.
+
+     It shows a decorative corner curl without
+     changing the position of either book page.
+
+     Actual dragging and clicking still uses PageFlip.
+  ===================================================== */
+
+  const handleBookPointerMove = (event) => {
+    if (
+      event.pointerType !== "mouse" ||
+      event.buttons !== 0 ||
+      isTurning
+    ) {
+      setHoverCorner(null);
+      return;
+    }
+
+    const book = bookContainerRef.current;
+
+    if (!book) return;
+
+    const bounds = book.getBoundingClientRect();
+
+    const x = event.clientX - bounds.left;
+    const y = event.clientY - bounds.top;
+
+    if (
+      x < 0 ||
+      y < 0 ||
+      x > bounds.width ||
+      y > bounds.height
+    ) {
+      setHoverCorner(null);
+      return;
+    }
+
+    const edge = Math.min(
+      42,
+      bounds.width * 0.12,
+      bounds.height * 0.12
+    );
+
+    const nearTop = y <= edge;
+    const nearBottom = y >= bounds.height - edge;
+
+    const nearLeft = x <= edge;
+    const nearRight = x >= bounds.width - edge;
+
+    let corner = null;
+
+    if (hasPrevious && nearLeft) {
+      if (nearTop) {
+        corner = "top-left";
+      } else if (nearBottom) {
+        corner = "bottom-left";
+      }
+    }
+
+    if (hasNext && nearRight) {
+      if (nearTop) {
+        corner = "top-right";
+      } else if (nearBottom) {
+        corner = "bottom-right";
+      }
+    }
+
+    setHoverCorner(corner);
+  };
+
+  /* =====================================================
+     KEYBOARD NAVIGATION
+  ===================================================== */
 
   useEffect(() => {
     if (isExpanded) return undefined;
+
     const handleKeyDown = (event) => {
-      if (event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
-      if (event.target instanceof HTMLElement && event.target.closest("input, textarea, select, video, [contenteditable]:not([contenteditable='false'])")) return;
-      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      if (
+        event.defaultPrevented ||
+        event.repeat ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey
+      ) {
+        return;
+      }
+
+      if (
+        event.target instanceof HTMLElement &&
+        event.target.closest(
+          "input, textarea, select, video, " +
+          "[contenteditable]:not([contenteditable='false'])"
+        )
+      ) {
+        return;
+      }
+
+      if (
+        event.key === "ArrowLeft" ||
+        event.key === "ArrowRight"
+      ) {
         event.preventDefault();
-        turnPage(event.key === "ArrowLeft" ? -1 : 1);
+
+        turnPage(
+          event.key === "ArrowLeft" ? -1 : 1
+        );
       }
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+
+    window.addEventListener(
+      "keydown",
+      handleKeyDown
+    );
+
+    return () => {
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown
+      );
+    };
   }, [turnPage, isExpanded]);
 
-  const goToPage = useCallback((index) => {
-    if (totalPages === 0) return;
-    const page = Math.max(0, Math.min(totalPages - 1, index));
-    const instance = pageFlipRef.current;
-    instance?.getRender().finishAnimation();
-    instance?.turnToPage(page);
-    currentPageRef.current = page;
-    setCurrentPage(page);
-  }, [totalPages]);
+  /* =====================================================
+     EXPANDED READER
+
+     The reader tracks its own page index.
+
+     This is important when the preview displays
+     two pages, but the expanded reader displays
+     individual pages.
+  ===================================================== */
+
+  const goToPage = useCallback(
+    (index) => {
+      if (totalPages === 0) return;
+
+      const page = Math.max(
+        0,
+        Math.min(totalPages - 1, index)
+      );
+
+      const instance = pageFlipRef.current;
+
+      if (instance) {
+        instance.getRender().finishAnimation();
+
+        instance.turnToPage(page);
+
+        const visibleIndex =
+          instance.getCurrentPageIndex();
+
+        currentPageRef.current = visibleIndex;
+        setCurrentPage(visibleIndex);
+      } else {
+        currentPageRef.current = page;
+        setCurrentPage(page);
+      }
+    },
+    [totalPages]
+  );
 
   const openReader = () => {
-    pageFlipRef.current?.getRender().finishAnimation();
+    pageFlipRef.current
+      ?.getRender()
+      .finishAnimation();
+
+    setReaderPage(currentPageRef.current);
+    setHoverCorner(null);
+
     onExpandedChange(true);
   };
-  const closeReader = useCallback(() => onExpandedChange(false), [onExpandedChange]);
-  const pageLabel = totalPages > 0 ? `Page ${Math.min(currentPage + 1, totalPages)} of ${totalPages}` : "No pages";
-  const arrowClassName = "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#704214]/20 bg-[#704214] text-[1.6rem] leading-none text-[#FFF6E8] shadow-md transition-colors hover:bg-[#9C645E] disabled:cursor-not-allowed disabled:opacity-25 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#704214] focus-visible:ring-offset-2 focus-visible:ring-offset-[#EFE7DA]";
+
+  const closeReader = () => {
+    goToPage(readerPage);
+    onExpandedChange(false);
+  };
+
+  /* =====================================================
+     PAGE COUNTER
+  ===================================================== */
+
+  const hasTwoVisiblePages =
+    orientation === "landscape" &&
+    currentPage + 1 < totalPages;
+
+  const pageLabel =
+    totalPages === 0
+      ? "No pages"
+      : hasTwoVisiblePages
+        ? `Pages ${currentPage + 1}–${
+            currentPage + 2
+          } of ${totalPages}`
+        : `Page ${currentPage + 1} of ${totalPages}`;
+
+  /* =====================================================
+     CORNER FLAP APPEARANCE
+
+     A small triangular curl, independent of PageFlip.
+  ===================================================== */
+
+  const cornerPosition = {
+    "top-left": "left-0 top-0",
+    "top-right": "right-0 top-0",
+    "bottom-left": "left-0 bottom-0",
+    "bottom-right": "right-0 bottom-0",
+  };
+
+  const cornerClips = {
+    "top-left": "polygon(0 0, 100% 0, 0 100%)",
+    "top-right": "polygon(0 0, 100% 0, 100% 100%)",
+    "bottom-left": "polygon(0 0, 0 100%, 100% 100%)",
+    "bottom-right": "polygon(100% 0, 100% 100%, 0 100%)",
+  };
+
+  const arrowClassName =
+    "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#704214]/20 bg-[#704214] text-[1.6rem] leading-none text-[#FFF6E8] shadow-md transition-colors hover:bg-[#9C645E] disabled:cursor-not-allowed disabled:opacity-25 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#704214] focus-visible:ring-offset-2 focus-visible:ring-offset-[#EFE7DA]";
+
+  /* =====================================================
+     RENDER
+  ===================================================== */
 
   return (
-    <div className="relative w-full overflow-hidden rounded-[20px] border border-[#704214]/15 bg-[#EFE7DA] px-1 pb-3 pt-14 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] sm:rounded-[28px] sm:px-4 sm:pb-4 sm:pt-10 lg:rounded-[34px]">
-      <p className="mb-3 px-2 text-center font-body text-sm leading-tight text-[#704214]/75 sm:text-base">
-        {totalPages > 0 ? (
-          <>
-            <span className="sm:hidden">Swipe or use the arrows. Expand to zoom.</span>
-            <span className="hidden sm:inline">Drag the page, swipe, or use the arrows to browse the book.</span>
-          </>
-        ) : "No preview pages are available yet."}
+    <div
+      className="
+        relative w-full overflow-hidden
+        rounded-[20px]
+        border border-[#704214]/15
+        bg-[#EFE7DA]
+        px-1 pb-3 pt-14
+        shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]
+        sm:rounded-[28px] sm:px-4 sm:pb-4 sm:pt-10
+        lg:rounded-[34px]
+      "
+    >
+      {/* READING INSTRUCTIONS */}
+
+      <p
+        className="
+          mb-3 px-2 text-center
+          font-body text-sm leading-tight
+          text-[#704214]/75 sm:text-base
+        "
+      >
+        {totalPages > 0
+          ? "Drag the page, swipe, or use the arrows to browse the book."
+          : "No preview pages are available yet."}
       </p>
 
-      {/* Mobile: page spans the entire row; arrows and counter sit underneath.
-          Desktop: arrows remain beside the A4 landscape page. */}
-      <div className="mx-auto grid w-full grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-x-3 gap-y-3" style={{ maxWidth: "calc(max(0px, 100dvh - 260px) * 1.4142857143 + 112px)" }}>
-        <button type="button" onClick={showPreviousPage} disabled={!isReady || isTurning || currentPage <= 0} aria-label="Turn to previous page" className={`${arrowClassName} order-2 sm:order-1`}>‹</button>
-        <div ref={stageRef} className="relative order-1 col-span-3 flex aspect-[297/210] w-full min-w-0 items-center justify-center overflow-hidden sm:order-2 sm:col-span-1" style={{ maxHeight: "max(0px, calc(100dvh - 260px))" }}>
-          <div ref={bookContainerRef} aria-label={alt} className="relative shrink-0 overflow-visible shadow-[0_12px_30px_rgba(70,37,5,0.22)]" />
+      {/* BOOK NAVIGATION */}
+
+      <div
+        className="
+          mx-auto grid w-full max-w-[920px]
+          grid-cols-[44px_minmax(0,1fr)_44px]
+          items-center gap-x-3 gap-y-3
+        "
+      >
+        {/* PREVIOUS BUTTON */}
+
+        <button
+          type="button"
+          onClick={() => turnPage(-1)}
+          disabled={!isReady || isTurning || !hasPrevious}
+          aria-label="Turn to previous page"
+          className={`${arrowClassName} order-2 sm:order-1`}
+        >
+          ‹
+        </button>
+
+        {/* BOOK STAGE */}
+
+        <div
+          ref={stageRef}
+          onPointerMove={handleBookPointerMove}
+          onPointerLeave={() => setHoverCorner(null)}
+          onPointerDown={() => setHoverCorner(null)}
+          className="
+            relative order-1 col-span-3
+            flex w-full min-w-0
+            items-center justify-center
+            overflow-hidden
+            sm:order-2 sm:col-span-1
+          "
+          style={{
+            height: "min(65dvh, 560px)",
+            minHeight: 250,
+          }}
+        >
+          {/* BOOK WRAPPER */}
+
+          <div
+            className="relative shrink-0"
+            style={{
+              width: bookSize.width,
+              height: bookSize.height,
+            }}
+          >
+            {/* PAGEFLIP MOUNT */}
+
+            <div
+              ref={bookContainerRef}
+              aria-label={alt}
+              className="
+                relative h-full w-full
+                shadow-[0_12px_30px_rgba(70,37,5,0.22)]
+              "
+            />
+
+            {/* ===================================
+                FAINT LINE BETWEEN TWO PAGES
+
+                Shows only in two-page mode.
+                Does not block mouse interaction.
+            =================================== */}
+
+            {orientation === "landscape" &&
+              totalPages > 1 && (
+                <div
+                  aria-hidden="true"
+                  className="
+                    pointer-events-none
+                    absolute inset-y-0 left-1/2
+                    z-[200]
+                    w-[3px]
+                  "
+                  style={{
+                    transform: "translateX(-50%)",
+                    background:
+                      "linear-gradient(90deg, " +
+                      "rgba(112,66,20,0.05), " +
+                      "rgba(112,66,20,0.16) 50%, " +
+                      "rgba(255,255,255,0.45))",
+                    boxShadow:
+                      "0 0 3px rgba(112,66,20,0.08)",
+                  }}
+                />
+              )}
+
+            {/* ===================================
+                STABLE CORNER HOVER ANIMATION
+
+                Only a small flap moves.
+                Full pages stay in place.
+
+                PageFlip handles actual turns.
+            =================================== */}
+
+            <AnimatePresence>
+              {hoverCorner && !isTurning && (
+                <motion.div
+                  key={hoverCorner}
+                  aria-hidden="true"
+                  className={`
+                    pointer-events-none
+                    absolute
+                    z-[300]
+                    h-10 w-10
+                    ${cornerPosition[hoverCorner]}
+                  `}
+                  style={{
+                    clipPath:
+                      cornerClips[hoverCorner],
+
+                    background:
+                      "linear-gradient(135deg, " +
+                      "#FFF6E8 0%, " +
+                      "#E2D4C3 65%, " +
+                      "#C7B7A6 100%)",
+
+                    boxShadow:
+                      "0 2px 5px rgba(70,37,5,0.20)",
+
+                    transformOrigin:
+                      hoverCorner,
+                  }}
+                  initial={{
+                    opacity: 0,
+                    scale: 0.3,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                  }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0.3,
+                  }}
+                  transition={{
+                    duration: 0.22,
+                    ease: "easeOut",
+                  }}
+                />
+              )}
+            </AnimatePresence>
+          </div>
         </div>
-        <p aria-live="polite" aria-atomic="true" className="order-3 text-center font-body text-base font-semibold leading-5 text-[#704214] sm:hidden">{pageLabel}</p>
-        <button type="button" onClick={showNextPage} disabled={!isReady || isTurning || totalPages === 0 || currentPage >= totalPages - 1} aria-label="Turn to next page" className={`${arrowClassName} order-4 sm:order-3`}>›</button>
+
+        {/* MOBILE PAGE COUNTER */}
+
+        <p
+          aria-live="polite"
+          aria-atomic="true"
+          className="
+            order-3 text-center
+            font-body text-base font-semibold
+            leading-5 text-[#704214]
+            sm:hidden
+          "
+        >
+          {pageLabel}
+        </p>
+
+        {/* NEXT BUTTON */}
+
+        <button
+          type="button"
+          onClick={() => turnPage(1)}
+          disabled={!isReady || isTurning || !hasNext}
+          aria-label="Turn to next page"
+          className={`${arrowClassName} order-4 sm:order-3`}
+        >
+          ›
+        </button>
       </div>
 
-      <p aria-live="polite" aria-atomic="true" className="mt-3 hidden text-center font-body text-base font-semibold leading-5 text-[#704214] sm:block">{pageLabel}</p>
+      {/* DESKTOP PAGE COUNTER */}
+
+      <p
+        aria-live="polite"
+        aria-atomic="true"
+        className="
+          mt-3 hidden text-center
+          font-body text-base font-semibold
+          leading-5 text-[#704214]
+          sm:block
+        "
+      >
+        {pageLabel}
+      </p>
+
+      {/* EXPAND DOCUMENT BUTTON */}
+
       <div className="mt-3 flex justify-center">
-        <button type="button" onClick={openReader} disabled={!isReady || totalPages === 0} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-[#704214]/25 bg-[#FFF6E8] px-4 font-body text-base font-semibold text-[#704214] transition-colors hover:bg-[#F5E6CC] disabled:opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#704214] focus-visible:ring-offset-2 sm:w-auto">
-          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" /></svg>
+        <button
+          type="button"
+          onClick={openReader}
+          disabled={!isReady || totalPages === 0}
+          className="
+            inline-flex min-h-11 w-full
+            items-center justify-center gap-2
+            rounded-full
+            border border-[#704214]/25
+            bg-[#FFF6E8] px-4
+            font-body text-base font-semibold
+            text-[#704214]
+            transition-colors hover:bg-[#F5E6CC]
+            disabled:opacity-30
+            focus:outline-none
+            focus-visible:ring-2
+            focus-visible:ring-[#704214]
+            focus-visible:ring-offset-2
+            sm:w-auto
+          "
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" />
+          </svg>
+
           Expand document
         </button>
       </div>
 
+      {/* FULLSCREEN DOCUMENT READER */}
+
       {isExpanded && (
-        <FamilyHistoryReader pages={pages} alt={alt} pageIndex={currentPage} onPageChange={goToPage} onClose={closeReader} />
+        <FamilyHistoryReader
+          pages={pages}
+          alt={alt}
+          pageIndex={readerPage}
+          onPageChange={setReaderPage}
+          onClose={closeReader}
+        />
       )}
     </div>
   );
 }
+
+
 
 /* =========================================================
    EXAMPLE MODAL
@@ -2465,7 +3208,7 @@ function ExampleCard({
 
             bg-gradient-to-t
 
-            from-[#6F5B46]/60
+            from-[#6F5B46]/80
             via-[#DEDEDE]/11
             via-[#6F5B46]/30
             to-transparent
@@ -2576,7 +3319,7 @@ function ExampleCard({
             className="
               section-body
 
-              [text-shadow:0_4px_19px_rgba(0,0,0,0.60)]
+              [text-shadow:0_4px_40px_rgba(0,0,0,0.9)]
 
               text-[1.67rem]
 
@@ -2724,7 +3467,7 @@ function ExampleCard({
           className="
             section-body
 
-            [text-shadow:0_2px_8px_rgba(0,0,0,0.55)]
+            [text-shadow:0_4px_40px_rgba(0,0,0,0.9)]
 
             text-[1.5rem]
 
