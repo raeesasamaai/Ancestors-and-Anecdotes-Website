@@ -7,6 +7,31 @@ import ScrollReveal from "./ScrollReveal";
 
 const packages = [
   {
+    id: "digitised-family-tree-chart",
+    title: (
+      <>
+        Digitised Family
+        <br />
+        Tree Chart
+      </>
+    ),
+    name: "Digitised Family Tree Chart",
+    price: "R900",
+    features: [
+      <span key="chart-redesign">
+        Complete redesign of an existing family tree chart using professional
+        genealogical software. The{" "}
+        <a href="#examples" className="underline underline-offset-2">
+          family tree chart example
+        </a>{" "}
+        shows how your chart will look.
+      </span>,
+      "PDF copy emailed to you",
+      "Option to have it printed and delivered in Cape Town (extra cost to be communicated as prices might vary)",
+      "Ready in 1 week",
+    ],
+  },
+  {
     id: "two-branch-trace",
 
     title: (
@@ -284,7 +309,7 @@ function PackageCard({
         {packageItem.features.map(
           (feature) => (
             <li
-              key={feature}
+              key={typeof feature === "string" ? feature : feature.key}
               className="
                 flex
                 items-start
@@ -521,7 +546,7 @@ export default function Packages() {
           Whether you are just beginning your ancestry journey or ready to
           preserve a more complete family history, our packages are designed to
           help you uncover, preserve, and honour the lives lived by your
-          ancestors .
+          ancestors . <b>All packages can be tailored to your needs.</b>
         </ScrollReveal>
 
 
@@ -573,14 +598,11 @@ export default function Packages() {
             MOBILE:
             1 column
 
-            TABLET / IPAD:
-            2 columns
-
-            LAPTOP 1024–1279:
-            2 columns
+            TABLET / IPAD / LAPTOP 768–1279:
+            2 columns, with a full-width final card if it sits alone
 
             LAPTOP / DESKTOP 1280+:
-            4 columns
+            3 cards on the first row, 2 equal-width cards filling the second row
         ================================================= */}
 
         <ScrollReveal
@@ -596,8 +618,11 @@ export default function Packages() {
             gap-8
 
             md:grid-cols-2
+            md:max-xl:[&>article:last-child:nth-child(odd)]:col-span-full
 
-            xl:grid-cols-4
+            xl:grid-cols-6
+            xl:[&>article:nth-child(-n+3)]:col-span-2
+            xl:[&>article:nth-child(n+4)]:col-span-3
             xl:gap-6
 
             2xl:gap-8

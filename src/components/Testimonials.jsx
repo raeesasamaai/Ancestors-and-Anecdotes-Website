@@ -10,7 +10,7 @@ const testimonials = [
     id: "mary-anne",
 
     quote:
-      "Thanks very much Sarah and Matthew for all your work on my ancestry. It's wonderful, and full of stories and pictures of the past. I am so happy to have all this context to my family history. Quite a lot to think about and digest. The good, the bad, the persecuted and the persecutors. Thanks for your enthusiasm and care in doing all this for me. Wishing Ancestry and Anecdotes much future interesting unearthing of family stories, bringing deepened understanding of our chequered histories. With much appreciation and gratitude, Mary-Anne",
+      "Thanks very much Sarah and Matthew for all your work on my ancestry. It's wonderful, and full of stories and pictures of the past. I am so happy to have all this context to my family history. Quite a lot to think about and digest. The good, the bad, the persecuted and the persecutors. Thanks for your enthusiasm and care in doing all this for me. With much appreciation and gratitude, Mary-Anne",
 
     name: "Mary-Anne",
 

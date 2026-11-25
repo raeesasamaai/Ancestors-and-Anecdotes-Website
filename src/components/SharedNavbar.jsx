@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import { scrollToHashSection } from "../utils/scrollToHashSection";
+import NavbarBrand from "./NavbarBrand";
 
 const navItems = [
   { label: "Home", href: "#home" },
@@ -47,7 +48,6 @@ export default function SharedNavbar({
   desktopItems = navItems,
   showHomeUnderline = true,
   cta = null,
-  logoClassName = "",
   itemClassName = "",
   mobileButtonClassName = "",
   mobilePanelClassName = "",
@@ -446,22 +446,11 @@ export default function SharedNavbar({
           className={`
             max-w-[15rem]
             pl-[1.6rem]
-            font-body
-            text-[20px]
-            font-[800]
-            leading-[1.05]
-            tracking-[0.02em]
-
             sm:max-w-none
-            sm:text-[21px]
-
-            md:text-[23px]
-
             ${textClassName}
-            ${logoClassName}
           `.trim()}
         >
-          Ancestors &amp; Anecdotes
+          <NavbarBrand />
         </a>
 
         {/* ======================================
@@ -506,11 +495,11 @@ export default function SharedNavbar({
                         relative
 
                         font-body
-                        text-[23px]
+                        text-[20px]
                         font-medium
                         leading-none
 
-                        xl:text-[21px]
+                        xl:text-[19px]
 
                         ${textClassName}
                         ${itemClassName}

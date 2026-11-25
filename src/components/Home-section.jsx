@@ -1,6 +1,13 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { scrollToHashSection } from "../utils/scrollToHashSection";
+import NavbarBrand from "./NavbarBrand";
+
+const homeLogo = {
+  src: "/Images/LogoDarkModeFinal.png",
+  width: 1225,
+  height: 1224,
+};
 
 const navItems = [
   { label: "Home", href: "#home" },
@@ -260,7 +267,7 @@ export default function HomeHero() {
             md:px-12
 
             lg:px-[88px]
-            lg:pt-[37px]
+            lg:pt-[34px]
 
             [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:pt-5
           "
@@ -274,27 +281,8 @@ export default function HomeHero() {
             "
           >
             {/* Logo / Brand */}
-            <a
-              href="#home"
-              className="
-              font-body
-              text-[20px]
-              pl-[0.5rem]
-              font-medium
-              leading-none
-              tracking-[0.02em]
-              text-white
-
-              sm:text-[20px]
-
-              [@media(min-width:768px)_and_(max-width:1023px)_and_(orientation:portrait)]:text-[21px]
-
-              [@media(min-width:768px)_and_(max-width:1023px)_and_(orientation:landscape)]:text-[19px]
-
-              lg:text-[28px]
-            "
-            >
-              Ancestors &amp; Anecdotes
+            <a href="#home" className="pl-2 text-white">
+              <NavbarBrand image={homeLogo} />
             </a>
 
             {/* ========================================
@@ -322,11 +310,11 @@ export default function HomeHero() {
                         group
                         relative
                         font-body
-                        text-[23px]
+                        text-[20px]
                         font-medium
                         leading-none
                         text-white
-                        xl:text-[21px]
+                        xl:text-[19px]
                       "
                     >
                       {item.label}

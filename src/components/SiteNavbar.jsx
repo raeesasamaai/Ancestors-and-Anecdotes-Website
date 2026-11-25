@@ -89,14 +89,13 @@ export default function SiteNavbar() {
           "
         >
           <SharedNavbar
-            className="pb-3 !px-3 !pt-3 sm:!px-6 md:!px-8 lg:!px-10 lg:!pt-3"
+            className="pb-3 !px-1 !pt-3 sm:!px-6 md:!px-8 lg:!px-5 lg:!pt-3"
             
             textClassName="text-[#704214]"
             desktopItems={siteNavItems}
             showHomeUnderline={false}
             activeHref="#what-we-do"
             enableScrollSpy
-            logoClassName="text-[18px] font-semibold sm:text-[19px] md:text-[22px]"
             itemClassName="text-[18px] xl:text-[1.17rem] font-semibold"
             mobileButtonClassName="bg-transparent text-[#704214] shadow-none"
             mobilePanelClassName="bg-transparent text-[#171717]"

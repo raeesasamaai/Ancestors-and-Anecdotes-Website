@@ -1107,6 +1107,10 @@ export default function ContactUs() {
                     Select a package
                   </option>
 
+                  <option value="Digitised Family Tree Chart">
+                    Digitised Family Tree Chart
+                  </option>
+
                   <option value="Two Branch Trace">
                     Two Branch Trace
                   </option>
@@ -1204,6 +1208,14 @@ export default function ContactUs() {
                 >
                   <option value="">
                     Select an option
+                  </option>
+
+                  <option value="R5000 - R7000">
+                    R900 - R2500
+                  </option>
+
+                  <option value="R5000 - R7000">
+                    R2500 - R5000
                   </option>
 
                   <option value="R5000 - R7000">

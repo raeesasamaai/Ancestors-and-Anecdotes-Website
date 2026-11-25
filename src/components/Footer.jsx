@@ -322,21 +322,23 @@ export default function Footer({
               "
             >
               <img
-                src="/Images/tree.png"
-                alt="Ancestors and Anecdotes tree"
+                src="/Images/LogoLightModeFinal.png"
+                alt=""
+                width={1206}
+                height={1221}
                 loading="lazy"
                 decoding="async"
                 className="
-                  h-[70px]
+                  h-[85px]
                   w-auto
 
                   object-contain
 
-                  sm:h-[76px]
+                  sm:h-[80px]
 
-                  md:h-[82px]
+                  md:h-[90px]
 
-                  xl:h-[88px]
+                  xl:h-[95px]
 
                   [@media(max-width:1023px)_and_(orientation:landscape)_and_(max-height:600px)]:h-[64px]
                 "

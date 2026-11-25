@@ -47,7 +47,6 @@ export default function LegalNavbar() {
             activeHref={null}
             enableScrollSpy={false}
             logoHref="/#home"
-            logoClassName="text-[18px] font-semibold sm:text-[19px] md:text-[22px]"
             itemClassName="text-[18px] xl:text-[1.17rem] font-semibold"
             mobileButtonClassName="bg-transparent text-[#704214] shadow-none"
             mobilePanelClassName="bg-transparent text-[#171717]"
